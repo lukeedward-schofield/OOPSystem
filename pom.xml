@@ -55,13 +55,6 @@
             <version>0.4.0</version>
         </dependency>
 
-<!-- MySQL JDCB Driver-->
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version>
-        </dependency>
-
 <!-- JUnit Testing-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -102,7 +95,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>oopsystem.app.Main</mainClass>
+                            <mainClass>oopsystem.app.EmployeeApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
