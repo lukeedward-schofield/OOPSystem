@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="oopsystem.controller.ReportsAnalyticsController"
+            prefWidth="1200" prefHeight="850"
+            styleClass="app-root"
+            stylesheets="@styling/reports-analytics.css">
+
+    <!-- Left navigation copied visually from the Figma/PDF prototype. -->
+    <left>
+        <VBox prefWidth="230" spacing="8" styleClass="sidebar">
+            <padding>
+                <Insets top="24" right="20" bottom="24" left="20" />
+            </padding>
+
+            <VBox spacing="2">
+                <Label text="Admin Portal" styleClass="sidebar-title" />
+                <Label text="Pass Slip System" styleClass="sidebar-subtitle" />
+            </VBox>
+
+            <Region prefHeight="24" />
+
+            <Button text="▦   Dashboard" maxWidth="Infinity" styleClass="nav-button" />
+            <Button text="▣   Issue Pass Slip" maxWidth="Infinity" styleClass="nav-button" />
+            <Button text="♟   Movement Logs" maxWidth="Infinity" styleClass="nav-button" />
+            <Button text="▤   Employee Directory" maxWidth="Infinity" styleClass="nav-button" />
+            <Button text="▥   Reports" maxWidth="Infinity" styleClass="nav-button-active" />
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <Separator styleClass="sidebar-divider" />
+            <Button text="⚙   Settings" maxWidth="Infinity" styleClass="nav-button" />
+            <Button text="⇱   Logout" maxWidth="Infinity" styleClass="nav-button" />
+        </VBox>
+    </left>
+
+    <center>
+        <VBox styleClass="main-area">
+            <!-- Top header bar. -->
+            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="top-bar">
+                <Label text="Pass Slip Management" styleClass="top-title" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="🔔" styleClass="top-icon" />
+                <Label text="?" styleClass="top-icon" />
+                <Separator orientation="VERTICAL" prefHeight="24" />
+                <StackPane styleClass="avatar">
+                    <Label text="A" styleClass="avatar-text" />
+                </StackPane>
+            </HBox>
+
+            <ScrollPane fitToWidth="true" styleClass="page-scroll">
+                <VBox spacing="18" styleClass="content-wrapper">
+                    <padding>
+                        <Insets top="22" right="26" bottom="26" left="26" />
+                    </padding>
+
+                    <!-- Hidden field kept so the existing controller can still inject currentlyOutLabel. -->
+                    <Label fx:id="currentlyOutLabel" text="0" visible="false" managed="false" />
+
+                    <!-- Data filter row based on the expected Reports screen. -->
+                    <HBox alignment="CENTER_LEFT" spacing="12" styleClass="filter-row">
+                        <VBox spacing="6">
+                            <Label text="DATA FILTERING" styleClass="small-section-label" />
+                            <HBox alignment="CENTER_LEFT" spacing="8">
+                                <DatePicker fx:id="startDatePicker" prefWidth="160" />
+                                <Label text="-" styleClass="date-dash" />
+                                <DatePicker fx:id="endDatePicker" prefWidth="160" />
+                                <Button text="Date Range" onAction="#handleApplyFilters" styleClass="outline-button" />
+                            </HBox>
+                        </VBox>
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <Button text="⇩  Export Excel" styleClass="outline-button" />
+                        <Button text="▣  Export PDF" styleClass="maroon-button" />
+                    </HBox>
+
+                    <!-- Four KPI cards. The expected prototype uses four cards on the Reports page. -->
+                    <HBox spacing="16" styleClass="summary-row">
+                        <VBox HBox.hgrow="ALWAYS" styleClass="summary-card">
+                            <Label text="TOTAL PASS SLIPS" styleClass="summary-title" />
+                            <HBox alignment="BOTTOM_LEFT" spacing="12">
+                                <Label fx:id="totalPassSlipsLabel" text="0" styleClass="summary-value" />
+                                <Label text="+12%↗" styleClass="positive-change" />
+                            </HBox>
+                        </VBox>
+
+                        <VBox HBox.hgrow="ALWAYS" styleClass="summary-card">
+                            <Label text="COMPLIANCE RATE" styleClass="summary-title" />
+                            <HBox alignment="BOTTOM_LEFT" spacing="12">
+                                <Label fx:id="complianceRateLabel" text="0.0%" styleClass="summary-value" />
+                                <Label text="+2.1%↗" styleClass="positive-change" />
+                            </HBox>
+                        </VBox>
+
+                        <VBox HBox.hgrow="ALWAYS" styleClass="summary-card">
+                            <Label text="AVG. DURATION" styleClass="summary-title" />
+                            <HBox alignment="BOTTOM_LEFT" spacing="12">
+                                <Label fx:id="averageDurationLabel" text="0m" styleClass="summary-value" />
+                                <Label text="-0.5h↘" styleClass="negative-change" />
+                            </HBox>
+                        </VBox>
+
+                        <VBox HBox.hgrow="ALWAYS" styleClass="summary-card">
+                            <Label text="OVERDUE PASSES" styleClass="summary-title" />
+                            <HBox alignment="BOTTOM_LEFT" spacing="12">
+                                <Label fx:id="overduePassesLabel" text="0" styleClass="summary-value" />
+                                <Label text="+3△" styleClass="negative-change" />
+                            </HBox>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="18">
+                        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="panel trend-panel">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="Monthly Movement Trends" styleClass="section-title" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="● Official" styleClass="legend-maroon" />
+                                <Label text="● Personal" styleClass="legend-olive" />
+                            </HBox>
+
+                            <BarChart fx:id="monthlyTrendChart" legendVisible="false" animated="false" prefHeight="250">
+                                <xAxis>
+                                    <CategoryAxis tickLabelRotation="0" />
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis tickLabelsVisible="false" opacity="0.0" />
+                                </yAxis>
+                            </BarChart>
+                        </VBox>
+
+                        <VBox spacing="12" prefWidth="310" styleClass="panel department-panel">
+                            <Label text="Departmental Usage" styleClass="section-title" />
+                            <TableView fx:id="departmentUsageTable" prefHeight="242" styleClass="department-table">
+                                <columns>
+                                    <TableColumn fx:id="departmentColumn" text="Department" prefWidth="165" />
+                                    <TableColumn fx:id="departmentTotalColumn" text="Slips" prefWidth="60" />
+                                    <TableColumn fx:id="departmentPercentageColumn" text="Usage" prefWidth="70" />
+                                </columns>
+                            </TableView>
+                            <Label text="View All Departments ›" styleClass="link-label" />
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="12" styleClass="panel compliance-panel">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Compliance &amp; Overdue Monitoring" styleClass="section-title" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button text="Daily" styleClass="tab-button-active" />
+                            <Button text="Weekly" styleClass="tab-button" />
+                        </HBox>
+
+                        <TableView fx:id="dailyReportTable" prefHeight="190" styleClass="report-table">
+                            <columns>
+                                <TableColumn fx:id="reportDateColumn" text="DATE" prefWidth="150" />
+                                <TableColumn fx:id="totalIssuedColumn" text="TOTAL ISSUED" prefWidth="170" />
+                                <TableColumn fx:id="returnedOnTimeColumn" text="RETURNED ON TIME" prefWidth="190" />
+                                <TableColumn fx:id="overdueColumn" text="OVERDUE" prefWidth="130" />
+                                <TableColumn fx:id="averageDurationColumn" text="AVG DURATION" prefWidth="1" visible="false" />
+                                <TableColumn fx:id="dailyComplianceColumn" text="COMPLIANCE RATE" prefWidth="170" />
+                                <TableColumn text="ACTION" prefWidth="110" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+
+                    <!-- Hidden status label kept for the controller so backend status messages can still be updated without showing extra content below the table. -->
+                    <Label fx:id="statusLabel" text="Ready." visible="false" managed="false" styleClass="status-label" />
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>
