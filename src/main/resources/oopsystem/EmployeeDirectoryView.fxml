@@ -1,270 +1,277 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1000.0" prefWidth="1280.0" stylesheets="@styling/dashboard.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
-   <center>
-      <BorderPane prefHeight="508.0" prefWidth="492.0" BorderPane.alignment="CENTER">
-         <top>
-            <HBox alignment="CENTER_LEFT" prefHeight="80.0" prefWidth="1071.0" style="-fx-border-color: red;" styleClass="header" BorderPane.alignment="CENTER">
-               <children>
-                  <Label text="Pass Slip Management">
-                     <HBox.margin>
-                        <Insets right="880.0" />
-                     </HBox.margin></Label>
-                  <Circle fill="DODGERBLUE" radius="24.0" stroke="BLACK" strokeType="INSIDE" />
-               </children>
-            </HBox>
-         </top>
-         <center>
-            <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-               <content>
-                  <VBox prefHeight="200.0" prefWidth="100.0">
-                     <children>
-                        <HBox alignment="CENTER" fillHeight="false" prefHeight="79.0" prefWidth="1069.0">
-                           <children>
-                              <VBox fillWidth="false" prefHeight="41.0" prefWidth="209.0">
-                                 <children>
-                                    <Label text="Employee Directory">
-                                       <font>
-                                          <Font size="15.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Manage institution staff profile and official records.">
-                                       <font>
-                                          <Font size="9.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                                 <HBox.margin>
-                                    <Insets right="700.0" />
-                                 </HBox.margin>
-                              </VBox>
-                              <HBox alignment="CENTER" prefHeight="31.0" prefWidth="149.0">
-                                 <children>
-                                    <Label text="+ Add New Employee" />
-                                 </children>
-                              </HBox>
-                           </children>
-                        </HBox>
-                        <HBox alignment="CENTER" fillHeight="false" prefHeight="92.0" prefWidth="1069.0">
-                           <children>
-                              <VBox fillWidth="false" prefHeight="90.0" prefWidth="240.0" style="-fx-border-color: red;">
-                                 <HBox.margin>
-                                    <Insets right="26.0" />
-                                 </HBox.margin>
-                                 <padding>
-                                    <Insets right="20.0" />
-                                 </padding>
-                              </VBox>
-                              <VBox fillWidth="false" prefHeight="90.0" prefWidth="240.0" style="-fx-border-color: red;">
-                                 <HBox.margin>
-                                    <Insets right="26.0" />
-                                 </HBox.margin>
-                              </VBox>
-                              <VBox fillWidth="false" prefHeight="90.0" prefWidth="240.0" style="-fx-border-color: red;">
-                                 <HBox.margin>
-                                    <Insets right="26.0" />
-                                 </HBox.margin>
-                              </VBox>
-                              <VBox fillWidth="false" prefHeight="90.0" prefWidth="240.0" style="-fx-border-color: red;">
-                                 <HBox.margin>
-                                    <Insets />
-                                 </HBox.margin>
-                              </VBox>
-                           </children>
-                        </HBox>
-                        <VBox alignment="CENTER" fillWidth="false" prefHeight="561.0" prefWidth="1069.0">
-                           <children>
-                              <VBox prefHeight="506.0" prefWidth="1034.0">
-                                 <children>
-                                    <HBox alignment="CENTER" fillHeight="false" prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: red;">
-                                       <children>
-                                          <TextField prefHeight="0.0" prefWidth="149.0" />
-                                          <HBox alignment="CENTER" prefHeight="8.0" prefWidth="70.0" style="-fx-border-color: blue;">
-                                             <children>
-                                                <Label style="-fx-border-color: light blue;" text="Filters" />
-                                             </children>
-                                             <HBox.margin>
-                                                <Insets right="740.0" />
-                                             </HBox.margin>
-                                          </HBox>
-                                          <HBox alignment="CENTER" prefHeight="8.0" prefWidth="30.0" style="-fx-border-color: blue;">
-                                             <children>
-                                                <Label text="dl" />
-                                             </children>
-                                          </HBox>
-                                          <HBox alignment="CENTER" prefHeight="8.0" prefWidth="30.0" style="-fx-border-color: blue;">
-                                             <children>
-                                                <Label style="-fx-border-color: light blue;" text="print" />
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                    </HBox>
-                                    <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: red;">
-                                       <children>
-                                          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;">
-                                             <children>
-                                                <Label text="EMPLOYEE NAME" />
-                                             </children>
-                                          </VBox>
-                                          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;">
-                                             <children>
-                                                <Label text="EMPLOYEE ID" />
-                                             </children>
-                                          </VBox>
-                                          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;">
-                                             <children>
-                                                <Label text="DEPARTMENT" />
-                                             </children>
-                                          </VBox>
-                                          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;">
-                                             <children>
-                                                <Label text="POSITION" />
-                                             </children>
-                                          </VBox>
-                                          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;">
-                                             <children>
-                                                <Label text="CONTACT INFO" />
-                                             </children>
-                                          </VBox>
-                                          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;">
-                                             <children>
-                                                <Label text="ACTIONS" />
-                                             </children>
-                                          </VBox>
-                                       </children></HBox>
-                                    <VBox fx:id="tableData" prefHeight="200.0" prefWidth="100.0">
-                                       <children>
-                                          <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: red;">
-                                             <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                             <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                             <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                             <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                             <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                             <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                          </HBox>
-                                          <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: red;">
-                                             <children>
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                             </children>
-                                          </HBox>
-                                          <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: red;">
-                                             <children>
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                             </children>
-                                          </HBox>
-                                          <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: red;">
-                                             <children>
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                             </children>
-                                          </HBox>
-                                          <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: red;">
-                                             <children>
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                                <VBox prefHeight="200.0" prefWidth="172.0" style="-fx-border-color: blue;" />
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                    </VBox>
-                                    <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: red;">
-                                       <children>
-                                          <Label text="Label" />
-                                       </children></HBox>
-                                 </children>
-                              </VBox>
-                           </children>
-                        </VBox>
-                     </children>
-                  </VBox>
-               </content>
-            </ScrollPane>
-         </center>
-      </BorderPane>
-   </center>
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="oopsystem.controller.EmployeeDirectoryController">
+
+   <!-- HEADER -->
    <left>
-      <VBox fillWidth="false" prefHeight="1024.0" prefWidth="209.0" styleClass="navbar" BorderPane.alignment="CENTER">
-         <children>
-            <VBox alignment="CENTER" prefHeight="57.0" prefWidth="217.0" styleClass="logoContainer">
-               <children>
-                  <Label prefHeight="17.0" prefWidth="102.0" text="Admin Portal" />
-                  <Label prefHeight="17.0" prefWidth="133.0" text="Employee Monitoring System" />
-               </children>
-            </VBox>
-            <VBox prefHeight="264.0" prefWidth="211.0" styleClass="navButtons">
-               <children>
-                  <HBox prefHeight="48.0" prefWidth="107.0">
-                     <children>
-                        <Label text="Dashboard" />
-                     </children>
-                  </HBox>
-                  <HBox prefHeight="48.0" prefWidth="107.0">
-                     <children>
-                        <Label text="Issue Pass Slip" />
-                     </children>
-                  </HBox>
-                  <HBox prefHeight="48.0" prefWidth="107.0">
-                     <children>
-                        <Label text="Movement Logs" />
-                     </children>
-                  </HBox>
-                  <HBox prefHeight="48.0" prefWidth="107.0">
-                     <children>
-                        <Label text="Employee Directory" />
-                     </children>
-                  </HBox>
-                  <HBox prefHeight="48.0" prefWidth="107.0">
-                     <children>
-                        <Label text="Reports" />
-                     </children>
-                  </HBox>
-               </children>
-               <VBox.margin>
-                  <Insets bottom="600.0" />
-               </VBox.margin>
-            </VBox>
-            <VBox prefHeight="78.0" prefWidth="263.0" style="-fx-border-color: red;" styleClass="navbarFooter">
-               <children>
-                  <HBox prefHeight="48.0" prefWidth="107.0">
-                     <children>
-                        <Label text="Settings" />
-                     </children>
-                  </HBox>
-                  <HBox prefHeight="48.0" prefWidth="107.0">
-                     <children>
-                        <Label text="Logout" />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-         </children>
+      <VBox prefWidth="230"
+            styleClass="sidebar"
+            stylesheets="@styling/employeeDirectory.css">
+
+         <padding>
+            <Insets top="20" right="15" bottom="20" left="15"/>
+         </padding>
+
+         <!-- Logo -->
+
+         <VBox spacing="2">
+
+            <Label text="Admin Portal"
+                   styleClass="logo-title"/>
+
+            <Label text="Pass Slip System"
+                   styleClass="logo-subtitle"/>
+
+         </VBox>
+
+         <Region VBox.vgrow="NEVER" minHeight="30"/>
+
+         <!-- Menu -->
+
+         <Button text="Dashboard"
+                 maxWidth="Infinity"/>
+
+         <Button text="Issue Pass Slip"
+                 maxWidth="Infinity"/>
+
+         <Button text="Movement Logs"
+                 maxWidth="Infinity"/>
+
+         <Button text="Employee Directory"
+                 maxWidth="Infinity"
+                 styleClass="active-menu"/>
+
+         <Button text="Reports"
+                 maxWidth="Infinity"/>
+
+         <Pane VBox.vgrow="ALWAYS"/>
+
+         <Button text="Settings"
+                 maxWidth="Infinity"/>
+
+         <Button text="Logout"
+                 maxWidth="Infinity"/>
+
       </VBox>
    </left>
+
+   <center>
+      <VBox spacing="15">
+
+         <padding>
+            <Insets top="15" right="20" bottom="20" left="20"/>
+         </padding>
+
+         <!-- HEADER BAR -->
+
+         <HBox alignment="CENTER_LEFT">
+
+            <Label text="Pass Slip Management"
+                   styleClass="header-title"/>
+
+            <Pane HBox.hgrow="ALWAYS"/>
+
+            <Button text="🔔"/>
+            <Button text="?"/>
+            <Button text="👤"/>
+
+         </HBox>
+
+         <!-- PAGE TITLE -->
+
+         <VBox spacing="3">
+
+            <Label text="Employee Directory"
+                   styleClass="page-title"/>
+
+            <Label text="Manage institution staff profiles and official records."
+                   styleClass="page-subtitle"/>
+
+         </VBox>
+
+         <!-- STATS -->
+
+         <HBox spacing="12">
+
+            <!-- CARD 1 -->
+
+            <HBox prefWidth="250"
+                  styleClass="stat-card"
+                  spacing="10">
+
+               <StackPane prefWidth="45"
+                          prefHeight="45"
+                          styleClass="stat-icon">
+
+                  <Label text="👥"/>
+
+               </StackPane>
+
+               <VBox>
+
+                  <Label text="TOTAL STAFF"/>
+
+                  <Label text="1,248"
+                         styleClass="stat-number"/>
+
+               </VBox>
+
+            </HBox>
+
+            <!-- CARD 2 -->
+
+            <HBox prefWidth="250"
+                  styleClass="stat-card">
+
+               <StackPane prefWidth="45"
+                          prefHeight="45"
+                          styleClass="stat-icon">
+
+                  <Label text="🏢"/>
+
+               </StackPane>
+
+               <VBox>
+
+                  <Label text="DEPARTMENTS"/>
+                  <Label text="24"
+                         styleClass="stat-number"/>
+
+               </VBox>
+
+            </HBox>
+
+            <!-- CARD 3 -->
+
+            <HBox prefWidth="250"
+                  styleClass="stat-card">
+
+               <StackPane prefWidth="45"
+                          prefHeight="45"
+                          styleClass="stat-icon">
+
+                  <Label text="✓"/>
+
+               </StackPane>
+
+               <VBox>
+
+                  <Label text="ACTIVE TODAY"/>
+                  <Label text="1,102"
+                         styleClass="stat-number"/>
+
+               </VBox>
+
+            </HBox>
+
+            <!-- CARD 4 -->
+
+            <HBox prefWidth="250"
+                  styleClass="stat-card">
+
+               <StackPane prefWidth="45"
+                          prefHeight="45"
+                          styleClass="stat-icon">
+
+                  <Label text="📅"/>
+
+               </StackPane>
+
+               <VBox>
+
+                  <Label text="ON LEAVE"/>
+                  <Label text="146"
+                         styleClass="stat-number"/>
+
+               </VBox>
+
+            </HBox>
+
+         </HBox>
+
+         <!-- TABLE CONTAINER -->
+
+         <VBox spacing="10"
+               VBox.vgrow="ALWAYS"
+               styleClass="table-card">
+
+            <padding>
+               <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+
+            <!-- TOOLBAR -->
+
+            <HBox spacing="10">
+
+               <TextField fx:id="searchField"
+                          HBox.hgrow="ALWAYS"
+                          promptText="Search by name, ID, or department..."/>
+
+               <Button text="Filters"/>
+
+               <Pane HBox.hgrow="ALWAYS"/>
+
+               <Button text="⬇"/>
+               <Button text="🖨"/>
+
+            </HBox>
+
+            <!-- TABLE -->
+
+            <TableView fx:id="employeeTable"
+                       VBox.vgrow="ALWAYS">
+
+               <columns>
+
+                  <TableColumn fx:id="nameColumn"
+                               text="EMPLOYEE NAME"
+                               prefWidth="240"/>
+
+                  <TableColumn fx:id="idColumn"
+                               text="EMPLOYEE ID"
+                               prefWidth="130"/>
+
+                  <TableColumn fx:id="departmentColumn"
+                               text="DEPARTMENT"
+                               prefWidth="180"/>
+
+                  <TableColumn fx:id="positionColumn"
+                               text="POSITION"
+                               prefWidth="180"/>
+
+                  <TableColumn fx:id="contactColumn"
+                               text="CONTACT INFO"
+                               prefWidth="260"/>
+
+                  <TableColumn fx:id="actionColumn"
+                               text="ACTIONS"
+                               prefWidth="80"/>
+
+               </columns>
+
+            </TableView>
+
+            <!-- FOOTER -->
+
+            <HBox alignment="CENTER_LEFT">
+
+               <Label text="Showing 1 to 5 of 1,248 entries"/>
+
+               <Pane HBox.hgrow="ALWAYS"/>
+
+               <Pagination fx:id="pagination"
+                           pageCount="250"/>
+            </HBox>
+
+         </VBox>
+
+      </VBox>
+   </center>
+
 </BorderPane>
