@@ -1,0 +1,25 @@
+package oopsystem.controller;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import oopsystem.util.SceneNavigator;
+
+public class LoginController {
+
+    @FXML
+    TextField  username;
+    @FXML
+    PasswordField password;
+    @FXML
+    Button login;
+
+
+    @FXML
+    public void login(){
+
+        //authenticate first
+        SceneNavigator.switchTo("DashboardView");
+    }
+}
