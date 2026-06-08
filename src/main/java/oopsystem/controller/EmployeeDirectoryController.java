@@ -1,6 +1,124 @@
 package oopsystem.controller;
 
-public class EmployeeDirectoryController {
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+
+import oopsystem.model.Employee;
+import oopsystem.repository.EmployeeRepository;
+import oopsystem.util.SceneNavigator;
+
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class EmployeeDirectoryController implements Initializable {
+
+    // =========================
+    // FXML COMPONENTS
+    // =========================
+
+    @FXML
+    private TableView<Employee> employeeTable;
+
+    @FXML
+    private TableColumn<Employee, String> nameColumn;
+
+    @FXML
+    private TableColumn<Employee, Integer> idColumn;
+
+    @FXML
+    private TableColumn<Employee, String> departmentColumn;
+
+    @FXML
+    private TableColumn<Employee, String> positionColumn;
+
+    @FXML
+    private TableColumn<Employee, String> contactColumn;
 
 
+    // =========================
+    // REPOSITORY
+    // =========================
+
+    private final EmployeeRepository employeeRepository =
+            new EmployeeRepository();
+
+
+    // =========================
+    // TABLE DATA
+    // =========================
+
+    private final ObservableList<Employee> employees =
+            FXCollections.observableArrayList();
+
+
+    // =========================
+    // INITIALIZE
+    // =========================
+
+    @Override
+    public void initialize(URL location,
+                           ResourceBundle resources) {
+
+        setupTableColumns();
+
+        employeeTable.setItems(employees);
+
+        loadEmployees();
+    }
+
+    @FXML
+    public void addEmployee(){
+        SceneNavigator.switchTo("AddEmployeeView");
+    }
+
+    // =========================
+    // TABLE CONFIGURATION
+    // =========================
+
+    private void setupTableColumns() {
+
+        nameColumn.setCellValueFactory(cellData ->
+
+                new SimpleStringProperty(
+
+                        cellData.getValue().getFirstName()
+                                + " "
+                                + cellData.getValue().getLastName()
+                )
+        );
+
+        idColumn.setCellValueFactory(
+                new PropertyValueFactory<>("employeeId")
+        );
+
+        departmentColumn.setCellValueFactory(
+                new PropertyValueFactory<>("department")
+        );
+
+        positionColumn.setCellValueFactory(
+                new PropertyValueFactory<>("role")
+        );
+
+        contactColumn.setCellValueFactory(
+                new PropertyValueFactory<>("emailAddress")
+        );
+    }
+
+
+    // =========================
+    // LOAD EMPLOYEES
+    // =========================
+
+    private void loadEmployees() {
+
+        employees.setAll(
+                employeeRepository.getAllEmployees()
+        );
+    }
 }

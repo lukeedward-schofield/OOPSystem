@@ -1,0 +1,78 @@
+.root{
+    -fx-background-color:#f8f8f8;
+}
+
+/* Sidebar */
+
+.sidebar{
+    -fx-background-color:white;
+    -fx-border-color:#e5e5e5;
+}
+
+.logo-title{
+    -fx-font-size:18;
+    -fx-font-weight:bold;
+}
+
+.logo-subtitle{
+    -fx-text-fill:#888;
+}
+
+/* Active Menu */
+
+.active-menu{
+    -fx-background-color:#6d1111;
+    -fx-text-fill:white;
+}
+
+/* Titles */
+
+.page-title{
+    -fx-font-size:24;
+    -fx-font-weight:bold;
+}
+
+.page-subtitle{
+    -fx-text-fill:#777;
+}
+
+/* Cards */
+
+.stat-card{
+    -fx-background-color:white;
+    -fx-border-color:#e7d9d9;
+    -fx-border-radius:6;
+    -fx-background-radius:6;
+    -fx-padding:15;
+}
+
+.stat-number{
+    -fx-font-size:20;
+    -fx-font-weight:bold;
+}
+
+.stat-icon{
+    -fx-background-color:#f3ecec;
+    -fx-background-radius:8;
+}
+
+/* Table Section */
+
+.table-card{
+    -fx-background-color:white;
+    -fx-border-color:#e5e5e5;
+    -fx-border-radius:6;
+    -fx-background-radius:6;
+}
+
+.table-view{
+    -fx-background-color:white;
+}
+
+.table-view .column-header{
+    -fx-background-color:#f7f7f7;
+}
+
+.table-view .column-header-background{
+    -fx-background-color:#f7f7f7;
+}
