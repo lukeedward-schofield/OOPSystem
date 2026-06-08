@@ -12,7 +12,7 @@ public final class Database {
 
     }
 
-    public static Connection getConnecttion() throws SQLException {
+    public static Connection getConnection() throws SQLException {
 
         try{
             Class.forName("org.postgresql.Driver");

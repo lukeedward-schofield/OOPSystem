@@ -76,7 +76,7 @@ public class ReportsAnalyticsRepository {
                 """;
 
         // try-with-resources automatically closes the connection, statement, and result set.
-        try (Connection connection = Database.getConnecttion();
+        try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             // PreparedStatement prevents SQL injection and safely inserts values into the query.
@@ -132,7 +132,7 @@ public class ReportsAnalyticsRepository {
 
         List<DepartmentUsage> departments = new ArrayList<>();
 
-        try (Connection connection = Database.getConnecttion();
+        try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setTimestamp(1, startTimestamp(startDate));
@@ -186,7 +186,7 @@ public class ReportsAnalyticsRepository {
 
         List<DailyReport> dailyReports = new ArrayList<>();
 
-        try (Connection connection = Database.getConnecttion();
+        try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, DEFAULT_PASS_DURATION_MINUTES);
@@ -242,7 +242,7 @@ public class ReportsAnalyticsRepository {
 
         List<MonthlyTrend> trends = new ArrayList<>();
 
-        try (Connection connection = Database.getConnecttion();
+        try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, DEFAULT_PASS_DURATION_MINUTES);

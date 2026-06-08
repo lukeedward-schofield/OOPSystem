@@ -224,34 +224,29 @@
 
             <!-- TABLE -->
 
-            <TableView fx:id="employeeTable"
-                       VBox.vgrow="ALWAYS">
+            <TableView fx:id="employeeTable">
 
                <columns>
 
-                  <TableColumn fx:id="nameColumn"
-                               text="EMPLOYEE NAME"
-                               prefWidth="240"/>
+                  <TableColumn
+                          fx:id="nameColumn"
+                          text="Employee Name"/>
 
-                  <TableColumn fx:id="idColumn"
-                               text="EMPLOYEE ID"
-                               prefWidth="130"/>
+                  <TableColumn
+                          fx:id="idColumn"
+                          text="Employee ID"/>
 
-                  <TableColumn fx:id="departmentColumn"
-                               text="DEPARTMENT"
-                               prefWidth="180"/>
+                  <TableColumn
+                          fx:id="departmentColumn"
+                          text="Department"/>
 
-                  <TableColumn fx:id="positionColumn"
-                               text="POSITION"
-                               prefWidth="180"/>
+                  <TableColumn
+                          fx:id="positionColumn"
+                          text="Position"/>
 
-                  <TableColumn fx:id="contactColumn"
-                               text="CONTACT INFO"
-                               prefWidth="260"/>
-
-                  <TableColumn fx:id="actionColumn"
-                               text="ACTIONS"
-                               prefWidth="80"/>
+                  <TableColumn
+                          fx:id="contactColumn"
+                          text="Contact Info"/>
 
                </columns>
 
