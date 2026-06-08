@@ -40,8 +40,7 @@ public class EmployeeRepository {
         return employees;
     }
 
-    private Employee mapRow(ResultSet rs)
-            throws SQLException {
+    private Employee mapRow(ResultSet rs) throws SQLException {
 
         return new Employee(
 
@@ -61,5 +60,42 @@ public class EmployeeRepository {
 
                 rs.getBoolean("active_status")
         );
+    }
+
+    public boolean addEmployee(Employee employee) {
+
+        String sql = """
+        INSERT INTO employee (
+            first_name,
+            last_name,
+            department,
+            role,
+            contact_number,
+            email_address,
+            active_status
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, employee.getFirstName());
+            stmt.setString(2, employee.getLastName());
+            stmt.setString(3, employee.getDepartment());
+            stmt.setString(4, employee.getRole());
+            stmt.setString(5, employee.getContactNumber());
+            stmt.setString(6, employee.getEmailAddress());
+            stmt.setBoolean(7, employee.isActiveStatus());
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

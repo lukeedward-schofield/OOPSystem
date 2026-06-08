@@ -11,6 +11,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import oopsystem.model.Employee;
 import oopsystem.repository.EmployeeRepository;
+import oopsystem.util.SceneNavigator;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -71,6 +72,10 @@ public class EmployeeDirectoryController implements Initializable {
         loadEmployees();
     }
 
+    @FXML
+    public void addEmployee(){
+        SceneNavigator.switchTo("AddEmployeeView");
+    }
 
     // =========================
     // TABLE CONFIGURATION
