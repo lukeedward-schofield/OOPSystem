@@ -12,7 +12,14 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            prefHeight="500.0"
+            prefWidth="700.0"
+            xmlns="http://javafx.com/javafx/26"
+            fx:controller="oopsystem.controller.LoginController" xmlns:fx="http://javafx.com/fxml/1">
    <left>
       <AnchorPane prefHeight="200.0" prefWidth="350.0" style="-fx-background-color: #800000;" BorderPane.alignment="CENTER">
          <children>
@@ -35,7 +42,7 @@
          <children>
             <TextField layoutX="100.0" layoutY="211.0" promptText="Username" />
             <PasswordField layoutX="100.0" layoutY="249.0" promptText="Password" />
-            <Button layoutX="125.0" layoutY="291.0" mnemonicParsing="false" prefHeight="22.0" prefWidth="98.0" text="Sign in" />
+            <Button layoutX="125.0" layoutY="291.0" mnemonicParsing="false" prefHeight="22.0" prefWidth="98.0" text="Sign in" onAction="#login"/>
             <Hyperlink layoutX="123.0" layoutY="328.0" text="Forgot password?" />
             <FontAwesomeIconView fill="#d5ea18" glyphName="KEY" layoutX="74.0" layoutY="269.0" size="20" wrappingWidth="15.20001220703125" />
             <FontAwesomeIconView fill="MAROON" glyphName="USER" layoutX="76.0" layoutY="228.0" size="20" />

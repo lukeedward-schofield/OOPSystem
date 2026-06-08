@@ -1,0 +1,39 @@
+.root {
+    -fx-background-color: #F9F9F9;
+}
+
+.navbar{
+    -fx-background-color: #F9F9F9;
+    -fx-border-width: 1px;
+    -fx-border-color: #E2BFB9;
+    -fx-view-order: 1.0;
+}
+
+.navbarFooter{
+    -fx-border-width: 1px 0px 0px 0px;
+    -fx-border-color: #E2BFB9;
+}
+
+.header{
+    -fx-view-order: -1.0;
+    -fx-background-color: #F9F9F9;
+    -fx-border-width: 0px 0px 1px 0px;
+    -fx-border-color: #E2BFB9;
+}
+
+.informationHeader{
+    -fx-spacing: 20px;
+    -fx-border-width: 1px ;
+    -fx-border-color: #E2BFB9;
+}
+
+.tableView{
+    -fx-border-width: 1px ;
+    -fx-border-color: #E2BFB9;
+}
+
+.informationFooter
+{
+    -fx-border-width: 1px ;
+    -fx-border-color: #E2BFB9;
+}
