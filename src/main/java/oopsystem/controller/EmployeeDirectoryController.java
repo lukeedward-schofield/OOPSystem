@@ -45,16 +45,14 @@ public class EmployeeDirectoryController implements Initializable {
     // REPOSITORY
     // =========================
 
-    private final EmployeeRepository employeeRepository =
-            new EmployeeRepository();
+    private final EmployeeRepository employeeRepository = new EmployeeRepository();
 
 
     // =========================
     // TABLE DATA
     // =========================
 
-    private final ObservableList<Employee> employees =
-            FXCollections.observableArrayList();
+    private final ObservableList<Employee> employees = FXCollections.observableArrayList();
 
 
     // =========================
@@ -62,13 +60,9 @@ public class EmployeeDirectoryController implements Initializable {
     // =========================
 
     @Override
-    public void initialize(URL location,
-                           ResourceBundle resources) {
-
+    public void initialize(URL location, ResourceBundle resources) {
         setupTableColumns();
-
         employeeTable.setItems(employees);
-
         loadEmployees();
     }
 
@@ -84,30 +78,16 @@ public class EmployeeDirectoryController implements Initializable {
     private void setupTableColumns() {
 
         nameColumn.setCellValueFactory(cellData ->
-
-                new SimpleStringProperty(
-
-                        cellData.getValue().getFirstName()
-                                + " "
-                                + cellData.getValue().getLastName()
-                )
+                new SimpleStringProperty(cellData.getValue().getFirstName() + " " + cellData.getValue().getLastName())
         );
 
-        idColumn.setCellValueFactory(
-                new PropertyValueFactory<>("employeeId")
-        );
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("employeeId"));
 
-        departmentColumn.setCellValueFactory(
-                new PropertyValueFactory<>("department")
-        );
+        departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
 
-        positionColumn.setCellValueFactory(
-                new PropertyValueFactory<>("role")
-        );
+        positionColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
 
-        contactColumn.setCellValueFactory(
-                new PropertyValueFactory<>("emailAddress")
-        );
+        contactColumn.setCellValueFactory(new PropertyValueFactory<>("emailAddress"));
     }
 
 
