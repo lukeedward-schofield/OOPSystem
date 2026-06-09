@@ -88,7 +88,7 @@
                </VBox>
                <HBox alignment="CENTER_RIGHT" fillHeight="false" prefHeight="53.0" prefWidth="708.0">
                   <children>
-                     <Button fx:id="addEmployeeBtn" onAction="#addEmployee" focusTraversable="false" mnemonicParsing="false" prefHeight="25.0" prefWidth="217.0" style="-fx-background-color: red;" text="+ Add Employee" textFill="WHITE">
+                     <Button fx:id="addEmployeeBtn" focusTraversable="false" mnemonicParsing="false" onAction="#addEmployee" prefHeight="25.0" prefWidth="217.0" style="-fx-background-color: red;" text="+ Add Employee" textFill="WHITE">
                         <font>
                            <Font name="System Bold" size="15.0" />
                         </font>
