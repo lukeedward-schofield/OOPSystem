@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1209.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+   <left>
+      <VBox fillWidth="false" prefHeight="700.0" prefWidth="230.0" style="-fx-border-color: gray;" BorderPane.alignment="CENTER">
+         <children>
+            <VBox alignment="CENTER" prefHeight="68.0" prefWidth="230.0">
+               <children>
+                  <Label prefHeight="30.0" prefWidth="200.0" text="Admin Portal">
+                     <font>
+                        <Font name="System Bold" size="20.0" />
+                     </font>
+                  </Label>
+                  <Label prefHeight="17.0" prefWidth="200.0" text="Pass Slip System" />
+               </children>
+            </VBox>
+            <VBox prefHeight="637.0" prefWidth="230.0">
+               <children>
+                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Dashboard" />
+                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" style="-fx-background-color: red;" styleClass="active-menu" text="Issue Pass Slip" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="19.0" />
+                     </font>
+                  </Button>
+                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Movement Logs" />
+                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Employee Directory" />
+                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Reports">
+                     <VBox.margin>
+                        <Insets bottom="215.0" />
+                     </VBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Settings" />
+                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Logout" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <VBox prefHeight="700.0" prefWidth="959.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0" />
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Label text="Issue Pass Slip" />
+                  <Label text="Complete the form below to authorize employee departure during office hours." />
+               </children>
+            </VBox>
+            <HBox prefHeight="718.0" prefWidth="979.0">
+               <children>
+                  <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="609.0" prefWidth="600.0">
+                     <children>
+                        <VBox alignment="CENTER" fillWidth="false" prefHeight="347.0" prefWidth="531.0" style="-fx-border-color: red;">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="482.0">
+                                 <children>
+                                    <Label text="Authorization Form">
+                                       <font>
+                                          <Font name="System Bold" size="20.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </HBox>
+                              <HBox prefHeight="64.0" prefWidth="486.0" style="-fx-border-color: color;">
+                                 <children>
+                                    <VBox prefHeight="75.0" prefWidth="238.0">
+                                       <children>
+                                          <Label text="SEARCH EMPLOYEE" />
+                                          <TextField />
+                                       </children>
+                                    </VBox>
+                                    <VBox prefHeight="75.0" prefWidth="247.0">
+                                       <children>
+                                          <Label text="REASON FOR LEAVING" />
+                                          <TextField />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <VBox fillWidth="false" prefHeight="64.0" prefWidth="482.0">
+                                 <children>
+                                    <Label text="DESTINATION" />
+                                    <TextField prefHeight="25.0" prefWidth="485.0" />
+                                 </children>
+                              </VBox>
+                              <HBox prefHeight="66.0" prefWidth="482.0">
+                                 <children>
+                                    <VBox prefHeight="76.0" prefWidth="240.0">
+                                       <children>
+                                          <Label text="TIME-OUT (CURRENT)" />
+                                          <TextField />
+                                       </children>
+                                    </VBox>
+                                    <VBox prefHeight="76.0" prefWidth="245.0">
+                                       <children>
+                                          <Label text="ESTIMATED RETURN" />
+                                          <TextField />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="222.0" text="Generate Pass Slip" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" fillWidth="false" prefHeight="579.0" prefWidth="410.0" style="-fx-border-color: red;">
+                     <children>
+                        <VBox prefHeight="459.0" prefWidth="338.0" style="-fx-border-color: red;" />
+                        <Button mnemonicParsing="false" prefHeight="55.0" prefWidth="191.0" text="DOWNLOAD PDF" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>
