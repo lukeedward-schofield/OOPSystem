@@ -9,7 +9,15 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1209.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            prefHeight="700.0"
+            prefWidth="1209.0"
+            xmlns="http://javafx.com/javafx/26"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="oopsystem.controller.PassSlipIssuanceController">
    <left>
       <VBox fillWidth="false" prefHeight="700.0" prefWidth="230.0" style="-fx-border-color: gray;" BorderPane.alignment="CENTER">
          <children>
@@ -24,23 +32,15 @@
                </children>
             </VBox>
             <VBox prefHeight="637.0" prefWidth="230.0">
-               <children>
-                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Dashboard" />
-                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" style="-fx-background-color: red;" styleClass="active-menu" text="Issue Pass Slip" textFill="WHITE">
-                     <font>
-                        <Font name="System Bold" size="19.0" />
-                     </font>
-                  </Button>
-                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Movement Logs" />
-                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Employee Directory" />
-                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Reports">
-                     <VBox.margin>
-                        <Insets bottom="215.0" />
-                     </VBox.margin>
-                  </Button>
+
+                  <Button fx:id="dashboardMenu" maxWidth="Infinity" text="Dashboard" />
+                  <Button fx:id="passSlipMenu" onAction="#goToPassSlipIssuance" maxWidth="Infinity" text="Issue Pass Slip" />
+                  <Button fx:id="movementLogsMenu" maxWidth="Infinity" text="Movement Logs" />
+                  <Button fx:id="employeeDirectoryMenu" onAction="#goToEmployeeDirectory" maxWidth="Infinity" styleClass="active-menu" text="Employee Directory" />
+                  <Button fx:id="reportsMenu" onAction="#gotoReports" maxWidth="Infinity" text="Reports" />
+
                   <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Settings" />
                   <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Logout" />
-               </children>
             </VBox>
          </children>
       </VBox>
