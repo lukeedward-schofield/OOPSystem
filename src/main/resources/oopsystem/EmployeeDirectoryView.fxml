@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="700.0" prefWidth="1209.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.EmployeeDirectoryController">
+<BorderPane prefWidth="1209.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.EmployeeDirectoryController">
 
    <!-- HEADER -->
    <left>
@@ -37,12 +37,17 @@
 
          <Region minHeight="30" VBox.vgrow="NEVER" />
 
-         <!--NAVIGATION-->
-         <Button fx:id="dashboardMenu" maxWidth="Infinity" text="Dashboard" />
-         <Button fx:id="passSlipMenu" onAction="#goToPassSlipIssuance" maxWidth="Infinity" text="Issue Pass Slip" />
-         <Button fx:id="movementLogsMenu" maxWidth="Infinity" text="Movement Logs" />
-         <Button fx:id="employeeDirectoryMenu" onAction="#goToEmployeeDirectory" maxWidth="Infinity" styleClass="active-menu" text="Employee Directory" />
-         <Button fx:id="reportsMenu" onAction="#gotoReports" maxWidth="Infinity" text="Reports" />
+         <!-- Menu -->
+
+         <Button maxWidth="Infinity" text="Dashboard" />
+
+         <Button maxWidth="Infinity" text="Issue Pass Slip" />
+
+         <Button maxWidth="Infinity" text="Movement Logs" />
+
+         <Button maxWidth="Infinity" styleClass="active-menu" text="Employee Directory" />
+
+         <Button maxWidth="Infinity" text="Reports" />
 
          <Pane VBox.vgrow="ALWAYS" />
 
@@ -100,25 +105,78 @@
             <!-- CARD 1 -->
 
             <HBox prefWidth="250" spacing="10" styleClass="stat-card">
+
                <StackPane prefHeight="45" prefWidth="45" styleClass="stat-icon">
+
                   <Label text="👥" />
+
                </StackPane>
+
                <VBox>
+
                   <Label text="TOTAL STAFF" />
-                  <Label fx:id="employeeCount" styleClass="stat-number" text="1,248" />
+
+                  <Label styleClass="stat-number" text="1,248" />
+
                </VBox>
+
             </HBox>
 
             <!-- CARD 2 -->
 
             <HBox prefWidth="250" styleClass="stat-card">
+
                <StackPane prefHeight="45" prefWidth="45" styleClass="stat-icon">
-                  <Label text="✓" />
+
+                  <Label text="🏢" />
+
                </StackPane>
+
                <VBox>
-                  <Label text="ACTIVE TODAY" />
-                  <Label fx:id="activeEmployeeCount" styleClass="stat-number"/>
+
+                  <Label text="DEPARTMENTS" />
+                  <Label styleClass="stat-number" text="24" />
+
                </VBox>
+
+            </HBox>
+
+            <!-- CARD 3 -->
+
+            <HBox prefWidth="250" styleClass="stat-card">
+
+               <StackPane prefHeight="45" prefWidth="45" styleClass="stat-icon">
+
+                  <Label text="✓" />
+
+               </StackPane>
+
+               <VBox>
+
+                  <Label text="ACTIVE TODAY" />
+                  <Label styleClass="stat-number" text="1,102" />
+
+               </VBox>
+
+            </HBox>
+
+            <!-- CARD 4 -->
+
+            <HBox prefWidth="250" styleClass="stat-card">
+
+               <StackPane prefHeight="45" prefWidth="45" styleClass="stat-icon">
+
+                  <Label text="📅" />
+
+               </StackPane>
+
+               <VBox>
+
+                  <Label text="ON LEAVE" />
+                  <Label styleClass="stat-number" text="146" />
+
+               </VBox>
+
             </HBox>
 
          </HBox>

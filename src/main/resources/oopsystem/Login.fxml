@@ -40,8 +40,8 @@
    <right>
       <AnchorPane prefHeight="500.0" prefWidth="350.0" BorderPane.alignment="CENTER">
          <children>
-            <TextField layoutX="100.0" layoutY="211.0" promptText="Username" />
-            <PasswordField layoutX="100.0" layoutY="249.0" promptText="Password" />
+            <TextField fx:id="username" layoutX="100.0" layoutY="211.0" promptText="Username" />
+            <PasswordField fx:id="password" layoutX="100.0" layoutY="249.0" promptText="Password" />
             <Button layoutX="125.0" layoutY="291.0" mnemonicParsing="false" prefHeight="22.0" prefWidth="98.0" text="Sign in" onAction="#login"/>
             <Hyperlink layoutX="123.0" layoutY="328.0" text="Forgot password?" />
             <FontAwesomeIconView fill="#d5ea18" glyphName="KEY" layoutX="74.0" layoutY="269.0" size="20" wrappingWidth="15.20001220703125" />

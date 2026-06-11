@@ -5,7 +5,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -15,7 +14,6 @@ import oopsystem.repository.EmployeeRepository;
 import oopsystem.util.SceneNavigator;
 
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class EmployeeDirectoryController implements Initializable {
@@ -23,15 +21,24 @@ public class EmployeeDirectoryController implements Initializable {
     // =========================
     // FXML COMPONENTS
     // =========================
-    @FXML private Label employeeCount;
-    @FXML private Label activeEmployeeCount;
 
-    @FXML private TableView<Employee> employeeTable;
-    @FXML private TableColumn<Employee, String> nameColumn;
-    @FXML private TableColumn<Employee, Integer> idColumn;
-    @FXML private TableColumn<Employee, String> departmentColumn;
-    @FXML private TableColumn<Employee, String> positionColumn;
-    @FXML private TableColumn<Employee, String> contactColumn;
+    @FXML
+    private TableView<Employee> employeeTable;
+
+    @FXML
+    private TableColumn<Employee, String> nameColumn;
+
+    @FXML
+    private TableColumn<Employee, Integer> idColumn;
+
+    @FXML
+    private TableColumn<Employee, String> departmentColumn;
+
+    @FXML
+    private TableColumn<Employee, String> positionColumn;
+
+    @FXML
+    private TableColumn<Employee, String> contactColumn;
 
 
     // =========================
@@ -54,22 +61,19 @@ public class EmployeeDirectoryController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setupDataHeader();
         setupTableColumns();
         employeeTable.setItems(employees);
         loadEmployees();
     }
 
+    @FXML
+    public void addEmployee(){
+        SceneNavigator.switchTo("AddEmployeeView");
+    }
 
     // =========================
     // TABLE CONFIGURATION
     // =========================
-
-    private void setupDataHeader(){
-
-        this.employeeCount.setText(String.valueOf(this.employeeRepository.getEmployeeCount()));
-        this.activeEmployeeCount.setText(String.valueOf(this.employeeRepository.getActiveEmployeeCount()));
-    }
 
     private void setupTableColumns() {
 
@@ -97,16 +101,4 @@ public class EmployeeDirectoryController implements Initializable {
                 employeeRepository.getAllEmployees()
         );
     }
-
-    //NAVIGATION METHODS
-    @FXML
-    public void addEmployee(){
-        SceneNavigator.switchTo("AddEmployeeView");
-    }
-
-//    @FXML public void goToDashboard(){SceneNavigator.switchTo("DashboardView");}
-    @FXML public void goToPassSlipIssuance(){SceneNavigator.switchTo("PassSlipIssuanceView");}
-//    @FXML public void goToMovementLogs(){SceneNavigator.switchTo("MovementLogsView");}
-    @FXML public void goToEmployeeDirectory(){SceneNavigator.switchTo("EmployeeDirectoryView");}
-    @FXML public void gotoReports(){SceneNavigator.switchTo("ReportsView");}
 }
