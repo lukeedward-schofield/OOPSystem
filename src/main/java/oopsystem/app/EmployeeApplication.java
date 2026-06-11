@@ -18,7 +18,6 @@ public class EmployeeApplication extends Application {
                 EmployeeApplication.class.getResource("/oopsystem/Login.fxml")
         );
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
