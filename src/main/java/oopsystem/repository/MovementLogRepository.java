@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MovementLogRepository {
+
     private static final String GET_ALL_MOVEMENT_LOGS = """
             SELECT
                ps.pass_slip_id,
