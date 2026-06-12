@@ -136,7 +136,7 @@
 
                <Pane HBox.hgrow="ALWAYS" />
 
-               <Pagination fx:id="pagination" pageCount="250" />
+               <Pagination fx:id="pagination" maxPageIndicatorCount="10"/>
             </HBox>
 
          </VBox>
