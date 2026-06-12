@@ -17,4 +17,5 @@ public class NavbarController {
     //    @FXML public void goToMovementLogs(){SceneNavigator.switchTo("movementLogs/MovementLogsView");}
     @FXML public void goToEmployeeDirectory(){SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");}
     @FXML public void gotoReports(){SceneNavigator.switchTo("reports/ReportsView");}
+    @FXML public void goToProfile(){SceneNavigator.switchTo("profile/ProfileView");}
 }

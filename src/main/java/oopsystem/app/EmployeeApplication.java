@@ -15,7 +15,7 @@ public class EmployeeApplication extends Application {
         SceneNavigator.setStage(stage);
 
         FXMLLoader fxmlLoader = new FXMLLoader(
-                EmployeeApplication.class.getResource("/oopsystem/login/Login.fxml")
+                EmployeeApplication.class.getResource("/oopsystem/login/LoginView.fxml")
         );
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
         stage.setTitle("Hello!");
