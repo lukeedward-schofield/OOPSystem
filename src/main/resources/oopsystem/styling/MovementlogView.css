@@ -18,7 +18,7 @@
 }
 
 /* =========================
-   SIDEBAR (FIXED + CLEAN)
+   SIDEBAR TEMPLATE
    ========================= */
 
 .sidebar {
@@ -70,9 +70,7 @@
     -fx-border-width: 0 0 0 4;
 }
 
-/* =========================
-   CONTENT BOXES
-   ========================= */
+/*CONTENT BOX*/
 
 .content-box {
     -fx-background-color: white;
@@ -87,9 +85,7 @@
     -fx-background-radius: 6;
 }
 
-/* =========================
-   BUTTONS
-   ========================= */
+/*BUTTONS*/
 
 .filter-label {
     -fx-font-size: 11px;
@@ -122,9 +118,7 @@
     -fx-background-color: #fcfcfc;
 }
 
-/* =========================
-   STATS
-   ========================= */
+/*STATS*/
 
 .stat-title {
     -fx-font-size: 11px;
@@ -149,9 +143,9 @@
     -fx-text-fill: white;
 }
 
-/* =========================
+/*
    TEXT / UTILITIES
-   ========================= */
+ */
 
 .text-error {
     -fx-text-fill: #cc0000;
@@ -188,7 +182,7 @@
     -fx-text-fill: #444444;
     -fx-font-size: 12px;
 }
-/* ── Detail Card ───────────────────────────────────────── */
+/*  Detail Card  */
 .detail-card {
     -fx-background-color: white;
     -fx-background-radius: 8px;
@@ -225,7 +219,7 @@
     -fx-font-style: italic;
 }
 
-/* ── Pagination ────────────────────────────────────────── */
+/*  Pagination  */
 .btn-page-nav {
     -fx-background-color: white;
     -fx-border-color: #cbd5e1;
