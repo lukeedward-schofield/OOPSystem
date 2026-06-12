@@ -1,111 +1,137 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 
-<ScrollPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="oopsystem.controller.DashboardController"
-            fitToWidth="true" hbarPolicy="NEVER"
-            styleClass="content-scroll"
-            stylesheets="@styling/dashboard.css">
-    <VBox styleClass="content-area" spacing="18">
+<BorderPane prefWidth="1209.0" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="oopsystem.controller.DashboardController">
 
-        <!-- STAT CARDS -->
-        <HBox spacing="14">
-            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
-                <Label text="TOTAL EMPLOYEES OUT" styleClass="stat-label"/>
-                <Label fx:id="statOut" text="24" styleClass="stat-value"/>
-                <Label fx:id="statOutNote" text="↗ 12% from yesterday" styleClass="stat-note"/>
+    <left>
+        <VBox prefWidth="230" styleClass="sidebar" stylesheets="@styling/dashboard.css">
+            <padding>
+                <Insets bottom="20" left="15" right="15" top="20"/>
+            </padding>
+            <VBox spacing="2">
+                <Label styleClass="logo-title" text="Admin Portal"/>
+                <Label styleClass="logo-subtitle" text="Pass Slip System"/>
             </VBox>
-            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
-                <Label text="PENDING RETURNS" styleClass="stat-label"/>
-                <Label fx:id="statPending" text="08" styleClass="stat-value-warn"/>
-                <Label fx:id="statPendingNote" text="⚠ 3 Overdue slips detected" styleClass="stat-note-warn"/>
-            </VBox>
-            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
-                <Label text="TOTAL PASS SLIPS TODAY" styleClass="stat-label"/>
-                <Label fx:id="statTotal" text="42" styleClass="stat-value"/>
-                <Label fx:id="statTotalNote" text="Last updated: 2 mins ago" styleClass="stat-note"/>
-            </VBox>
-        </HBox>
+            <Region minHeight="30" VBox.vgrow="NEVER"/>
+            <Button maxWidth="Infinity" styleClass="active-menu" text="Dashboard"/>
+            <Button maxWidth="Infinity" text="Issue Pass Slip" onAction="#goToIssuePassSlip"/>
+            <Button maxWidth="Infinity" text="Movement Logs" onAction="#goToMovementLogs"/>
+            <Button maxWidth="Infinity" text="Employee Directory" onAction="#goToEmployeeDirectory"/>
+            <Button maxWidth="Infinity" text="Reports" onAction="#goToReports"/>
+            <Pane VBox.vgrow="ALWAYS"/>
+            <Button maxWidth="Infinity" text="Settings" onAction="#goToSettings"/>
+            <Button maxWidth="Infinity" text="Logout" onAction="#goToLogout"/>
+        </VBox>
+    </left>
 
-        <!-- CURRENT MOVEMENT LOG -->
-        <VBox styleClass="card">
-            <HBox alignment="CENTER_LEFT" style="-fx-padding:14px 16px;">
-                <Label text="Current Movement Log" styleClass="section-title" HBox.hgrow="ALWAYS"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnNewEntry" text="+ NEW ENTRY" styleClass="btn-primary" onAction="#handleNewEntry"/>
-            </HBox>
-            <Separator/>
-            <TableView fx:id="movementTable" prefHeight="260"
-                       style="-fx-border-color:transparent; -fx-padding:0;">
-                <columns>
-                    <TableColumn fx:id="colEmpName" text="EMPLOYEE NAME" minWidth="100"/>
-                    <TableColumn fx:id="colDept"    text="DEPARTMENT"    minWidth="100"/>
-                    <TableColumn fx:id="colReason"  text="REASON"        minWidth="100"/>
-                    <TableColumn fx:id="colTimeOut" text="TIME-OUT"      minWidth="80"/>
-                    <TableColumn fx:id="colStatus"  text="STATUS"        minWidth="80"/>
-                    <TableColumn fx:id="colAction"  text="ACTION"        minWidth="80"/>
-                </columns>
-                <placeholder><Label text="No active movements." style="-fx-text-fill:#AAAAAA;"/></placeholder>
-            </TableView>
-            <HBox style="-fx-padding:10px 16px;" alignment="CENTER_LEFT">
-                <Label fx:id="movFooter" text="Showing 5 of 24 active movements"
-                       style="-fx-text-fill:#888888; -fx-font-size:11px;" HBox.hgrow="ALWAYS"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <HBox spacing="4">
-                    <Button text="1" style="-fx-background-color:#8B0000; -fx-text-fill:white; -fx-background-radius:4px; -fx-min-width:28px; -fx-min-height:28px; -fx-padding:0;"/>
-                    <Button text="2" styleClass="btn-icon" style="-fx-min-width:28px; -fx-min-height:28px; -fx-padding:0;"/>
-                    <Button text="3" styleClass="btn-icon" style="-fx-min-width:28px; -fx-min-height:28px; -fx-padding:0;"/>
+    <center>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="content-scroll"
+                    stylesheets="@styling/dashboard.css">
+            <VBox styleClass="content-area" spacing="18">
+
+                <!-- STAT CARDS -->
+                <HBox spacing="14">
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="TOTAL EMPLOYEES OUT" styleClass="stat-label"/>
+                        <Label fx:id="statOut" text="24" styleClass="stat-value"/>
+                        <Label fx:id="statOutNote" text="↗ 12% from yesterday" styleClass="stat-note"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="PENDING RETURNS" styleClass="stat-label"/>
+                        <Label fx:id="statPending" text="08" styleClass="stat-value-warn"/>
+                        <Label fx:id="statPendingNote" text="⚠ 3 Overdue slips detected" styleClass="stat-note-warn"/>
+                    </VBox>
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="TOTAL PASS SLIPS TODAY" styleClass="stat-label"/>
+                        <Label fx:id="statTotal" text="42" styleClass="stat-value"/>
+                        <Label fx:id="statTotalNote" text="Last updated: 2 mins ago" styleClass="stat-note"/>
+                    </VBox>
                 </HBox>
-            </HBox>
-        </VBox>
 
-        <!-- OFFICIAL PASS SLIP -->
-        <VBox styleClass="card" style="-fx-padding:16px;" spacing="0">
-            <HBox alignment="CENTER_LEFT" style="-fx-padding:0 0 10px 0;">
-                <VBox HBox.hgrow="ALWAYS" spacing="4">
-                    <Label text="OFFICIAL PASS SLIP"
-                           style="-fx-text-fill:#8B0000; -fx-font-weight:bold; -fx-font-size:13px;"/>
-                    <Label fx:id="slipSeries" text="SERIES NO: 2026-0492"
-                           style="-fx-text-fill:#999999; -fx-font-size:11px;"/>
+                <!-- CURRENT MOVEMENT LOG -->
+                <VBox styleClass="card">
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding:14px 16px;">
+                        <Label text="Current Movement Log" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnNewEntry" text="+ NEW ENTRY" styleClass="btn-primary" onAction="#handleNewEntry"/>
+                    </HBox>
+                    <Separator/>
+                    <TableView fx:id="movementTable" prefHeight="260"
+                               style="-fx-border-color:transparent; -fx-padding:0;">
+                        <columns>
+                            <TableColumn fx:id="colEmpName" text="EMPLOYEE NAME" minWidth="100"/>
+                            <TableColumn fx:id="colDept"    text="DEPARTMENT"    minWidth="100"/>
+                            <TableColumn fx:id="colReason"  text="REASON"        minWidth="100"/>
+                            <TableColumn fx:id="colTimeOut" text="TIME-OUT"      minWidth="80"/>
+                            <TableColumn fx:id="colStatus"  text="STATUS"        minWidth="80"/>
+                            <TableColumn fx:id="colAction"  text="ACTION"        minWidth="80"/>
+                        </columns>
+                        <placeholder><Label text="No active movements." style="-fx-text-fill:#AAAAAA;"/></placeholder>
+                    </TableView>
+                    <HBox style="-fx-padding:10px 16px;" alignment="CENTER_LEFT">
+                        <Label fx:id="movFooter" text="Showing 5 of 24 active movements"
+                               style="-fx-text-fill:#888888; -fx-font-size:11px;" HBox.hgrow="ALWAYS"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <HBox spacing="4">
+                            <Button text="1" style="-fx-background-color:#8B0000; -fx-text-fill:white; -fx-background-radius:4px; -fx-min-width:28px; -fx-min-height:28px; -fx-padding:0;"/>
+                            <Button text="2" styleClass="btn-icon" style="-fx-min-width:28px; -fx-min-height:28px; -fx-padding:0;"/>
+                            <Button text="3" styleClass="btn-icon" style="-fx-min-width:28px; -fx-min-height:28px; -fx-padding:0;"/>
+                        </HBox>
+                    </HBox>
                 </VBox>
-                <VBox alignment="CENTER_RIGHT" spacing="2">
-                    <Label text="DATE"
-                           style="-fx-text-fill:#8B0000; -fx-font-size:10px; -fx-font-weight:bold;"/>
-                    <Label fx:id="slipDate" text="May 24, 2026"
-                           style="-fx-text-fill:#1A1A1A; -fx-font-size:12px; -fx-font-weight:bold;"/>
+
+                <!-- OFFICIAL PASS SLIP -->
+                <VBox styleClass="card" style="-fx-padding:16px;" spacing="0">
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding:0 0 10px 0;">
+                        <VBox HBox.hgrow="ALWAYS" spacing="4">
+                            <Label text="OFFICIAL PASS SLIP"
+                                   style="-fx-text-fill:#8B0000; -fx-font-weight:bold; -fx-font-size:13px;"/>
+                            <Label fx:id="slipSeries" text="SERIES NO: 2026-0492"
+                                   style="-fx-text-fill:#999999; -fx-font-size:11px;"/>
+                        </VBox>
+                        <VBox alignment="CENTER_RIGHT" spacing="2">
+                            <Label text="DATE"
+                                   style="-fx-text-fill:#8B0000; -fx-font-size:10px; -fx-font-weight:bold;"/>
+                            <Label fx:id="slipDate" text="May 24, 2026"
+                                   style="-fx-text-fill:#1A1A1A; -fx-font-size:12px; -fx-font-weight:bold;"/>
+                        </VBox>
+                    </HBox>
+                    <Separator/>
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding:10px 0;">
+                        <VBox spacing="3" HBox.hgrow="ALWAYS">
+                            <Label text="EMPLOYEE"
+                                   style="-fx-text-fill:#999999; -fx-font-size:10px; -fx-font-weight:bold;"/>
+                            <Label fx:id="slipEmp" text="Bato Delarosa"
+                                   style="-fx-text-fill:#1A1A1A; -fx-font-size:13px; -fx-font-weight:bold;"/>
+                        </VBox>
+                        <VBox spacing="3" alignment="CENTER_RIGHT">
+                            <Label text="TIME OUT"
+                                   style="-fx-text-fill:#999999; -fx-font-size:10px; -fx-font-weight:bold;"/>
+                            <Label fx:id="slipTime" text="09:15 AM"
+                                   style="-fx-text-fill:#1A1A1A; -fx-font-size:13px; -fx-font-weight:bold;"/>
+                        </VBox>
+                    </HBox>
+                    <VBox spacing="3" style="-fx-padding:0 0 10px 0;">
+                        <Label text="DESTINATION / REASON"
+                               style="-fx-text-fill:#999999; -fx-font-size:10px; -fx-font-weight:bold;"/>
+                        <Label fx:id="slipDest" text="Central Bank District - Document Filing (Official)"
+                               style="-fx-text-fill:#1A1A1A; -fx-font-size:12px;"/>
+                    </VBox>
+                    <Separator/>
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding:10px 0 0 0;" spacing="0">
+                        <Label text="✓ AUTHORIZED"
+                               style="-fx-text-fill:#8B0000; -fx-font-size:12px; -fx-font-weight:bold;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="PRINT COPY" styleClass="btn-yellow" onAction="#handlePrintCopy"/>
+                    </HBox>
                 </VBox>
-            </HBox>
-            <Separator/>
-            <HBox alignment="CENTER_LEFT" style="-fx-padding:10px 0;">
-                <VBox spacing="3" HBox.hgrow="ALWAYS">
-                    <Label text="EMPLOYEE"
-                           style="-fx-text-fill:#999999; -fx-font-size:10px; -fx-font-weight:bold;"/>
-                    <Label fx:id="slipEmp" text="Bato Delarosa"
-                           style="-fx-text-fill:#1A1A1A; -fx-font-size:13px; -fx-font-weight:bold;"/>
-                </VBox>
-                <VBox spacing="3" alignment="CENTER_RIGHT">
-                    <Label text="TIME OUT"
-                           style="-fx-text-fill:#999999; -fx-font-size:10px; -fx-font-weight:bold;"/>
-                    <Label fx:id="slipTime" text="09:15 AM"
-                           style="-fx-text-fill:#1A1A1A; -fx-font-size:13px; -fx-font-weight:bold;"/>
-                </VBox>
-            </HBox>
-            <VBox spacing="3" style="-fx-padding:0 0 10px 0;">
-                <Label text="DESTINATION / REASON"
-                       style="-fx-text-fill:#999999; -fx-font-size:10px; -fx-font-weight:bold;"/>
-                <Label fx:id="slipDest" text="Central Bank District - Document Filing (Official)"
-                       style="-fx-text-fill:#1A1A1A; -fx-font-size:12px;"/>
+
             </VBox>
-            <Separator/>
-            <HBox alignment="CENTER_LEFT" style="-fx-padding:10px 0 0 0;" spacing="0">
-                <Label text="✓ AUTHORIZED"
-                       style="-fx-text-fill:#8B0000; -fx-font-size:12px; -fx-font-weight:bold;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button text="PRINT COPY" styleClass="btn-yellow" onAction="#handlePrintCopy"/>
-            </HBox>
-        </VBox>
+        </ScrollPane>
+    </center>
 
-    </VBox>
-</ScrollPane>
+</BorderPane>

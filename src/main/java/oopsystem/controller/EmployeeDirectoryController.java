@@ -101,4 +101,34 @@ public class EmployeeDirectoryController implements Initializable {
                 employeeRepository.getAllEmployees()
         );
     }
+    @FXML
+    private void goToDashboard() {
+        SceneNavigator.switchTo("DashboardView");
+    }
+
+    @FXML
+    private void goToIssuePassSlip() {
+        SceneNavigator.switchTo("PassSlipIssuanceView");
+    }
+
+    @FXML
+    private void goToMovementLogs() {
+        SceneNavigator.switchTo("MovementLogsView");
+    }
+
+    @FXML
+    private void goToReports() {
+        SceneNavigator.switchTo("ReportsView");
+    }
+
+    @FXML
+    private void goToSettings() {
+        // TODO
+    }
+
+    @FXML
+    private void goToLogout() {
+        SceneNavigator.switchTo("Login");
+    }
+
 }
