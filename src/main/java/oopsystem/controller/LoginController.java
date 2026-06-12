@@ -20,6 +20,10 @@ public class LoginController {
     public void login(){
 
         //authenticate first
+<<<<<<< Updated upstream
         SceneNavigator.switchTo("EmployeeDirectoryView");
+=======
+        SceneNavigator.switchTo("Movementlogview");
+>>>>>>> Stashed changes
     }
 }
