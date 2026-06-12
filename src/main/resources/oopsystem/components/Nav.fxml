@@ -1,14 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox fillWidth="false" prefHeight="850.0" prefWidth="263.0" spacing="10" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.NavbarController">
 
-</AnchorPane>
+    <VBox fillWidth="false" prefHeight="850.0" prefWidth="264.0" style="-fx-border-color: red;" styleClass="sidebar" stylesheets="@../styling/employeeDirectory.css">
+      <VBox prefHeight="83.0" prefWidth="228.0">
+         <children>
+            <Label text="E-Pass Portal" />
+            <Label prefHeight="74.0" prefWidth="188.0" text="Pass Slip Monitoring System" textOverrun="CLIP" wrapText="true" />
+         </children>
+      </VBox>
+      <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="765.0" prefWidth="264.0">
+         <children>
+      
+              <!--NAVIGATION-->
+              <Button fx:id="dashboardMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Dashboard" />
+              <Button fx:id="passSlipMenu" maxWidth="Infinity" onAction="#goToPassSlipIssuance" prefHeight="60.0" prefWidth="230.0" text="Issue Pass Slip" />
+              <Button fx:id="movementLogsMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Movement Logs" />
+              <Button fx:id="employeeDirectoryMenu" maxWidth="Infinity" onAction="#goToEmployeeDirectory" prefHeight="60.0" prefWidth="230.0" styleClass="active-menu" text="Employee Directory" />
+              <Button fx:id="reportsMenu" maxWidth="Infinity" onAction="#gotoReports" prefHeight="60.0" prefWidth="230.0" text="Reports">
+               <VBox.margin>
+                  <Insets bottom="345.0" />
+               </VBox.margin>
+            </Button>
+      
+              <Button maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Settings" />
+      
+              <Button maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Logout" />
+         </children>
+      </VBox>
+
+    </VBox>
+</VBox>

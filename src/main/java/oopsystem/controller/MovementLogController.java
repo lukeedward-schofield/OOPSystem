@@ -47,9 +47,10 @@ public class MovementLogController {
     private final ObservableList<MovementLog> masterData = FXCollections.observableArrayList();
     private final ObservableList<MovementLog> filteredData = FXCollections.observableArrayList();
     private final MovementLogRepository repository = new MovementLogRepository();
-
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
+    private int currentPage = 0;
+    private final int pageSize = 10;
 
 
     @FXML
