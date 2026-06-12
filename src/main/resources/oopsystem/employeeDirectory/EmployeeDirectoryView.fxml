@@ -127,6 +127,10 @@
                </columns>
 
             </TableView>
+            <HBox spacing="15" alignment="CENTER">
+               <Button text="Previous" onAction="#handlePreviousPage" />
+               <Button text="Next" onAction="#handleNextPage" />
+            </HBox>
 
             <!-- FOOTER -->
 
@@ -136,7 +140,7 @@
 
                <Pane HBox.hgrow="ALWAYS" />
 
-               <Pagination fx:id="pagination" pageCount="250" />
+               <Pagination fx:id="pagination" maxPageIndicatorCount="10"/>
             </HBox>
 
          </VBox>

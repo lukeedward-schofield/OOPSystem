@@ -34,6 +34,8 @@ public class EmployeeDirectoryController implements Initializable {
     @FXML private TableColumn<Employee, String> contactColumn;
     @FXML private TableColumn<Employee, Void> actionColumn;
 
+    @FXML private Pagination pagination;
+
 
     // =========================
     // REPOSITORY
@@ -43,12 +45,16 @@ public class EmployeeDirectoryController implements Initializable {
 
 
     // =========================
-    // TABLE DATA
+    // TABLE DATA & PAGINATION VARIABLES
     // =========================
+    // This acts as your master list containing ALL data loaded from your database
+    private final ObservableList<Employee> allEmployeesMasterList = FXCollections.observableArrayList();
 
-    private final ObservableList<Employee> employees = FXCollections.observableArrayList();
+    // This holds only the maximum 10 rows shown on screen at any given time
+    private final ObservableList<Employee> visibleEmployeesPageList = FXCollections.observableArrayList();
 
-
+    private int currentPageIndex = 0;
+    private static final int ROWS_PER_PAGE = 10;
     // =========================
     // INITIALIZE
     // =========================
@@ -57,7 +63,7 @@ public class EmployeeDirectoryController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         setupDataHeader();
         setupTableColumns();
-        employeeTable.setItems(employees);
+        employeeTable.setItems(visibleEmployeesPageList);
 
         setupActionButtonsColumn();
 
@@ -70,7 +76,6 @@ public class EmployeeDirectoryController implements Initializable {
     // =========================
 
     private void setupDataHeader(){
-
         this.employeeCount.setText(String.valueOf(this.employeeRepository.getEmployeeCount()));
         this.activeEmployeeCount.setText(String.valueOf(this.employeeRepository.getActiveEmployeeCount()));
     }
@@ -132,7 +137,7 @@ public class EmployeeDirectoryController implements Initializable {
 
                         if (isDeleted) {
                             // 4. If DB deletion succeeds, drop it from the ObservableList to update the TableView instantly
-                            employees.remove(selectedEmployee);
+                            allEmployeesMasterList.remove(selectedEmployee);
                             System.out.println("Successfully deleted from DB and UI.");
                         } else {
                             // 5. Show error alert if the database query fails
@@ -163,20 +168,64 @@ public class EmployeeDirectoryController implements Initializable {
     // =========================
 
     private void loadEmployees() {
+        // Fetch all objects inside memory storage first
+        allEmployeesMasterList.setAll(employeeRepository.getAllEmployees());
 
-        employees.setAll(
-                employeeRepository.getAllEmployees()
-        );
+        // Reset current tracking variables back to the start index frame
+        currentPageIndex = 0;
+
+        // Push items onto the display
+        updateTablePageFrame();
     }
 
-    //NAVIGATION METHODS
+    /**
+     * Slices the large master list into chunks of 10 rows maximum
+     * based on your current page location tracking context variable.
+     */
+    private void updateTablePageFrame() {
+        int fromIndex = currentPageIndex * ROWS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, allEmployeesMasterList.size());
+
+        // Corner case safety catch: if deletions leave a page out of bounds
+        if (fromIndex > allEmployeesMasterList.size() && currentPageIndex > 0) {
+            currentPageIndex--;
+            updateTablePageFrame();
+            return;
+        }
+
+        // Sublist safe check block
+        if (fromIndex <= toIndex) {
+            visibleEmployeesPageList.setAll(allEmployeesMasterList.subList(fromIndex, toIndex));
+        } else {
+            visibleEmployeesPageList.clear();
+        }
+    }
+
+    // =========================
+    // PAGINATION BUTTON ACTIONS
+    // =========================
+    @FXML
+    public void handleNextPage() {
+        int totalPagesCount = (int) Math.ceil((double) allEmployeesMasterList.size() / ROWS_PER_PAGE);
+
+        // Block actions if user reaches the maximum pages cap boundary layout frame
+        if (currentPageIndex < totalPagesCount - 1) {
+            currentPageIndex++;
+            updateTablePageFrame();
+        }
+    }
+
+    @FXML
+    public void handlePreviousPage() {
+        // Block action if they are already viewing page index 0
+        if (currentPageIndex > 0) {
+            currentPageIndex--;
+            updateTablePageFrame();
+        }
+    }
+
     @FXML
     public void addEmployee(){
         SceneNavigator.switchTo("employeeDirectory/AddEmployeeView");
     }
-//    @FXML public void goToDashboard(){SceneNavigator.switchTo("dashboard/ashboardView");}
-    @FXML public void goToPassSlipIssuance(){SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView");}
-//    @FXML public void goToMovementLogs(){SceneNavigator.switchTo("movementLogs/MovementLogsView");}
-    @FXML public void goToEmployeeDirectory(){SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");}
-    @FXML public void gotoReports(){SceneNavigator.switchTo("reports/ReportsView");}
 }
