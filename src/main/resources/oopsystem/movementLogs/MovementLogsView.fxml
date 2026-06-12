@@ -5,34 +5,13 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane prefHeight="700.0" prefWidth="1209.0"
-            stylesheets="@styling/MovementlogView.css"
+            stylesheets="@../styling/MovementlogView.css"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="oopsystem.controller.MovementLogController">
 
     <left>
-        <VBox prefWidth="230.0" styleClass="sidebar">
-            <padding><Insets top="16.0"/></padding>
-            <children>
-                <VBox alignment="CENTER" prefHeight="80.0">
-                    <children>
-                        <Label text="Admin Portal"    styleClass="sidebar-title"/>
-                        <Label text="Pass Slip System" styleClass="sidebar-subtitle"/>
-                    </children>
-                </VBox>
-
-                <Button maxWidth="Infinity" prefHeight="52.0" text="  Dashboard"         styleClass="sidebar-btn"        onAction="#goToDashboard"/>
-                <Button maxWidth="Infinity" prefHeight="52.0" text="  Issue Pass Slip"   styleClass="sidebar-btn"        onAction="#goToPassSlipIssuance"/>
-                <Button maxWidth="Infinity" prefHeight="52.0" text="  Movement Logs"     styleClass="sidebar-btn-active" onAction="#goToMovementLogs"/>
-                <Button maxWidth="Infinity" prefHeight="52.0" text="  Employee Directory" styleClass="sidebar-btn"       onAction="#goToEmployeeDirectory"/>
-                <Button maxWidth="Infinity" prefHeight="52.0" text="  Reports"           styleClass="sidebar-btn"        onAction="#gotoReports"/>
-
-                <Pane VBox.vgrow="ALWAYS"/>
-
-                <Button maxWidth="Infinity" prefHeight="52.0" text="  Settings" styleClass="sidebar-btn"/>
-                <Button maxWidth="Infinity" prefHeight="52.0" text="  Logout"   styleClass="sidebar-btn"/>
-            </children>
-        </VBox>
+        <fx:include fx:id="navBar" source="../components/Nav.fxml" />
     </left>
 
     <center>
