@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane prefHeight="700.0" prefWidth="1209.0"
-            stylesheets="@../styling/MovementlogView.css"
+            stylesheets="@styling/MovementlogView.css"
             xmlns="http://javafx.com/javafx/26"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="oopsystem.controller.MovementLogController">
@@ -94,7 +94,6 @@
                                     <TextField fx:id="employeeNameFilter" prefWidth="180.0" promptText="Filter by name..." />
                                 </VBox>
                                 <Pane HBox.hgrow="ALWAYS" />
-                                <Button fx:id="applyFiltersBtn" text="▼  APPLY FILTERS" onAction="#handleApplyFilters" prefHeight="34.0" prefWidth="140.0" styleClass="btn-primary" />
                                 <Button fx:id="exportPdfBtn" text="⬇ EXPORT PDF" onAction="#handleExportPdf" prefHeight="34.0" prefWidth="130.0" styleClass="btn-outline" />
                                 <Button fx:id="exportExcelBtn" text="⬇ EXPORT EXCEL" onAction="#handleExportExcel" prefHeight="34.0" prefWidth="140.0" styleClass="btn-outline" />
                             </HBox>
