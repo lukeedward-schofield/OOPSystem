@@ -27,6 +27,7 @@ public class MovementLogRepository {
        INNER JOIN employee e
            ON ps.employee_id = e.employee_id
        ORDER BY ps.created_at DESC
+       LIMIT ? OFFSET ?
         """;
 
     public List<MovementLog> getAllMovementLogs() {
@@ -35,8 +36,10 @@ public class MovementLogRepository {
 
         try (
                 Connection conn = Database.getConnection();
-                PreparedStatement stmt =
-                        conn.prepareStatement(GET_ALL_MOVEMENT_LOGS);
+                PreparedStatement stmt = conn.prepareStatement(GET_ALL_MOVEMENT_LOGS());
+
+                stmt.setInt(1, limit);
+                stmt.setInt(2, offset);
                 ResultSet rs = stmt.executeQuery()
         ) {
 
