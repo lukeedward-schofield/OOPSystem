@@ -28,7 +28,7 @@
                </VBox.margin>
             </Button>
       
-              <Button maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Settings" />
+              <Button fx:id="profileMenu" onAction="#goToProfile" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Settings" />
       
               <Button maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Logout" />
          </children>
