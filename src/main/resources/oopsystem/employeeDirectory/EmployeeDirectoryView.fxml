@@ -19,7 +19,7 @@
 
    <!-- HEADER -->
    <left>
-      <VBox prefWidth="230" styleClass="sidebar" stylesheets="@styling/employeeDirectory.css">
+      <VBox prefWidth="230" styleClass="sidebar" stylesheets="@../styling/employeeDirectory.css">
 
          <padding>
             <Insets bottom="20" left="15" right="15" top="20" />

@@ -21,7 +21,7 @@
             fx:controller="oopsystem.controller.ReportsAnalyticsController"
             prefWidth="1200" prefHeight="850"
             styleClass="app-root"
-            stylesheets="@styling/reports-analytics.css">
+            stylesheets="@../styling/reports-analytics.css">
 
     <!-- Left navigation copied visually from the Figma/PDF prototype. -->
     <left>
