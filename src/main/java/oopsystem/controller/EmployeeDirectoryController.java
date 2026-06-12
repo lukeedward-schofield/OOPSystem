@@ -3,6 +3,7 @@ package oopsystem.controller;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -26,6 +27,9 @@ public class EmployeeDirectoryController implements Initializable {
     @FXML private Label employeeCount;
     @FXML private Label activeEmployeeCount;
 
+    @FXML private TextField searchField;
+
+
     @FXML private TableView<Employee> employeeTable;
     @FXML private TableColumn<Employee, String> nameColumn;
     @FXML private TableColumn<Employee, Integer> idColumn;
@@ -42,17 +46,16 @@ public class EmployeeDirectoryController implements Initializable {
     // =========================
 
     private final EmployeeRepository employeeRepository = new EmployeeRepository();
-
+    private final ObservableList<Employee> allEmployeesMasterList = FXCollections.observableArrayList();
+    private FilteredList<Employee> filteredEmployees;
 
     // =========================
     // TABLE DATA & PAGINATION VARIABLES
     // =========================
     // This acts as your master list containing ALL data loaded from your database
-    private final ObservableList<Employee> allEmployeesMasterList = FXCollections.observableArrayList();
-
-    // This holds only the maximum 10 rows shown on screen at any given time
     private final ObservableList<Employee> visibleEmployeesPageList = FXCollections.observableArrayList();
 
+    // This holds only the maximum 10 rows shown on screen at any given time
     private int currentPageIndex = 0;
     private static final int ROWS_PER_PAGE = 10;
     // =========================
@@ -64,10 +67,23 @@ public class EmployeeDirectoryController implements Initializable {
         setupDataHeader();
         setupTableColumns();
         employeeTable.setItems(visibleEmployeesPageList);
-
         setupActionButtonsColumn();
 
+        // 1. Initialize your filteredEmployees array here so it is NEVER null
+        filteredEmployees = new FilteredList<>(allEmployeesMasterList, p -> true);
+
+        // 2. Set up your pagination listener ONCE right here
+        pagination.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                updateTablePageFrame(newValue.intValue());
+            }
+        });
+
+        // 3. Load your data rows
         loadEmployees();
+
+        // 4. Start watching the search field text last
+        setupSearchFilter();
     }
 
 
@@ -168,22 +184,11 @@ public class EmployeeDirectoryController implements Initializable {
     // =========================
 
     private void loadEmployees() {
+        // Fetch records from repository directly into master list
         allEmployeesMasterList.setAll(employeeRepository.getAllEmployees());
 
-        // 3. Calculate total pages (e.g., 250 records / 10 = 25 pages)
-        int totalPagesCount = (int) Math.ceil((double) allEmployeesMasterList.size() / ROWS_PER_PAGE);
-        if (totalPagesCount == 0) totalPagesCount = 1;
-
-        pagination.setPageCount(totalPagesCount);
-        pagination.setCurrentPageIndex(0);
-
-        // 4. Listen for page numbers or arrow clicks
-        pagination.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> {
-            updateTablePageFrame(newValue.intValue());
-        });
-
-        // Render page 0 initially
-        updateTablePageFrame(0);
+        // Recalculate your page boundaries based on current row numbers
+        resetPagination();
     }
 
     /**
@@ -192,14 +197,63 @@ public class EmployeeDirectoryController implements Initializable {
      */
     private void updateTablePageFrame(int pageIndex) {
         int fromIndex = pageIndex * ROWS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, allEmployeesMasterList.size());
+        int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, filteredEmployees.size());
 
         if (fromIndex <= toIndex && fromIndex >= 0) {
-            visibleEmployeesPageList.setAll(allEmployeesMasterList.subList(fromIndex, toIndex));
+            visibleEmployeesPageList.setAll(filteredEmployees.subList(fromIndex, toIndex));
         } else {
             visibleEmployeesPageList.clear();
         }
     }
+
+    private void setupSearchFilter() {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Safe check: If the list isn't ready yet, skip processing to prevent a crash
+            if (filteredEmployees == null) {
+                return;
+            }
+
+            filteredEmployees.setPredicate(employee -> {
+                if (newValue == null || newValue.trim().isEmpty()) {
+                    return true;
+                }
+
+                String lowerCaseFilter = newValue.toLowerCase().trim();
+
+                if (employee.getFirstName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (employee.getLastName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (String.valueOf(employee.getEmployeeId()).contains(lowerCaseFilter)) {
+                    return true;
+                } else if (employee.getDepartment() != null && employee.getDepartment().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (employee.getRole() != null && employee.getRole().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }
+
+                return false;
+            });
+
+            resetPagination();
+        });
+    }
+
+    private void resetPagination() {
+        // Count total pages based on current filtered count, not master list count
+        int totalPagesCount = (int) Math.ceil((double) filteredEmployees.size() / ROWS_PER_PAGE);
+        if (totalPagesCount == 0) totalPagesCount = 1;
+
+        pagination.setPageCount(totalPagesCount);
+
+        // Safely jump back to the first page frame
+        pagination.setCurrentPageIndex(0);
+
+        // Render the initial view frame manually
+        updateTablePageFrame(0);
+    }
+
+
 
     // =========================
     // PAGINATION BUTTON ACTIONS
