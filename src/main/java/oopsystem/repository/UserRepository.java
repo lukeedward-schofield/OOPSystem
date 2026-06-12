@@ -20,7 +20,7 @@ public class UserRepository {
         String sql = "SELECT u.user_id, u.username, u.user_password, u.first_name, u.last_name, " +
                 "u.active_status, u.created_at, u.employee_id, e.department, e.role " +
                 "FROM users u " +
-                "INNER JOIN employees e ON u.employee_id = e.employee_id";
+                "INNER JOIN employee e ON u.employee_id = e.employee_id";
 
         try (Connection conn = Database.getConnection();
              Statement stmt = conn.createStatement();
@@ -82,7 +82,7 @@ public class UserRepository {
     public void createEmployeeAndUser(String empName, String dept, String role,
                                       String username, String rawPassword, String firstName, String lastName) throws SQLException {
 
-        String insertEmpSql = "INSERT INTO employees (name, department, role) VALUES (?, ?, ?)";
+        String insertEmpSql = "INSERT INTO employee (name, department, role) VALUES (?, ?, ?)";
         String insertUserSql = "INSERT INTO users (username, user_password, first_name, last_name, active_status, employee_id) VALUES (?, ?, ?, ?, true, ?)";
 
         Connection conn = null;

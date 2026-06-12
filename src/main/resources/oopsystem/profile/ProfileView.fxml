@@ -11,7 +11,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="oopsystem.controller.ProfileController">
 
     <left>
         <fx:include fx:id="navBar" source="../components/Nav.fxml" />
@@ -90,10 +91,10 @@
 
                <TableView fx:id="usersTable" prefHeight="239.0" prefWidth="920.0">
                   <columns>
-                     <TableColumn fx:id="usernameColumn" prefWidth="75.0" text="User" />
-                     <TableColumn fx:id="departmentColumn" prefWidth="75.0" text="Department" />
-                     <TableColumn fx:id="roleColumn" prefWidth="75.0" text="Roles" />
-                     <TableColumn fx:id="actionColumn" prefWidth="75.0" text="Actions" />
+                     <TableColumn fx:id="usernameColumn" prefWidth="334.0" text="User" />
+                     <TableColumn fx:id="departmentColumn" minWidth="0.0" prefWidth="219.0" text="Department" />
+                     <TableColumn fx:id="roleColumn" prefWidth="257.0" text="Roles" />
+                     <TableColumn fx:id="actionColumn" prefWidth="109.0" text="Actions" />
                   </columns>
                </TableView>
 

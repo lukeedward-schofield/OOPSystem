@@ -19,38 +19,7 @@
 
    <!-- HEADER -->
    <left>
-      <VBox prefWidth="230" styleClass="sidebar" stylesheets="@../styling/employeeDirectory.css">
-
-         <padding>
-            <Insets bottom="20" left="15" right="15" top="20" />
-         </padding>
-
-         <!-- Logo -->
-
-         <VBox spacing="2">
-
-            <Label styleClass="logo-title" text="Admin Portal" />
-
-            <Label styleClass="logo-subtitle" text="Pass Slip System" />
-
-         </VBox>
-
-         <Region minHeight="30" VBox.vgrow="NEVER" />
-
-         <!--NAVIGATION-->
-         <Button fx:id="dashboardMenu" maxWidth="Infinity" text="Dashboard" />
-         <Button fx:id="passSlipMenu" onAction="#goToPassSlipIssuance" maxWidth="Infinity" text="Issue Pass Slip" />
-         <Button fx:id="movementLogsMenu" maxWidth="Infinity" text="Movement Logs" />
-         <Button fx:id="employeeDirectoryMenu" onAction="#goToEmployeeDirectory" maxWidth="Infinity" styleClass="active-menu" text="Employee Directory" />
-         <Button fx:id="reportsMenu" onAction="#gotoReports" maxWidth="Infinity" text="Reports" />
-
-         <Pane VBox.vgrow="ALWAYS" />
-
-         <Button maxWidth="Infinity" text="Settings" />
-
-         <Button maxWidth="Infinity" text="Logout" />
-
-      </VBox>
+      <fx:include fx:id="navBar" source="../components/Nav.fxml" />
    </left>
 
    <center>
