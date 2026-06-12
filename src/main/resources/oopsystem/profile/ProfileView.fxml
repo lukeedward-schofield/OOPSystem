@@ -17,102 +17,92 @@
         <fx:include fx:id="navBar" source="../components/Nav.fxml" />
     </left>
    <center>
+
       <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-         <children>
-            <HBox prefHeight="57.0" prefWidth="1017.0" style="-fx-border-color: red;" />
-            <VBox prefHeight="42.0" prefWidth="1017.0">
-               <children>
-                  <Label text="Profile">
-                     <font>
-                        <Font name="System Bold" size="25.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets left="22.0" />
-                     </VBox.margin>
-                  </Label>
-                  <Label text="Manage your accoutn preferences and administrative controls">
-                     <VBox.margin>
-                        <Insets left="22.0" />
-                     </VBox.margin>
-                  </Label>
-               </children>
+         <!--HEADER-->
+         <HBox prefHeight="57.0" prefWidth="1017.0" style="-fx-border-color: red;" />
+
+         <!--MAIN-->
+         <VBox prefHeight="42.0" prefWidth="1017.0">
+            <Label text="Profile">
+               <font>
+                  <Font name="System Bold" size="25.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="22.0" />
+               </VBox.margin>
+            </Label>
+            <Label text="Manage your account preferences and administrative controls">
+               <VBox.margin>
+                  <Insets left="22.0" />
+               </VBox.margin>
+            </Label>
+         </VBox>
+
+         <HBox alignment="CENTER" fillHeight="false" prefHeight="379.0" prefWidth="1017.0">
+            <VBox alignment="CENTER" fillWidth="false" prefHeight="329.0" prefWidth="573.0" style="-fx-border-color: red;">
+
+               <HBox.margin><Insets right="20.0" /></HBox.margin>
+
+               <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="520.0">
+                  <Label text="Profile Settings" />
+               </HBox>
+               <!--FIRST AND LAST NAME INPUT-->
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="570.0">
+                  <!--FIRST NAME INPUT-->
+                  <VBox prefHeight="81.0" prefWidth="285.0">
+                     <Label text="First Name" />
+                     <TextField fx:id="firstName" />
+                  </VBox>
+                  <!--LAST NAME INPUT-->
+                  <VBox prefHeight="81.0" prefWidth="280.0">
+                     <Label text="Last Name" />
+                     <TextField fx:id="lastName" />
+                  </VBox>
+               </HBox>
+
+               <!--EMAIL ADDRESS INPUT-->
+               <VBox prefHeight="116.0" prefWidth="570.0">
+                  <Label text="Email Address" />
+                  <TextField fx:id="emailAddress" />
+               </VBox>
+
+               <!--PASSWORD INPUT-->
+               <VBox prefHeight="110.0" prefWidth="570.0">
+                  <Label text="Current Password" />
+                  <TextField fx:id="password" />
+               </VBox>
+
             </VBox>
-            <HBox alignment="CENTER" fillHeight="false" prefHeight="379.0" prefWidth="1017.0">
-               <children>
-                  <VBox alignment="CENTER" fillWidth="false" prefHeight="329.0" prefWidth="573.0" style="-fx-border-color: red;">
-                     <HBox.margin>
-                        <Insets right="20.0" />
-                     </HBox.margin>
-                     <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="520.0">
-                           <children>
-                              <Label text="Profile Settings" />
-                           </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="570.0">
-                           <children>
-                              <VBox prefHeight="81.0" prefWidth="285.0">
-                                 <children>
-                                    <Label text="First Name" />
-                                    <TextField fx:id="firstName" />
-                                 </children>
-                              </VBox>
-                              <VBox prefHeight="81.0" prefWidth="280.0">
-                                 <children>
-                                    <Label text="Last Name" />
-                                    <TextField fx:id="lastName" />
-                                 </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                        <VBox prefHeight="116.0" prefWidth="570.0">
-                           <children>
-                              <Label text="Email Address" />
-                              <TextField fx:id="emailAddress" />
-                           </children>
-                        </VBox>
-                        <VBox prefHeight="110.0" prefWidth="570.0">
-                           <children>
-                              <Label text="Current Password" />
-                              <TextField fx:id="password" />
-                           </children>
-                        </VBox>
-                     </children>
-                  </VBox>
-                  <VBox prefHeight="329.0" prefWidth="374.0" style="-fx-border-color: red;" />
-               </children>
-            </HBox>
-            <HBox alignment="TOP_CENTER" fillHeight="false" prefHeight="360.0" prefWidth="1017.0">
-               <children>
-                  <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="340.0" prefWidth="967.0" style="-fx-border-color: red;">
-                     <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="921.0">
-                           <children>
-                              <Label text="User Management">
-                                 <HBox.margin>
-                                    <Insets right="640.0" />
-                                 </HBox.margin>
-                                 <font>
-                                    <Font size="16.0" />
-                                 </font>
-                              </Label>
-                              <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="+ Create New User" />
-                           </children>
-                           <VBox.margin>
-                              <Insets bottom="19.0" top="19.0" />
-                           </VBox.margin>
-                        </HBox>
-                        <TableView prefHeight="239.0" prefWidth="920.0">
-                          <columns>
-                            <TableColumn prefWidth="75.0" text="C1" />
-                            <TableColumn prefWidth="75.0" text="C2" />
-                          </columns>
-                        </TableView>
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
-         </children></VBox>
+            <VBox prefHeight="329.0" prefWidth="374.0" style="-fx-border-color: red;" />
+         </HBox>
+
+         <HBox alignment="TOP_CENTER" fillHeight="false" prefHeight="360.0" prefWidth="1017.0">
+
+            <!--TABLE CONTAINER-->
+            <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="340.0" prefWidth="967.0" style="-fx-border-color: red;">
+
+               <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="921.0">
+                  <Label text="User Management" />
+
+                  <Button fx:id="addUserBtn" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="+ Create New User" />
+               </HBox>
+
+               <TableView fx:id="usersTable" prefHeight="239.0" prefWidth="920.0">
+                  <columns>
+                     <TableColumn fx:id="usernameColumn" prefWidth="75.0" text="User" />
+                     <TableColumn fx:id="departmentColumn" prefWidth="75.0" text="Department" />
+                     <TableColumn fx:id="roleColumn" prefWidth="75.0" text="Roles" />
+                     <TableColumn fx:id="actionColumn" prefWidth="75.0" text="Actions" />
+                  </columns>
+               </TableView>
+
+            </VBox>
+
+         </HBox>
+
+      </VBox>
+
    </center>
 
 </BorderPane>
