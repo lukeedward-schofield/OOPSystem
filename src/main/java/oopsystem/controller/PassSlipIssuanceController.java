@@ -10,8 +10,8 @@ public class PassSlipIssuanceController {
 //    @FXML public void goToDashboard(){SceneNavigator.switchTo("DashboardView");}
     @FXML
     public void goToPassSlipIssuance(){
-        SceneNavigator.switchTo("PassSlipIssuanceView");}
-    //    @FXML public void goToMovementLogs(){SceneNavigator.switchTo("MovementLogsView");}
-    @FXML public void goToEmployeeDirectory(){SceneNavigator.switchTo("EmployeeDirectoryView");}
-    @FXML public void gotoReports(){SceneNavigator.switchTo("ReportsView");}
+        SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView");}
+    //    @FXML public void goToMovementLogs(){SceneNavigator.switchTo("movementLogs/MovementLogsView");}
+    @FXML public void goToEmployeeDirectory(){SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");}
+    @FXML public void gotoReports(){SceneNavigator.switchTo("reports/ReportsView");}
 }

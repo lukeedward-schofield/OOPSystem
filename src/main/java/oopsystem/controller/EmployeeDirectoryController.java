@@ -101,12 +101,12 @@ public class EmployeeDirectoryController implements Initializable {
     //NAVIGATION METHODS
     @FXML
     public void addEmployee(){
-        SceneNavigator.switchTo("AddEmployeeView");
+        SceneNavigator.switchTo("employeeDirectory/AddEmployeeView");
     }
 
-//    @FXML public void goToDashboard(){SceneNavigator.switchTo("DashboardView");}
-    @FXML public void goToPassSlipIssuance(){SceneNavigator.switchTo("PassSlipIssuanceView");}
-//    @FXML public void goToMovementLogs(){SceneNavigator.switchTo("MovementLogsView");}
-    @FXML public void goToEmployeeDirectory(){SceneNavigator.switchTo("EmployeeDirectoryView");}
-    @FXML public void gotoReports(){SceneNavigator.switchTo("ReportsView");}
+//    @FXML public void goToDashboard(){SceneNavigator.switchTo("dashboard/ashboardView");}
+    @FXML public void goToPassSlipIssuance(){SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView");}
+//    @FXML public void goToMovementLogs(){SceneNavigator.switchTo("movementLogs/MovementLogsView");}
+    @FXML public void goToEmployeeDirectory(){SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");}
+    @FXML public void gotoReports(){SceneNavigator.switchTo("reports/ReportsView");}
 }
