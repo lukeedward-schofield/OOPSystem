@@ -117,4 +117,25 @@ public class EmployeeRepository {
         return employeeCount;
 
     }
+
+    // Inside your EmployeeRepository.java class
+    public boolean deleteEmployeeById(int employeeId) {
+        String sql = "DELETE FROM employee WHERE employee_id = ?";
+
+        // Using try-with-resources to automatically close connection and statement
+        try (Connection conn = Database.getConnection(); // Adjust this to match your connection getter
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, employeeId);
+            int rowsAffected = pstmt.executeUpdate();
+
+            // Returns true if a row was successfully deleted
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Database Error: Could not delete employee.");
+            return false;
+        }
+    }
 }
