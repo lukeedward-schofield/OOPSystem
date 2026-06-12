@@ -168,33 +168,33 @@ public class EmployeeDirectoryController implements Initializable {
     // =========================
 
     private void loadEmployees() {
-        // Fetch all objects inside memory storage first
         allEmployeesMasterList.setAll(employeeRepository.getAllEmployees());
 
-        // Reset current tracking variables back to the start index frame
-        currentPageIndex = 0;
+        // 3. Calculate total pages (e.g., 250 records / 10 = 25 pages)
+        int totalPagesCount = (int) Math.ceil((double) allEmployeesMasterList.size() / ROWS_PER_PAGE);
+        if (totalPagesCount == 0) totalPagesCount = 1;
 
-        // Push items onto the display
-        updateTablePageFrame();
+        pagination.setPageCount(totalPagesCount);
+        pagination.setCurrentPageIndex(0);
+
+        // 4. Listen for page numbers or arrow clicks
+        pagination.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> {
+            updateTablePageFrame(newValue.intValue());
+        });
+
+        // Render page 0 initially
+        updateTablePageFrame(0);
     }
 
     /**
      * Slices the large master list into chunks of 10 rows maximum
      * based on your current page location tracking context variable.
      */
-    private void updateTablePageFrame() {
-        int fromIndex = currentPageIndex * ROWS_PER_PAGE;
+    private void updateTablePageFrame(int pageIndex) {
+        int fromIndex = pageIndex * ROWS_PER_PAGE;
         int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, allEmployeesMasterList.size());
 
-        // Corner case safety catch: if deletions leave a page out of bounds
-        if (fromIndex > allEmployeesMasterList.size() && currentPageIndex > 0) {
-            currentPageIndex--;
-            updateTablePageFrame();
-            return;
-        }
-
-        // Sublist safe check block
-        if (fromIndex <= toIndex) {
+        if (fromIndex <= toIndex && fromIndex >= 0) {
             visibleEmployeesPageList.setAll(allEmployeesMasterList.subList(fromIndex, toIndex));
         } else {
             visibleEmployeesPageList.clear();
@@ -204,25 +204,6 @@ public class EmployeeDirectoryController implements Initializable {
     // =========================
     // PAGINATION BUTTON ACTIONS
     // =========================
-    @FXML
-    public void handleNextPage() {
-        int totalPagesCount = (int) Math.ceil((double) allEmployeesMasterList.size() / ROWS_PER_PAGE);
-
-        // Block actions if user reaches the maximum pages cap boundary layout frame
-        if (currentPageIndex < totalPagesCount - 1) {
-            currentPageIndex++;
-            updateTablePageFrame();
-        }
-    }
-
-    @FXML
-    public void handlePreviousPage() {
-        // Block action if they are already viewing page index 0
-        if (currentPageIndex > 0) {
-            currentPageIndex--;
-            updateTablePageFrame();
-        }
-    }
 
     @FXML
     public void addEmployee(){

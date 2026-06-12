@@ -127,10 +127,6 @@
                </columns>
 
             </TableView>
-            <HBox spacing="15" alignment="CENTER">
-               <Button text="Previous" onAction="#handlePreviousPage" />
-               <Button text="Next" onAction="#handleNextPage" />
-            </HBox>
 
             <!-- FOOTER -->
 
