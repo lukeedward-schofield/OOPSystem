@@ -25,30 +25,7 @@
 
     <!-- Left navigation copied visually from the Figma/PDF prototype. -->
     <left>
-        <VBox prefWidth="230" spacing="8" styleClass="sidebar">
-            <padding>
-                <Insets top="24" right="20" bottom="24" left="20" />
-            </padding>
-
-            <VBox spacing="2">
-                <Label text="Admin Portal" styleClass="sidebar-title" />
-                <Label text="Pass Slip System" styleClass="sidebar-subtitle" />
-            </VBox>
-
-            <Region prefHeight="24" />
-
-            <Button text="▦   Dashboard" maxWidth="Infinity" styleClass="nav-button" />
-            <Button text="▣   Issue Pass Slip" maxWidth="Infinity" styleClass="nav-button" />
-            <Button text="♟   Movement Logs" maxWidth="Infinity" styleClass="nav-button" />
-            <Button text="▤   Employee Directory" maxWidth="Infinity" styleClass="nav-button" />
-            <Button text="▥   Reports" maxWidth="Infinity" styleClass="nav-button-active" />
-
-            <Region VBox.vgrow="ALWAYS" />
-
-            <Separator styleClass="sidebar-divider" />
-            <Button text="⚙   Settings" maxWidth="Infinity" styleClass="nav-button" />
-            <Button text="⇱   Logout" maxWidth="Infinity" styleClass="nav-button" />
-        </VBox>
+        <fx:include fx:id="navBar" source="../components/Nav.fxml" />
     </left>
 
     <center>
