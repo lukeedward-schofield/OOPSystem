@@ -20,6 +20,7 @@ public class LoginController {
     public void login(){
 
         //authenticate first
-        SceneNavigator.switchTo("MovementlogView");
+        
+        SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
     }
 }
