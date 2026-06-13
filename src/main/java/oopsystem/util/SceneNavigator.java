@@ -15,18 +15,30 @@ public class SceneNavigator {
 
     public static void switchTo(String fxmlName) {
         try {
-            String path = "/oopsystem/" + fxmlName + ".fxml";
+            String[] paths = {
+                    "/oopsystem/dashboard/" + fxmlName + ".fxml",
+                    "/oopsystem/employeeDirectory/" + fxmlName + ".fxml",
+                    "/oopsystem/passSlipIssuance/" + fxmlName + ".fxml",
+                    "/oopsystem/reports/" + fxmlName + ".fxml",
+                    "/oopsystem/login/" + fxmlName + ".fxml",
+                    "/oopsystem/profile/" + fxmlName + ".fxml",
+                    "/oopsystem/" + fxmlName + ".fxml"
+            };
 
-            FXMLLoader loader = new FXMLLoader(
-                    SceneNavigator.class.getResource(path)
-            );
+            FXMLLoader loader = null;
+            for (String path : paths) {
+                var url = SceneNavigator.class.getResource(path);
+                if (url != null) {
+                    loader = new FXMLLoader(url);
+                    break;
+                }
+            }
 
-            if (loader.getLocation() == null) {
-                throw new RuntimeException("FXML NOT FOUND: " + path);
+            if (loader == null) {
+                throw new RuntimeException("FXML NOT FOUND: " + fxmlName);
             }
 
             Parent root = loader.load();
-
             stage.setScene(new Scene(root));
             stage.show();
 
