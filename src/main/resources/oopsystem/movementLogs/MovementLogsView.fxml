@@ -22,9 +22,6 @@
             <HBox alignment="CENTER_LEFT">
                 <Label text="Pass Slip Management" styleClass="top-bar-title"/>
                 <Pane HBox.hgrow="ALWAYS"/>
-                <Button text="🔔" styleClass="icon-btn"/>
-                <Button text="?"  styleClass="icon-btn"/>
-                <Button text="👤" styleClass="icon-btn"/>
             </HBox>
 
             <!-- PAGE TITLE -->
@@ -33,13 +30,32 @@
                 <Label text="Personnel Time-In/Out and Gate Pass Records" styleClass="page-subtitle"/>
             </VBox>
 
+            <!-- STAT CARDS -->
+            <HBox spacing="14.0">
+                <VBox HBox.hgrow="ALWAYS" styleClass="content-box" spacing="4.0">
+                    <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
+                    <Label text="TOTAL MOVEMENTS" styleClass="stat-title"/>
+                    <Label fx:id="totalMovementsLabel" text="0" styleClass="stat-value"/>
+                </VBox>
+                <VBox HBox.hgrow="ALWAYS" styleClass="content-box" spacing="4.0">
+                    <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
+                    <Label text="CURRENTLY OUT" styleClass="stat-title"/>
+                    <Label fx:id="currentlyOutLabel" text="0" styleClass="stat-value"/>
+                </VBox>
+                <VBox HBox.hgrow="ALWAYS" styleClass="content-box-primary" spacing="4.0">
+                    <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
+                    <Label text="PASS SLIP COMPLIANCE" styleClass="stat-title-primary"/>
+                    <Label fx:id="complianceRateLabel" text="0.0%" styleClass="stat-value-primary"/>
+                </VBox>
+            </HBox>
+
             <!-- FILTERS -->
             <VBox styleClass="content-box" spacing="10.0">
                 <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
                 <HBox spacing="14.0" alignment="CENTER_LEFT">
                     <VBox spacing="4.0">
                         <Label text="DATE RANGE" styleClass="filter-label"/>
-                        <HBox spacing="6.0" alignment="CENTER_LEFT">
+                        <HBox spacing="14.0" alignment="CENTER_LEFT">
                             <DatePicker fx:id="startDatePicker" prefWidth="148.0" promptText="mm/dd/yyyy"/>
                             <Label text="to"/>
                             <DatePicker fx:id="endDatePicker" prefWidth="148.0" promptText="mm/dd/yyyy"/>
@@ -54,29 +70,12 @@
                         <TextField fx:id="employeeNameFilter" prefWidth="180.0" promptText="Filter by name..."/>
                     </VBox>
                     <Pane HBox.hgrow="ALWAYS"/>
-                    <Button text="⬇ EXPORT PDF"   onAction="#handleExportPdf"   prefHeight="34.0" prefWidth="130.0" styleClass="btn-outline"/>
-                    <Button text="⬇ EXPORT EXCEL" onAction="#handleExportExcel" prefHeight="34.0" prefWidth="140.0" styleClass="btn-outline"/>
+                    <Button text="TIME IN" translateY="1.0"  onAction="#handleTimeIn"   prefHeight="34.0" prefWidth="130.0" styleClass="btn-time-in"/>
+
+                    <Button text="EXPORT" translateY="1.0" fx:id="exportBtn" prefHeight="34.0" prefWidth="140.0" styleClass="btn-outline"/>
                 </HBox>
             </VBox>
 
-            <!-- STAT CARDS -->
-            <HBox spacing="14.0">
-                <VBox HBox.hgrow="ALWAYS" styleClass="content-box" spacing="4.0">
-                    <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
-                    <Label text="TOTAL MOVEMENTS TODAY" styleClass="stat-title"/>
-                    <Label fx:id="totalMovementsLabel" text="0" styleClass="stat-value"/>
-                </VBox>
-                <VBox HBox.hgrow="ALWAYS" styleClass="content-box" spacing="4.0">
-                    <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
-                    <Label text="CURRENTLY OUT" styleClass="stat-title"/>
-                    <Label fx:id="currentlyOutLabel" text="0" styleClass="stat-value"/>
-                </VBox>
-                <VBox HBox.hgrow="ALWAYS" styleClass="content-box-primary" spacing="4.0">
-                    <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
-                    <Label text="PASS SLIP COMPLIANCE" styleClass="stat-title-primary"/>
-                    <Label fx:id="complianceRateLabel" text="0.0%" styleClass="stat-value-primary"/>
-                </VBox>
-            </HBox>
 
             <!-- TABLE -->
             <VBox styleClass="content-box" spacing="10.0" VBox.vgrow="ALWAYS">

@@ -30,6 +30,26 @@ public class MovementLogRepository {
             ORDER BY ps.created_at DESC
             """;
 
+    //time in memory sync and record
+    private static final String RECORD_TIME_IN = """
+            UPDATE pass_slip
+            SET time_in  = NOW(),
+                duration = EXTRACT(EPOCH FROM (NOW() - time_out))::INT / 60,
+                status   = 'RETURNED'
+            WHERE pass_slip_id = ?
+              AND status IN ('OUT', 'OVERDUE')
+            """;
+
+
+    private static final String MARK_OVERDUE = """
+            UPDATE pass_slip
+            SET status = 'OVERDUE'
+            WHERE status = 'OUT'
+              AND time_out IS NOT NULL
+              AND duration > 0
+              AND time_out + ((duration * 3) INTERVAL '1 minute') < NOW()
+            """;
+
     public List<MovementLog> getAllMovementLogs() {
 
         List<MovementLog> logs = new ArrayList<>();
@@ -49,7 +69,7 @@ public class MovementLogRepository {
                         rs.getTimestamp("time_out")   != null ? rs.getTimestamp("time_out").toLocalDateTime()   : null,
                         rs.getTimestamp("time_in")    != null ? rs.getTimestamp("time_in").toLocalDateTime()    : null,
                         rs.getInt("duration"),
-                        rs.getBoolean("status"),
+                        rs.getString("status"),
                         rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null
                 ));
             }
@@ -59,5 +79,29 @@ public class MovementLogRepository {
         }
 
         return logs;
+    }
+
+    public boolean recordTimeIn(int passSlipId) {
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(RECORD_TIME_IN)
+        ) {
+            stmt.setInt(1, passSlipId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0; // false if already RETURNED
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    private void syncOverdueStatuses() {
+        try (
+                Connection conn        = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(MARK_OVERDUE)
+        ) {
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

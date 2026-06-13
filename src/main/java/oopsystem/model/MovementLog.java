@@ -12,7 +12,7 @@ public class MovementLog {
     private final LocalDateTime timeOut;
     private final LocalDateTime timeIn;
     private final int duration;
-    private final boolean status;
+    private  String status;
     private final LocalDateTime createdAt;
 
     public MovementLog(
@@ -24,7 +24,7 @@ public class MovementLog {
             LocalDateTime timeOut,
             LocalDateTime timeIn,
             int duration,
-            boolean status,
+            String status,
             LocalDateTime createdAt){
 
         this.passSlipId = passSlipId;
@@ -37,6 +37,17 @@ public class MovementLog {
         this.duration = duration;
         this.status = status;
         this.createdAt = createdAt;
+
+        resolveOverdue();
+    }
+
+    private void resolveOverdue() {
+        if ("OUT".equals(status) && timeOut != null && duration > 0) {
+            LocalDateTime deadline = timeOut.plusMinutes(duration + 3);
+            if (LocalDateTime.now().isAfter(deadline)) {
+                this.status = "OVERDUE";
+            }
+        }
     }
 
     public int getPassSlipId() {
@@ -71,7 +82,7 @@ public class MovementLog {
         return duration;
     }
 
-    public boolean isStatus() {
+    public String getPassStatus() {
         return status;
     }
 
