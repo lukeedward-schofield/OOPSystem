@@ -121,6 +121,7 @@ public class MovementLogController {
     private final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private final DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("hh:mm a");
     private final DateTimeFormatter cardStampFmt = DateTimeFormatter.ofPattern("MMM dd, yyyy | hh:mm a");
+    private ContextMenu exportMenu;
 
     /* ------------------------------------------------------------------ */
     @FXML
@@ -212,10 +213,22 @@ public class MovementLogController {
         movementLogsTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 newScene.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, e -> {
-                    // If click is NOT on the table, clear selection → collapses detail card
-                    if (!movementLogsTable.isHover()) {
-                        movementLogsTable.getSelectionModel().clearSelection();
+
+                    javafx.scene.Node target = (javafx.scene.Node) e.getTarget();
+
+                    // ignore clicks on UI controls
+                    while (target != null) {
+                        if (target instanceof Button
+                                || target instanceof TextField
+                                || target instanceof ComboBox
+                                || target instanceof TableView) {
+                            return; // DO NOT clear selection
+                        }
+                        target = target.getParent();
                     }
+
+                    // only clear if clicking truly empty space
+                    movementLogsTable.getSelectionModel().clearSelection();
                 });
             }
         });
@@ -365,15 +378,26 @@ public class MovementLogController {
         }
 
 
-        String msg = "OVERDUE".equals(selected.getPassStatus())
-                ? selected.getEmployeeName() + " is overdue. Record Time In anyway?"
-                : "Record Time In for " + selected.getEmployeeName() + "?";
+        String msg;
+        if ("OVERDUE".equals(selected.getPassStatus())) {
+            msg = "This employee is OVERDUE.\nAre you sure you want to record TIME IN?";
+        } else {
+            msg = "Record TIME IN for " + selected.getEmployeeName() + "?";
+        }
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, msg,
-                ButtonType.YES, ButtonType.NO);
+        ButtonType yesBtn = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType noBtn = new ButtonType("No", ButtonBar.ButtonData.NO);
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm Time In");
+        confirm.setHeaderText("Time In Confirmation");
+        confirm.setContentText(msg);
+        confirm.getButtonTypes().setAll(yesBtn, noBtn);
+
         confirm.showAndWait().ifPresent(btn -> {
-            if (btn == ButtonType.YES) {
+            if (btn == yesBtn) {
                 boolean success = repository.recordTimeIn(selected.getPassSlipId());
+
                 if (success) {
                     new Alert(Alert.AlertType.INFORMATION,
                             "Time In recorded for " + selected.getEmployeeName() + ".").show();
@@ -384,26 +408,27 @@ public class MovementLogController {
                 }
             }
         });
-    }
-
+}
     /* EXPORT */
     private void setupExportMenu() {
-        ContextMenu exportMenu = new ContextMenu();
 
-        MenuItem exportPdf = new MenuItem("📄  Export as PDF");
-        MenuItem exportExcel = new MenuItem("📊  Export as Excel");
+        exportMenu = new ContextMenu();
+
+        MenuItem exportPdf = new MenuItem("📄 Export as PDF");
+        MenuItem exportExcel = new MenuItem("📊 Export as Excel");
 
         exportPdf.setOnAction(e -> handleExportPdf());
         exportExcel.setOnAction(e -> handleExportExcel());
 
         exportMenu.getItems().addAll(exportPdf, exportExcel);
 
-        // Show menu above the button on click
-        exportBtn.setOnAction(e -> exportMenu.show(
-                exportBtn,
-                javafx.geometry.Side.BOTTOM,  // pops below the button
-                0, 4                          // x and y offset
-        ));
+        exportBtn.setOnAction(e -> {
+            if (exportMenu.isShowing()) {
+                exportMenu.hide();
+            } else {
+                exportMenu.show(exportBtn, Side.BOTTOM, 0, 4);
+            }
+        });
     }
 
     private void handleExportPdf() {
