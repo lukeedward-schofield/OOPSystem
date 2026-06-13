@@ -8,7 +8,7 @@
             fx:controller="oopsystem.controller.DashboardController">
 
     <left>
-        <VBox prefWidth="230" styleClass="sidebar" stylesheets="@styling/dashboard.css">
+        <VBox prefWidth="230" styleClass="sidebar" stylesheets="@../styling/dashboard.css">
             <padding>
                 <Insets bottom="20" left="15" right="15" top="20"/>
             </padding>
@@ -30,7 +30,7 @@
 
     <center>
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="content-scroll"
-                    stylesheets="@styling/dashboard.css">
+                    stylesheets="@../styling/dashboard.css">
             <VBox styleClass="content-area" spacing="18">
 
                 <!-- STAT CARDS -->

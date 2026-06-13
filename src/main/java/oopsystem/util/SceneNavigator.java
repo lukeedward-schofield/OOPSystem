@@ -9,45 +9,41 @@ public class SceneNavigator {
 
     private static Stage stage;
 
-    // Called once in Main/EmployeeApplication to register the primary stage
     public static void setStage(Stage primaryStage) {
         stage = primaryStage;
     }
 
     public static void switchTo(String fxmlName) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    SceneNavigator.class.getResource("/oopsystem/" + fxmlName + ".fxml")
-            );
+            String[] paths = {
+                    "/oopsystem/dashboard/" + fxmlName + ".fxml",
+                    "/oopsystem/employeeDirectory/" + fxmlName + ".fxml",
+                    "/oopsystem/passSlipIssuance/" + fxmlName + ".fxml",
+                    "/oopsystem/reports/" + fxmlName + ".fxml",
+                    "/oopsystem/login/" + fxmlName + ".fxml",
+                    "/oopsystem/profile/" + fxmlName + ".fxml",
+                    "/oopsystem/" + fxmlName + ".fxml"
+            };
+
+            FXMLLoader loader = null;
+            for (String path : paths) {
+                var url = SceneNavigator.class.getResource(path);
+                if (url != null) {
+                    loader = new FXMLLoader(url);
+                    break;
+                }
+            }
+
+            if (loader == null) {
+                throw new RuntimeException("FXML NOT FOUND: " + fxmlName);
+            }
+
             Parent root = loader.load();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
+            stage.setScene(new Scene(root));
             stage.show();
+
         } catch (Exception e) {
-            System.err.println("Failed to load scene: " + fxmlName);
             e.printStackTrace();
         }
-    }
-
-    // Use this if you need to access the controller after loading
-    public static <T> T switchToAndGetController(String fxmlName) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    SceneNavigator.class.getResource("/oopsystem/view/" + fxmlName + ".fxml")
-            );
-            Parent root = loader.load();
-            Scene scene = new Scene(root);
-            stage.setScene(scene);
-            stage.show();
-            return loader.getController();
-        } catch (Exception e) {
-            System.err.println("Failed to load scene: " + fxmlName);
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static Stage getStage() {
-        return stage;
     }
 }

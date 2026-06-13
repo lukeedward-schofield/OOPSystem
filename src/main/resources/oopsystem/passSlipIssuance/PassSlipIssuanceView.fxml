@@ -32,15 +32,14 @@
                </children>
             </VBox>
             <VBox prefHeight="637.0" prefWidth="230.0">
-
-                  <Button fx:id="dashboardMenu" maxWidth="Infinity" text="Dashboard" />
-                  <Button fx:id="passSlipMenu" onAction="#goToPassSlipIssuance" maxWidth="Infinity" text="Issue Pass Slip" />
-                  <Button fx:id="movementLogsMenu" maxWidth="Infinity" text="Movement Logs" />
-                  <Button fx:id="employeeDirectoryMenu" onAction="#goToEmployeeDirectory" maxWidth="Infinity" styleClass="active-menu" text="Employee Directory" />
-                  <Button fx:id="reportsMenu" onAction="#gotoReports" maxWidth="Infinity" text="Reports" />
-
-                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Settings" />
-                  <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Logout" />
+               <!-- Dashboard: uncomment onAction when DashboardView is ready -->
+               <Button fx:id="dashboardMenu" maxWidth="Infinity" text="Dashboard" />
+               <Button fx:id="passSlipMenu" onAction="#goToPassSlipIssuance" maxWidth="Infinity" text="Issue Pass Slip" />
+               <Button fx:id="movementLogsMenu" maxWidth="Infinity" text="Movement Logs" />
+               <Button fx:id="employeeDirectoryMenu" onAction="#goToEmployeeDirectory" maxWidth="Infinity" styleClass="active-menu" text="Employee Directory" />
+               <Button fx:id="reportsMenu" onAction="#gotoReports" maxWidth="Infinity" text="Reports" />
+               <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Settings" />
+               <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Logout" onAction="#handleLogout" />
             </VBox>
          </children>
       </VBox>
@@ -75,13 +74,14 @@
                                     <VBox prefHeight="75.0" prefWidth="238.0">
                                        <children>
                                           <Label text="SEARCH EMPLOYEE" />
-                                          <TextField />
+                                          <!-- fx:id added; onAction removed — search fires via listener in controller -->
+                                          <TextField fx:id="searchEmployeeField" promptText="Type name or department..." />
                                        </children>
                                     </VBox>
                                     <VBox prefHeight="75.0" prefWidth="247.0">
                                        <children>
                                           <Label text="REASON FOR LEAVING" />
-                                          <TextField />
+                                          <TextField fx:id="reasonField" promptText="Max 50 characters" />
                                        </children>
                                     </VBox>
                                  </children>
@@ -89,7 +89,7 @@
                               <VBox fillWidth="false" prefHeight="64.0" prefWidth="482.0">
                                  <children>
                                     <Label text="DESTINATION" />
-                                    <TextField prefHeight="25.0" prefWidth="485.0" />
+                                    <TextField fx:id="destinationField" prefHeight="25.0" prefWidth="485.0" promptText="Optional" />
                                  </children>
                               </VBox>
                               <HBox prefHeight="66.0" prefWidth="482.0">
@@ -97,26 +97,41 @@
                                     <VBox prefHeight="76.0" prefWidth="240.0">
                                        <children>
                                           <Label text="TIME-OUT (CURRENT)" />
-                                          <TextField />
+                                          <!-- editable="false" set in controller via initialize() -->
+                                          <TextField fx:id="timeOutField" />
                                        </children>
                                     </VBox>
                                     <VBox prefHeight="76.0" prefWidth="245.0">
                                        <children>
                                           <Label text="ESTIMATED RETURN" />
-                                          <TextField />
+                                          <!-- For printed slip only — not stored in DB -->
+                                          <TextField fx:id="estimatedReturnField" promptText="e.g. 2:00 PM" />
                                        </children>
                                     </VBox>
                                  </children>
                               </HBox>
-                              <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="222.0" text="Generate Pass Slip" />
+                              <!-- Feedback label — sits between fields and button -->
+                              <Label fx:id="feedbackLabel" prefWidth="482.0" wrapText="true" />
+                              <Button fx:id="generateButton"
+                                      mnemonicParsing="false"
+                                      prefHeight="25.0"
+                                      prefWidth="222.0"
+                                      text="Generate Pass Slip"
+                                      onAction="#handleGeneratePassSlip" />
                            </children>
                         </VBox>
                      </children>
                   </VBox>
                   <VBox alignment="CENTER" fillWidth="false" prefHeight="579.0" prefWidth="410.0" style="-fx-border-color: red;">
                      <children>
+                        <!-- Preview panel placeholder — left empty per project decision -->
                         <VBox prefHeight="459.0" prefWidth="338.0" style="-fx-border-color: red;" />
-                        <Button mnemonicParsing="false" prefHeight="55.0" prefWidth="191.0" text="DOWNLOAD PDF" />
+                        <Button fx:id="downloadPdfButton"
+                                mnemonicParsing="false"
+                                prefHeight="55.0"
+                                prefWidth="191.0"
+                                text="DOWNLOAD PDF"
+                                onAction="#handleDownloadPdf" />
                      </children>
                   </VBox>
                </children>

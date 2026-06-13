@@ -67,7 +67,7 @@ public class AddEmployeeController {
         boolean success = repo.addEmployee(employee);
 
         if (success) {
-            SceneNavigator.switchTo("EmployeeDirectoryView");
+            SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
             System.out.println("Employee added");
             clearForm();
         }
