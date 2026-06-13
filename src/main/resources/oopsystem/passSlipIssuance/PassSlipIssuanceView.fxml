@@ -19,31 +19,9 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="oopsystem.controller.PassSlipIssuanceController">
    <left>
-      <VBox fillWidth="false" prefHeight="700.0" prefWidth="230.0" style="-fx-border-color: gray;" BorderPane.alignment="CENTER">
-         <children>
-            <VBox alignment="CENTER" prefHeight="68.0" prefWidth="230.0">
-               <children>
-                  <Label prefHeight="30.0" prefWidth="200.0" text="Admin Portal">
-                     <font>
-                        <Font name="System Bold" size="20.0" />
-                     </font>
-                  </Label>
-                  <Label prefHeight="17.0" prefWidth="200.0" text="Pass Slip System" />
-               </children>
-            </VBox>
-            <VBox prefHeight="637.0" prefWidth="230.0">
-               <!-- Dashboard: uncomment onAction when DashboardView is ready -->
-               <Button fx:id="dashboardMenu" maxWidth="Infinity" text="Dashboard" />
-               <Button fx:id="passSlipMenu" onAction="#goToPassSlipIssuance" maxWidth="Infinity" text="Issue Pass Slip" />
-               <Button fx:id="movementLogsMenu" maxWidth="Infinity" text="Movement Logs" />
-               <Button fx:id="employeeDirectoryMenu" onAction="#goToEmployeeDirectory" maxWidth="Infinity" styleClass="active-menu" text="Employee Directory" />
-               <Button fx:id="reportsMenu" onAction="#gotoReports" maxWidth="Infinity" text="Reports" />
-               <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Settings" />
-               <Button mnemonicParsing="false" prefHeight="60.0" prefWidth="230.0" text="Logout" onAction="#handleLogout" />
-            </VBox>
-         </children>
-      </VBox>
+      <fx:include fx:id="navBar" source="../components/Nav.fxml" />
    </left>
+
    <center>
       <VBox prefHeight="700.0" prefWidth="959.0" BorderPane.alignment="CENTER">
          <children>

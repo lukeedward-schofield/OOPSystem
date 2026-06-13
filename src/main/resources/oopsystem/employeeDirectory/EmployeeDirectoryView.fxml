@@ -10,7 +10,6 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -36,10 +35,6 @@
             <Label styleClass="header-title" text="Pass Slip Management" />
 
             <Pane HBox.hgrow="ALWAYS" />
-
-            <Button text="🔔" />
-            <Button text="?" />
-            <Button text="👤" />
 
          </HBox>
          <HBox prefHeight="53.0" prefWidth="1036.0">
@@ -86,7 +81,7 @@
                </StackPane>
                <VBox>
                   <Label text="ACTIVE TODAY" />
-                  <Label fx:id="activeEmployeeCount" styleClass="stat-number"/>
+                  <Label fx:id="activeEmployeeCount" styleClass="stat-number" />
                </VBox>
             </HBox>
 
@@ -110,9 +105,6 @@
 
                <Pane HBox.hgrow="ALWAYS" />
 
-               <Button text="⬇" />
-               <Button text="🖨" />
-
             </HBox>
 
             <!-- TABLE -->
@@ -121,15 +113,16 @@
 
                <columns>
 
-                  <TableColumn fx:id="nameColumn" text="Employee Name" />
+                  <TableColumn fx:id="nameColumn" prefWidth="189.0" text="Employee Name" />
 
-                  <TableColumn fx:id="idColumn" text="Employee ID" />
+                  <TableColumn fx:id="idColumn" minWidth="0.0" prefWidth="115.0" text="Employee ID" />
 
-                  <TableColumn fx:id="departmentColumn" text="Department" />
+                  <TableColumn fx:id="departmentColumn" prefWidth="142.0" text="Department" />
 
-                  <TableColumn fx:id="positionColumn" text="Position" />
+                  <TableColumn fx:id="positionColumn" prefWidth="157.0" text="Position" />
 
-                  <TableColumn fx:id="contactColumn" text="Contact Info" />
+                  <TableColumn fx:id="contactColumn" prefWidth="152.0" text="Contact Info" />
+                  <TableColumn fx:id="actionColumn" prefWidth="120.0" text="Actions" />
 
                </columns>
 
@@ -143,7 +136,7 @@
 
                <Pane HBox.hgrow="ALWAYS" />
 
-               <Pagination fx:id="pagination" pageCount="250" />
+               <Pagination fx:id="pagination" maxPageIndicatorCount="10"/>
             </HBox>
 
          </VBox>

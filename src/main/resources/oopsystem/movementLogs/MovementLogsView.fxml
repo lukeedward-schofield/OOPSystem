@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="700.0" prefWidth="1209.0"
+            stylesheets="@../styling/MovementlogView.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="oopsystem.controller.MovementLogController">
+
+    <left>
+        <fx:include fx:id="navBar" source="../components/Nav.fxml" />
+    </left>
+
+    <center>
+        <VBox spacing="14.0">
+            <padding><Insets bottom="20.0" left="22.0" right="22.0" top="15.0"/></padding>
+
+            <!-- TOP BAR -->
+            <HBox alignment="CENTER_LEFT">
+                <Label text="Pass Slip Management" styleClass="top-bar-title"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button text="🔔" styleClass="icon-btn"/>
+                <Button text="?"  styleClass="icon-btn"/>
+                <Button text="👤" styleClass="icon-btn"/>
+            </HBox>
+
+            <!-- PAGE TITLE -->
+            <VBox spacing="2.0">
+                <Label text="Movement Logs" styleClass="page-title"/>
+                <Label text="Personnel Time-In/Out and Gate Pass Records" styleClass="page-subtitle"/>
+            </VBox>
+
+            <!-- FILTERS -->
+            <VBox styleClass="content-box" spacing="10.0">
+                <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
+                <HBox spacing="14.0" alignment="CENTER_LEFT">
+                    <VBox spacing="4.0">
+                        <Label text="DATE RANGE" styleClass="filter-label"/>
+                        <HBox spacing="6.0" alignment="CENTER_LEFT">
+                            <DatePicker fx:id="startDatePicker" prefWidth="148.0" promptText="mm/dd/yyyy"/>
+                            <Label text="to"/>
+                            <DatePicker fx:id="endDatePicker" prefWidth="148.0" promptText="mm/dd/yyyy"/>
+                        </HBox>
+                    </VBox>
+                    <VBox spacing="4.0">
+                        <Label text="DEPARTMENT" styleClass="filter-label"/>
+                        <ComboBox fx:id="departmentFilter" prefWidth="160.0" promptText="All Departments"/>
+                    </VBox>
+                    <VBox spacing="4.0">
+                        <Label text="EMPLOYEE NAME" styleClass="filter-label"/>
+                        <TextField fx:id="employeeNameFilter" prefWidth="180.0" promptText="Filter by name..."/>
+                    </VBox>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                    <Button text="⬇ EXPORT PDF"   onAction="#handleExportPdf"   prefHeight="34.0" prefWidth="130.0" styleClass="btn-outline"/>
+                    <Button text="⬇ EXPORT EXCEL" onAction="#handleExportExcel" prefHeight="34.0" prefWidth="140.0" styleClass="btn-outline"/>
+                </HBox>
+            </VBox>
+
+            <!-- STAT CARDS -->
+            <HBox spacing="14.0">
+                <VBox HBox.hgrow="ALWAYS" styleClass="content-box" spacing="4.0">
+                    <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
+                    <Label text="TOTAL MOVEMENTS TODAY" styleClass="stat-title"/>
+                    <Label fx:id="totalMovementsLabel" text="0" styleClass="stat-value"/>
+                </VBox>
+                <VBox HBox.hgrow="ALWAYS" styleClass="content-box" spacing="4.0">
+                    <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
+                    <Label text="CURRENTLY OUT" styleClass="stat-title"/>
+                    <Label fx:id="currentlyOutLabel" text="0" styleClass="stat-value"/>
+                </VBox>
+                <VBox HBox.hgrow="ALWAYS" styleClass="content-box-primary" spacing="4.0">
+                    <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
+                    <Label text="PASS SLIP COMPLIANCE" styleClass="stat-title-primary"/>
+                    <Label fx:id="complianceRateLabel" text="0.0%" styleClass="stat-value-primary"/>
+                </VBox>
+            </HBox>
+
+            <!-- TABLE -->
+            <VBox styleClass="content-box" spacing="10.0" VBox.vgrow="ALWAYS">
+                <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
+                <TableView fx:id="movementLogsTable" VBox.vgrow="ALWAYS" prefHeight="220.0">
+                    <columns>
+                        <TableColumn fx:id="dateColumn"     text="DATE"                prefWidth="110.0"/>
+                        <TableColumn fx:id="employeeColumn" text="EMPLOYEE"            prefWidth="170.0"/>
+                        <TableColumn fx:id="reasonColumn"   text="REASON / DESTINATION" prefWidth="210.0"/>
+                        <TableColumn fx:id="timeOutColumn"  text="TIME-OUT"            prefWidth="90.0"/>
+                        <TableColumn fx:id="timeInColumn"   text="TIME-IN"             prefWidth="90.0"/>
+                        <TableColumn fx:id="durationColumn" text="DURATION"            prefWidth="90.0"/>
+                        <TableColumn fx:id="statusColumn"   text="STATUS"              prefWidth="100.0"/>
+                    </columns>
+                </TableView>
+
+                <!-- PAGINATION ROW -->
+                <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                    <Button fx:id="prevPageBtn" text="◀ Prev" onAction="#handlePrevPage" styleClass="btn-page-nav"/>
+                    <Label  fx:id="pageInfoLabel" text="Page 1 of 1" styleClass="page-info-text"/>
+                    <Button fx:id="nextPageBtn" text="Next ▶" onAction="#handleNextPage" styleClass="btn-page-nav"/>
+                </HBox>
+            </VBox>
+
+            <!-- DETAIL CARD (hidden until a row is selected) -->
+            <VBox fx:id="detailCard" styleClass="detail-card" spacing="8.0"
+                  visible="false" managed="false">
+                <padding><Insets bottom="16.0" left="20.0" right="20.0" top="16.0"/></padding>
+                <HBox spacing="16.0" alignment="CENTER_LEFT">
+                    <VBox spacing="4.0">
+                        <Label text="TRANSACTION ID" styleClass="filter-label"/>
+                        <Label fx:id="detailTransactionId" text="#PS-XXXX-XXXXX" styleClass="detail-id"/>
+                    </VBox>
+                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                        <Label text="ISSUED BY" styleClass="filter-label"/>
+                        <Label fx:id="detailEmployee" text="-" styleClass="detail-employee"/>
+                    </VBox>
+                    <VBox spacing="4.0">
+                        <Label text="DEPARTMENT" styleClass="filter-label"/>
+                        <Label fx:id="detailDepartment" text="-" styleClass="detail-field"/>
+                    </VBox>
+                    <VBox spacing="4.0">
+                        <Label text="TIMESTAMP" styleClass="filter-label"/>
+                        <Label fx:id="detailTimestamp" text="-" styleClass="detail-field"/>
+                    </VBox>
+                    <VBox spacing="4.0" alignment="CENTER">
+                        <Label text="STATUS" styleClass="filter-label"/>
+                        <Label fx:id="detailStatus" text="-" styleClass="detail-status"/>
+                    </VBox>
+                </HBox>
+                <VBox spacing="4.0">
+                    <Label text="AUTHORIZATION NOTES" styleClass="filter-label"/>
+                    <Label fx:id="detailNotes" text="-" styleClass="detail-notes" wrapText="true"/>
+                </VBox>
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

@@ -76,3 +76,12 @@
 .table-view .column-header-background{
     -fx-background-color:#f7f7f7;
 }
+
+.pagination .page-separator,
+.pagination .pagination-control + StackPane {
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+    -fx-opacity: 0;
+    -fx-visible: false;
+}

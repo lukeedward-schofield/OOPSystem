@@ -18,19 +18,17 @@
          <children>
       
               <!--NAVIGATION-->
-              <Button fx:id="dashboardMenu" maxWidth="Infinity" onAction="#goToDashboard" prefHeight="60.0" prefWidth="230.0" text="Dashboard" />
-              <Button fx:id="passSlipMenu" maxWidth="Infinity" onAction="#goToPassSlipIssuance" prefHeight="60.0" prefWidth="230.0" text="Issue Pass Slip" />
-              <Button fx:id="movementLogsMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Movement Logs" />
-              <Button fx:id="employeeDirectoryMenu" maxWidth="Infinity" onAction="#goToEmployeeDirectory" prefHeight="60.0" prefWidth="230.0" styleClass="active-menu" text="Employee Directory" />
-              <Button fx:id="reportsMenu" maxWidth="Infinity" onAction="#gotoReports" prefHeight="60.0" prefWidth="230.0" text="Reports">
-               <VBox.margin>
-                  <Insets bottom="345.0" />
-               </VBox.margin>
-            </Button>
-      
-              <Button fx:id="profileMenu" onAction="#goToProfile" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Settings" />
-      
-              <Button maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Logout" />
+             <Button fx:id="dashboardMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Dashboard"/>
+             <Button fx:id="passSlipMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Issue Pass Slip"/>
+             <Button fx:id="movementLogsMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Movement Logs"/>
+             <Button fx:id="employeeDirectoryMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" styleClass="active-menu" text="Employee Directory"/>
+             <Button fx:id="reportsMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Reports">
+                 <VBox.margin>
+                     <Insets bottom="345.0"/>
+                 </VBox.margin>
+             </Button>
+             <Button fx:id="profileMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Settings"/>
+             <Button maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Logout"/>
          </children>
       </VBox>
 

@@ -1,6 +1,7 @@
 package oopsystem.controller;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 
 import oopsystem.model.Employee;
@@ -9,23 +10,12 @@ import oopsystem.util.SceneNavigator;
 
 public class AddEmployeeController {
 
-    @FXML
-    private TextField firstNameField;
-
-    @FXML
-    private TextField lastNameField;
-
-    @FXML
-    private TextField emailField;
-
-    @FXML
-    private TextField contactNumberField;
-
-    @FXML
-    private TextField departmentField;
-
-    @FXML
-    private TextField positionField;
+    @FXML private TextField firstNameField;
+    @FXML private TextField lastNameField;
+    @FXML private TextField emailField;
+    @FXML private TextField contactNumberField;
+    @FXML private TextField departmentField;
+    @FXML private TextField positionField;
 
     private final EmployeeRepository repo =
             new EmployeeRepository();
@@ -35,21 +25,30 @@ public class AddEmployeeController {
     private void handleAddEmployee() {
 
         String firstName = firstNameField.getText().trim();
-
         String lastName = lastNameField.getText().trim();
-
         String email = emailField.getText().trim();
-
         String contact = contactNumberField.getText().trim();
-
         String department = departmentField.getText().trim();
-
         String position = positionField.getText().trim();
 
+        // 1. Validation for Blank Required Fields
         if (firstName.isBlank() || lastName.isBlank() || email.isBlank()) {
+            showAlert(Alert.AlertType.WARNING, "Validation Error", "Missing Fields",
+                    "First Name, Last Name, and Email are required fields.");
+            return;
+        }
 
-            System.out.println("Required fields missing");
+        // 2. Database Validation: Check for Duplicate Email
+        if (repo.existsByEmail(email)) {
+            showAlert(Alert.AlertType.ERROR, "Duplicate Data Error", "Email Already Registered",
+                    "The email address '" + email + "' is already assigned to an employee.");
+            return;
+        }
 
+        // 3. Database Validation: Check for Duplicate Full Name (Case-Insensitive)
+        if (repo.existsByFullName(firstName, lastName)) {
+            showAlert(Alert.AlertType.ERROR, "Duplicate Data Error", "Employee Name Exists",
+                    "An employee named '" + firstName + " " + lastName + "' already exists in the directory.");
             return;
         }
 
@@ -73,6 +72,15 @@ public class AddEmployeeController {
         }
     }
 
+    // Helper method to keep alert popup code clean and reusable
+    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
     private void clearForm() {
 
         firstNameField.clear();
@@ -85,6 +93,6 @@ public class AddEmployeeController {
 
     @FXML
     private void handleCancel() {
-        clearForm();
+        SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
     }
 }
