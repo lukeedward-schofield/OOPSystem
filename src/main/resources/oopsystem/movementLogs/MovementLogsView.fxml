@@ -88,7 +88,7 @@
                         <TableColumn fx:id="timeOutColumn"  text="TIME-OUT"            prefWidth="90.0"/>
                         <TableColumn fx:id="timeInColumn"   text="TIME-IN"             prefWidth="90.0"/>
                         <TableColumn fx:id="durationColumn" text="DURATION"            prefWidth="90.0"/>
-                        <TableColumn fx:id="statusColumn"   text="STATUS"              prefWidth="100.0"/>
+                        <TableColumn fx:id="statusColumn"   text="STATUS"              prefWidth="140.0"/>
                     </columns>
                 </TableView>
 

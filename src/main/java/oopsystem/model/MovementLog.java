@@ -11,9 +11,11 @@ public class MovementLog {
     private final String destination;
     private final LocalDateTime timeOut;
     private final LocalDateTime timeIn;
-    private final int duration;
-    private  String status;
+    private String status;
     private final LocalDateTime createdAt;
+    private final int estimatedDuration;  // was: duration
+    private final int actualDuration;
+    private final boolean is_late;
 
     public MovementLog(
             int passSlipId,
@@ -23,9 +25,12 @@ public class MovementLog {
             String destination,
             LocalDateTime timeOut,
             LocalDateTime timeIn,
-            int duration,
+            int estimatedDuration,
+            int actualDuration,
             String status,
-            LocalDateTime createdAt){
+            boolean is_late,
+            LocalDateTime createdAt) {
+
 
         this.passSlipId = passSlipId;
         this.employeeName = employeeName;
@@ -34,16 +39,18 @@ public class MovementLog {
         this.destination = destination;
         this.timeOut = timeOut;
         this.timeIn = timeIn;
-        this.duration = duration;
         this.status = status;
+        this.is_late = is_late;
+        this.estimatedDuration = estimatedDuration;
+        this.actualDuration = actualDuration;
         this.createdAt = createdAt;
 
         resolveOverdue();
     }
 
     private void resolveOverdue() {
-        if ("OUT".equals(status) && timeOut != null && duration > 0) {
-            LocalDateTime deadline = timeOut.plusMinutes(duration + 3);
+        if ("OUT".equals(status) && timeOut != null && estimatedDuration > 0) {
+            LocalDateTime deadline = timeOut.plusMinutes(estimatedDuration + 3);
             if (LocalDateTime.now().isAfter(deadline)) {
                 this.status = "OVERDUE";
             }
@@ -78,8 +85,12 @@ public class MovementLog {
         return timeIn;
     }
 
-    public int getDuration() {
-        return duration;
+    public int getEstimatedDuration() {
+        return estimatedDuration;
+    }
+
+    public int getActualDuration() {
+        return actualDuration;
     }
 
     public String getPassStatus() {
@@ -88,5 +99,9 @@ public class MovementLog {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public boolean isLate() {
+        return is_late;
     }
 }
