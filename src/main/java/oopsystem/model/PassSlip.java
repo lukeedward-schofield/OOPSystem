@@ -3,15 +3,6 @@ package oopsystem.model;
 import javafx.beans.property.*;
 import java.time.LocalDateTime;
 
-/**
- * Model class representing a single pass_slip table row.
-
- * Uses JavaFX Properties to stay consistent with Employee.java,
- * which also uses Property fields throughout the project.
-
- * Nullable DB columns (time_in, duration, status, file_path, destination)
- * are represented as plain Object types so they can hold null safely.
- */
 public class PassSlip {
 
     private final IntegerProperty passSlipId;
@@ -38,7 +29,8 @@ public class PassSlip {
             int issuedBy,
             String reason,
             String destination,
-            LocalDateTime timeOut) {
+            LocalDateTime timeOut,
+            int duration) {
 
         this.passSlipId  = new SimpleIntegerProperty(0);
         this.employeeId  = new SimpleIntegerProperty(employeeId);
@@ -47,6 +39,7 @@ public class PassSlip {
         this.destination = new SimpleStringProperty(destination);
         this.filePath    = new SimpleStringProperty(null);
         this.timeOut     = timeOut;
+        this.duration    = duration;
         this.status      = false;
     }
 
