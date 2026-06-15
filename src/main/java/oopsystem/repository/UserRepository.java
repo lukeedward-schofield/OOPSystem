@@ -63,6 +63,7 @@ public class UserRepository {
             return pstmt.executeUpdate() > 0;
         }
     }
+
     public boolean existsByUsername(String username) throws SQLException {
         String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
         try (Connection conn = Database.getConnection();
@@ -73,7 +74,41 @@ public class UserRepository {
         }
         return false;
     }
+    /**
+     * UPDATE: Updates username, first name, last name, and optionally password
+     */
+    public boolean updateCredentials(int userId, String newUsername, String newFirstName, String newLastName, String newHashedPassword) throws SQLException {
+        String sql = "UPDATE users SET username = ?, first_name = ?, last_name = ?, user_password = ? WHERE user_id = ?";
 
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, newUsername);
+            pstmt.setString(2, newFirstName);
+            pstmt.setString(3, newLastName);
+            pstmt.setString(4, newHashedPassword);
+            pstmt.setInt(5, userId);
+
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
+    /**
+     * READ: Check if username is taken by a DIFFERENT user (exclude current user)
+     */
+    public boolean existsByUsernameExcluding(String username, int excludeUserId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ? AND user_id != ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            pstmt.setInt(2, excludeUserId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        }
+        return false;
+    }
     /**
      * READ: Fetches all users joined with their employee details for the TableView
      */
