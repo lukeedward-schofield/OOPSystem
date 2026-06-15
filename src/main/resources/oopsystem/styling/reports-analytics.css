@@ -102,6 +102,7 @@
 
 .content-wrapper {
     -fx-background-color: #f7f5f4;
+    -fx-fill-width: true;
 }
 
 /* Filter row */
@@ -113,7 +114,7 @@
 }
 
 .filter-row {
-    -fx-padding: 0 0 6 0;
+    -fx-padding: 0 0 2 0;
 }
 
 .date-picker, .date-picker .text-field {
@@ -131,7 +132,7 @@
 .outline-button, .maroon-button, .tab-button, .tab-button-active {
     -fx-background-radius: 2;
     -fx-border-radius: 2;
-    -fx-padding: 8 16 8 16;
+    -fx-padding: 7 14 7 14;
     -fx-font-size: 12px;
     -fx-font-weight: 800;
     -fx-cursor: hand;
@@ -151,7 +152,7 @@
 
 /* Cards and panels */
 .summary-row {
-    -fx-padding: 2 0 10 0;
+    -fx-padding: 0 0 6 0;
 }
 
 .summary-card, .panel {
@@ -163,9 +164,9 @@
 }
 
 .summary-card {
-    -fx-padding: 20 22 20 22;
-    -fx-spacing: 8;
-    -fx-min-height: 86;
+    -fx-padding: 16 20 16 20;
+    -fx-spacing: 6;
+    -fx-min-height: 78;
 }
 
 .summary-title {
@@ -176,7 +177,7 @@
 
 .summary-value {
     -fx-text-fill: #710000;
-    -fx-font-size: 26px;
+    -fx-font-size: 25px;
     -fx-font-weight: 900;
 }
 
@@ -193,15 +194,15 @@
 }
 
 .panel {
-    -fx-padding: 18;
+    -fx-padding: 14;
 }
 
 .trend-panel {
-    -fx-min-height: 300;
+    -fx-min-height: 230;
 }
 
 .department-panel {
-    -fx-min-height: 300;
+    -fx-min-height: 230;
 }
 
 .section-title {
@@ -274,7 +275,7 @@
 .table-view .column-header, .table-view .filler {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-size: 42;
+    -fx-size: 38;
 }
 
 .table-view .column-header .label {
@@ -287,7 +288,7 @@
     -fx-background-color: #fffdfc;
     -fx-border-color: transparent transparent #eddada transparent;
     -fx-border-width: 0 0 1 0;
-    -fx-cell-size: 38;
+    -fx-cell-size: 34;
 }
 
 .table-row-cell:odd {
@@ -326,9 +327,17 @@
 
 
 .status-label {
-    -fx-text-fill: #6b5757;
+    -fx-text-fill: #0b5d4a;
     -fx-font-size: 12px;
-    -fx-padding: 4 0 0 0;
+    -fx-font-weight: 700;
+    -fx-padding: 0 0 0 0;
+}
+
+.status-label-error {
+    -fx-text-fill: #a02b2b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 0 0 0 0;
 }
 
 .details-cell {
