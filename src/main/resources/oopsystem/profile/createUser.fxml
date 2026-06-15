@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.PasswordField?>
 <BorderPane prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CONTROLLER_NAME">
 
     <left>
@@ -19,8 +20,21 @@
             <HBox prefHeight="100.0" prefWidth="200.0" />
             <VBox alignment="CENTER" fillWidth="false" prefHeight="753.0" prefWidth="1017.0">
                <children>
-                  <VBox alignment="CENTER" fillWidth="false" prefHeight="645.0" prefWidth="776.0">
+                  <VBox alignment="CENTER" fillWidth="false" prefHeight="594.0" prefWidth="847.0">
                      <children>
+                        <VBox prefHeight="135.0" prefWidth="778.0" style="-fx-border-color: red;">
+                           <children>
+                              <Label text="Employee" />
+                              <ComboBox fx:id="employeeComboBox" prefWidth="150.0" />
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="187.0" prefWidth="782.0">
+                           <children>
+                              <Label fx:id="departmentLabel" text="Department: -" />
+                              <Label fx:id="roleLabel" text="Role: -" />
+                              <Label fx:id="emailLabel" text="Email: -" />
+                           </children>
+                        </VBox>
                         <VBox prefHeight="124.0" prefWidth="796.0" style="-fx-border-color: red;">
                            <children>
                               <Label text="Username" />
@@ -32,43 +46,21 @@
                               <VBox prefHeight="63.0" prefWidth="386.0" style="-fx-border-color: green;">
                                  <children>
                                     <Label text="Password" />
-                                    <TextField fx:id="passwordField" />
+                                    <PasswordField fx:id="passwordField" />
                                  </children>
                               </VBox>
                               <VBox prefHeight="63.0" prefWidth="388.0" style="-fx-border-color: green;">
                                  <children>
                                     <Label text="Confirm Password" />
-                                    <TextField fx:id="confirmPasswordField" />
+                                    <PasswordField fx:id="confirmPasswordField" />
                                  </children>
                               </VBox>
                            </children>
                         </HBox>
-                        <HBox fillHeight="false" prefHeight="100.0" prefWidth="776.0" style="-fx-border-color: red;">
-                           <children>
-                              <VBox prefHeight="63.0" prefWidth="386.0" style="-fx-border-color: green;">
-                                 <children>
-                                    <Label text="First  Name" />
-                                    <TextField fx:id="firstNameField" />
-                                 </children>
-                              </VBox>
-                              <VBox prefHeight="63.0" prefWidth="388.0" style="-fx-border-color: green;">
-                                 <children>
-                                    <Label text="Last Name" />
-                                    <TextField fx:id="lastNameField" />
-                                 </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                        <VBox prefHeight="135.0" prefWidth="778.0" style="-fx-border-color: red;">
-                           <children>
-                              <Label text="Employee" />
-                              <ComboBox fx:id="employeeComboBox" prefWidth="150.0" />
-                           </children>
-                        </VBox>
                         <HBox alignment="CENTER_RIGHT" fillHeight="false" prefHeight="100.0" prefWidth="776.0" style="-fx-border-color: red;">
                            <children>
-                              <Button fx:id="cancelButton" mnemonicParsing="false" text="Cancel" />
-                              <Button fx:id="createUserButton" mnemonicParsing="false" text="Create User" />
+                              <Button fx:id="cancelButton" onAction="#handleCreateUser" mnemonicParsing="false" text="Cancel" />
+                              <Button fx:id="createUserButton" onAction="#handleCancel" mnemonicParsing="false" text="Create User" />
                            </children>
                         </HBox>
                      </children>
