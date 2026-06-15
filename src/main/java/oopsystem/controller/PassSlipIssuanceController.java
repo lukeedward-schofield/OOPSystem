@@ -54,7 +54,7 @@ public class PassSlipIssuanceController implements Initializable {
     @FXML private TextField reasonField;
     @FXML private TextField destinationField;
     @FXML private TextField timeOutField;
-    @FXML private TextField estimatedReturnField;
+    @FXML private TextField durationField;
     @FXML private Button    generateButton;
     @FXML private Button    downloadPdfButton;
     @FXML private Label     feedbackLabel;
@@ -64,66 +64,47 @@ public class PassSlipIssuanceController implements Initializable {
     // =========================================================================
 
     private final PassSlipRepository passSlipRepo = new PassSlipRepository();
-
-    /** Set when the user picks from the search dropdown. Null = no selection yet. */
     private Employee selectedEmployee = null;
-
-    /**
-     * The PK returned after a successful INSERT.
-     * Gates the Download PDF button and PDF file-path update.
-     * Reset to -1 on form clear.
-     */
     private int lastIssuedPassSlipId = -1;
+    private boolean isSelectingFromDropdown = false;
 
     private static final DateTimeFormatter DISPLAY_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
+    private LocalDateTime capturedTimeOut;
     // =========================================================================
     // INITIALIZE
     // =========================================================================
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        // Autofill time-out with current time; field is read-only.
+        capturedTimeOut = LocalDateTime.now();
         timeOutField.setText(LocalDateTime.now().format(DISPLAY_FMT));
         timeOutField.setEditable(false);
 
-        // PDF button starts disabled until a slip is generated.
-        downloadPdfButton.setDisable(true);
 
+        downloadPdfButton.setDisable(true);
         clearFeedback();
         setupLiveSearch();
+        setupDurationField();
     }
 
     // =========================================================================
-    // LIVE EMPLOYEE SEARCH
+    // LIVE EMPLOYEE SEARCH Function
     // =========================================================================
 
-    /**
-     * Attaches a text-change listener to searchEmployeeField.
-     *
-     * Fires a background DB query when the user types 2+ characters.
-     * Results appear in a ContextMenu dropdown directly below the field.
-     * Selecting an item sets selectedEmployee and fills the field text.
-     *
-     * Selecting resets selectedEmployee to null when the user edits
-     * the field again, preventing stale selections from being submitted.
-     */
     private void setupLiveSearch() {
 
         ContextMenu dropdown = new ContextMenu();
 
         searchEmployeeField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (isSelectingFromDropdown) return;
 
-            // Any manual edit invalidates the previous selection.
             selectedEmployee = null;
             dropdown.hide();
 
             String query = newVal == null ? "" : newVal.trim();
             if (query.length() < 2) return;
 
-            // DB call on a background thread — never block the FX thread.
             Thread searchThread = new Thread(() -> {
 
                 List<Employee> results = passSlipRepo.searchEmployees(query);
@@ -145,15 +126,17 @@ public class PassSlipIssuanceController implements Initializable {
                             MenuItem item = new MenuItem(label);
 
                             item.setOnAction(e -> {
+                                // Raise the flag BEFORE setText so the listener
+                                // knows to skip its reset logic this one time.
+                                isSelectingFromDropdown = true;
                                 selectedEmployee = emp;
-                                // Update the field text without re-triggering the listener loop.
                                 searchEmployeeField.setText(
                                         emp.getFirstName() + " " + emp.getLastName()
                                 );
-                                // Move caret to end so the name is fully visible.
                                 searchEmployeeField.positionCaret(
                                         searchEmployeeField.getText().length()
                                 );
+                                isSelectingFromDropdown = false; // Lower the flag
                                 dropdown.hide();
                                 clearFeedback();
                             });
@@ -169,8 +152,48 @@ public class PassSlipIssuanceController implements Initializable {
                 });
             });
 
-            searchThread.setDaemon(true); // Don't block JVM shutdown
+            searchThread.setDaemon(true);
             searchThread.start();
+        });
+    }
+
+    // =========================================================================
+    // DURATION FIELD SETUP
+    // =========================================================================
+
+    /**
+     * Two behaviours:
+     * 1. Strips any non-digit character immediately as the user types.
+     * 2. Shows a live gray preview of the estimated return time
+     *    (time_out + entered minutes) so staff can confirm before submitting.
+     */
+    private void setupDurationField() {
+        durationField.textProperty().addListener((obs, oldVal, newVal) -> {
+
+            // Strip non-digits (handles paste, keyboard, anything)
+            if (newVal != null && !newVal.matches("\\d*")) {
+                durationField.setText(newVal.replaceAll("[^\\d]", ""));
+                return;
+            }
+
+            if (newVal == null || newVal.isBlank()) {
+                clearFeedback();
+                return;
+            }
+
+            try {
+                int minutes = Integer.parseInt(newVal);
+                if (minutes > 0 && minutes <= 480) {
+                    LocalDateTime estimated = capturedTimeOut.plusMinutes(minutes);
+                    showInfo("Estimated return: " + estimated.format(DISPLAY_FMT));
+                } else if (minutes > 480) {
+                    showError("Duration cannot exceed 480 minutes (8 hours).");
+                } else {
+                    clearFeedback();
+                }
+            } catch (NumberFormatException ignored) {
+                clearFeedback();
+            }
         });
     }
 
@@ -209,28 +232,70 @@ public class PassSlipIssuanceController implements Initializable {
             return;
         }
 
-        // destination is nullable — store null if blank
         String destination = destinationField.getText().trim();
+        if (destination.length() > 255) {
+            showError("Destination is too long (max 255 characters).");
+            destinationField.requestFocus();
+            return;
+        }
+        // destination is nullable — store null if blank
         String destValue   = destination.isBlank() ? null : destination;
+
+        String durationText = durationField.getText().trim();
+        if (durationText.isBlank()) {
+            showError("Duration is required. Enter the number of minutes.");
+            durationField.requestFocus();
+            return;
+        }
+
+        // Duration — required, digits only, 1–480 minutes
+        int durationMinutes;
+        try {
+            durationMinutes = Integer.parseInt(durationText);
+        } catch (NumberFormatException e) {
+            showError("Duration must be a whole number.");
+            durationField.requestFocus();
+            return;
+        }
+
+        if (durationMinutes <= 0) {
+            showError("Duration must be at least 1 minute.");
+            durationField.requestFocus();
+            return;
+        }
+        if (durationMinutes > 480) {
+            showError("Duration cannot exceed 480 minutes (8 hours).");
+            durationField.requestFocus();
+            return;
+        }
+        // --- Guard: session must be active (issued_by FK to users) ---
+//        int issuedBy = SessionManager.getLoggedInUserId();
+//        if (issuedBy == -1) {
+//            showError("Session expired. Please log in again.");
+//            SceneNavigator.switchTo("login/Login");
+//            return;
+//        }
 
         // --- Guard: session must be active (issued_by FK to users) ---
         int issuedBy = SessionManager.getLoggedInUserId();
         if (issuedBy == -1) {
-            showError("Session expired. Please log in again.");
-            SceneNavigator.switchTo("login/Login");
-            return;
+            issuedBy = 1; // TODO: remove this when LoginController is fully wired
         }
 
-        // --- Build and insert ---
+        // Calculate estimated return for display (not stored separately)
+        LocalDateTime estimatedReturn = capturedTimeOut.plusMinutes(durationMinutes);
+
+        // Build model and insert (activity log written inside repository)
         PassSlip slip = new PassSlip(
                 selectedEmployee.getEmployeeId(),
                 issuedBy,
                 reason,
                 destValue,
-                LocalDateTime.now()   // captured for the model; DB uses NOW()
+                capturedTimeOut,
+                durationMinutes
         );
 
-        int generatedId = passSlipRepo.issuePassSlip(slip);
+        int generatedId = passSlipRepo.issuePassSlip(slip, issuedBy);
 
         if (generatedId == -1) {
             showError("Failed to issue pass slip. Check your database connection.");
@@ -240,30 +305,19 @@ public class PassSlipIssuanceController implements Initializable {
         lastIssuedPassSlipId = generatedId;
         downloadPdfButton.setDisable(false);
 
-        showSuccess("Pass slip #" + generatedId + " issued for "
-                + selectedEmployee.getFirstName() + " "
-                + selectedEmployee.getLastName() + ".");
-
-        System.out.println("[PassSlip] Issued ID=" + generatedId
-                + " employee_id=" + selectedEmployee.getEmployeeId()
-                + " issued_by=" + issuedBy);
+        showSuccess(String.format(
+                "Pass slip #%d issued for %s %s. Estimated return by %s.",
+                generatedId,
+                selectedEmployee.getFirstName(),
+                selectedEmployee.getLastName(),
+                estimatedReturn.format(DISPLAY_FMT)
+        ));
     }
 
     // =========================================================================
     // DOWNLOAD PDF
     // =========================================================================
 
-    /**
-     * Triggers PDF generation for the most recently issued pass slip.
-     *
-     * Only enabled after handleGeneratePassSlip() succeeds.
-     *
-     * PDF generation is stubbed out — plug in iText, PDFBox, or JasperReports
-     * inside the marked block below.  Once implemented, updateFilePath()
-     * stores the saved path back into the pass_slip row.
-     *
-     * Wired to: onAction="#handleDownloadPdf" on the DOWNLOAD PDF button.
-     */
     @FXML
     private void handleDownloadPdf() {
 
@@ -306,14 +360,12 @@ public class PassSlipIssuanceController implements Initializable {
     }
 
     // =========================================================================
-    // NAVIGATION  (mirrors EmployeeDirectoryController pattern exactly)
+    // NAVIGATION
     // =========================================================================
 
     @FXML public void goToPassSlipIssuance()  { SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView"); }
     @FXML public void goToEmployeeDirectory() { SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView"); }
     @FXML public void gotoReports()           { SceneNavigator.switchTo("reports/ReportsView"); }
-
-    // Uncomment when those screens are implemented:
     // @FXML public void goToDashboard()      { SceneNavigator.switchTo("dashboard/DashboardView"); }
     // @FXML public void goToMovementLogs()   { SceneNavigator.switchTo("movementLogs/MovementLogsView"); }
 
@@ -339,5 +391,10 @@ public class PassSlipIssuanceController implements Initializable {
 
     private void clearFeedback() {
         feedbackLabel.setText("");
+    }
+
+    private void showInfo(String msg) {
+        feedbackLabel.setText(msg);
+        feedbackLabel.setStyle("-fx-text-fill: gray;");
     }
 }

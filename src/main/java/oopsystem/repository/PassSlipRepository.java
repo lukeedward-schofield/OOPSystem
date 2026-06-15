@@ -41,48 +41,88 @@ public class PassSlipRepository {
 
      * Returns the auto-generated pass_slip_ID on success, or -1 on failure.
      */
-    public int issuePassSlip(PassSlip slip) {
+    public int issuePassSlip(PassSlip slip, int issuedByUserId) {
 
-        String sql = """
+        String slipSql = """
                 INSERT INTO pass_slip (
                     employee_id,
                     issued_by,
                     reason,
                     destination,
                     time_out,
+                    duration,
                     status
                 )
-                VALUES (?, ?, ?, ?, NOW(), FALSE)
+                VALUES (?, ?, ?, ?, NOW(), ?,FALSE)
                 """;
 
-        try (
-                Connection conn = Database.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-        ) {
-            stmt.setInt(1, slip.getEmployeeId());
-            stmt.setInt(2, slip.getIssuedBy());
-            stmt.setString(3, slip.getReason());
+        String logSql = """
+                INSERT INTO activity_logs (user_id, action, log_in_details)
+                VALUES (?, ?, ?)
+                """;
 
-            // destination is nullable in the schema — use setNull if blank
-            if (slip.getDestination() == null || slip.getDestination().isBlank()) {
-                stmt.setNull(4, Types.VARCHAR);
-            } else {
-                stmt.setString(4, slip.getDestination());
-            }
+        Connection conn = null;
 
-            int rows = stmt.executeUpdate();
+        try {
+            conn = Database.getConnection();
+            conn.setAutoCommit(false); // start transaction
 
-            if (rows > 0) {
+            // --- 1. Insert pass slip ---
+            int generatedId;
+            try (PreparedStatement stmt = conn.prepareStatement(slipSql, Statement.RETURN_GENERATED_KEYS)) {
+
+                stmt.setInt(1, slip.getEmployeeId());
+                stmt.setInt(2, slip.getIssuedBy());
+                stmt.setString(3, slip.getReason());
+
+                if (slip.getDestination() == null || slip.getDestination().isBlank()) {
+                    stmt.setNull(4, Types.VARCHAR);
+                } else {
+                    stmt.setString(4, slip.getDestination());
+                }
+
+                stmt.setInt(5, slip.getDuration());
+                stmt.executeUpdate();
+
                 try (ResultSet keys = stmt.getGeneratedKeys()) {
-                    if (keys.next()) {
-                        return keys.getInt(1);
+                    if (!keys.next()) {
+                        conn.rollback();
+                        return -1;
                     }
+                    generatedId = keys.getInt(1);
                 }
             }
+
+            // --- 2. Write activity log ---
+            try (PreparedStatement logStmt = conn.prepareStatement(logSql)) {
+
+                String details = String.format(
+                        "Pass slip #%d issued for employee_id=%d. Reason: %s. Duration: %d min.",
+                        generatedId,
+                        slip.getEmployeeId(),
+                        slip.getReason(),
+                        slip.getDuration()
+                );
+
+                logStmt.setInt(1, issuedByUserId);
+                logStmt.setString(2, "ISSUE_PASS_SLIP");
+                logStmt.setString(3, details);
+                logStmt.executeUpdate();
+            }
+
+            conn.commit(); // both inserts succeeded
+            return generatedId;
 
         } catch (SQLException e) {
             System.err.println("Error issuing pass slip: " + e.getMessage());
             e.printStackTrace();
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
+        } finally {
+            if (conn != null) {
+                try { conn.setAutoCommit(true); conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
         }
 
         return -1;
@@ -122,7 +162,6 @@ public class PassSlipRepository {
             stmt.setTimestamp(1, ts);
             stmt.setTimestamp(2, ts);
             stmt.setInt(3, passSlipId);
-
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {

@@ -9,19 +9,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity"
-            maxWidth="-Infinity"
-            minHeight="-Infinity"
-            minWidth="-Infinity"
-            prefHeight="700.0"
-            prefWidth="1209.0"
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="700.0" prefWidth="1209.0"
             xmlns="http://javafx.com/javafx/26"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="oopsystem.controller.PassSlipIssuanceController">
    <left>
       <fx:include fx:id="navBar" source="../components/Nav.fxml" />
    </left>
-
    <center>
       <VBox prefHeight="700.0" prefWidth="959.0" BorderPane.alignment="CENTER">
          <children>
@@ -41,18 +36,15 @@
                               <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="482.0">
                                  <children>
                                     <Label text="Authorization Form">
-                                       <font>
-                                          <Font name="System Bold" size="20.0" />
-                                       </font>
+                                       <font><Font name="System Bold" size="20.0" /></font>
                                     </Label>
                                  </children>
                               </HBox>
-                              <HBox prefHeight="64.0" prefWidth="486.0" style="-fx-border-color: color;">
+                              <HBox prefHeight="64.0" prefWidth="486.0">
                                  <children>
                                     <VBox prefHeight="75.0" prefWidth="238.0">
                                        <children>
                                           <Label text="SEARCH EMPLOYEE" />
-                                          <!-- fx:id added; onAction removed — search fires via listener in controller -->
                                           <TextField fx:id="searchEmployeeField" promptText="Type name or department..." />
                                        </children>
                                     </VBox>
@@ -75,20 +67,19 @@
                                     <VBox prefHeight="76.0" prefWidth="240.0">
                                        <children>
                                           <Label text="TIME-OUT (CURRENT)" />
-                                          <!-- editable="false" set in controller via initialize() -->
                                           <TextField fx:id="timeOutField" />
                                        </children>
                                     </VBox>
                                     <VBox prefHeight="76.0" prefWidth="245.0">
                                        <children>
-                                          <Label text="ESTIMATED RETURN" />
-                                          <!-- For printed slip only — not stored in DB -->
-                                          <TextField fx:id="estimatedReturnField" promptText="e.g. 2:00 PM" />
+                                          <!-- RENAMED: estimatedReturnField → durationField -->
+                                          <!-- RENAMED: label "ESTIMATED RETURN" → "DURATION (MINUTES)" -->
+                                          <Label text="DURATION (MINUTES)" />
+                                          <TextField fx:id="durationField" promptText="e.g. 30" />
                                        </children>
                                     </VBox>
                                  </children>
                               </HBox>
-                              <!-- Feedback label — sits between fields and button -->
                               <Label fx:id="feedbackLabel" prefWidth="482.0" wrapText="true" />
                               <Button fx:id="generateButton"
                                       mnemonicParsing="false"
@@ -102,7 +93,6 @@
                   </VBox>
                   <VBox alignment="CENTER" fillWidth="false" prefHeight="579.0" prefWidth="410.0" style="-fx-border-color: red;">
                      <children>
-                        <!-- Preview panel placeholder — left empty per project decision -->
                         <VBox prefHeight="459.0" prefWidth="338.0" style="-fx-border-color: red;" />
                         <Button fx:id="downloadPdfButton"
                                 mnemonicParsing="false"
