@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import oopsystem.model.Employee;
+import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.EmployeeRepository;
 import oopsystem.repository.UserRepository;
 
@@ -102,6 +103,19 @@ public class AddUserController implements Initializable {
             );
 
             if (success) {
+
+                ActivityLogRepository logRepo = new ActivityLogRepository();
+
+                logRepo.log(
+                        "CREATE_USER",
+                        String.format(
+                                "User account created: %s for employee %s %s",
+                                username,
+                                selectedEmployee.getFirstName(),
+                                selectedEmployee.getLastName()
+                        )
+                );
+
                 showAlert(Alert.AlertType.INFORMATION, "User account created successfully.");
                 clearForm();
             } else {
