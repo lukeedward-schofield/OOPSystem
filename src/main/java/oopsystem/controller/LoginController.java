@@ -1,5 +1,7 @@
 package oopsystem.controller;
 
+import oopsystem.util.AppConfig;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
@@ -17,10 +19,13 @@ public class LoginController {
 
 
     @FXML
-    public void login(){
+    public void login() {
 
-        //authenticate first
-        
-        SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
+        if (AppConfig.DEV_MODE) {
+            SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
+            return;
+        }
+
+        // Real authentication goes here
     }
 }
