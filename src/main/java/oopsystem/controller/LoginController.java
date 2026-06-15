@@ -21,6 +21,6 @@ public class LoginController {
 
         //authenticate first
         
-        SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
+        SceneNavigator.switchToMaximized("employeeDirectory/EmployeeDirectoryView");
     }
 }
