@@ -1,5 +1,6 @@
 package oopsystem.controller;
 
+import oopsystem.repository.ActivityLogRepository;
 import oopsystem.util.SessionManager;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -169,6 +170,16 @@ public class ProfileController implements Initializable {
             );
 
             if (success) {
+                ActivityLogRepository logRepo = new ActivityLogRepository();
+
+                logRepo.log(
+                        "UPDATE_USER",
+                        String.format(
+                                "User account updated: %s",
+                                newUsername
+                        )
+                );
+
                 // Update the session so the navbar/other screens reflect changes immediately
                 currentUser.setFirstName(newFirstName);
                 currentUser.setLastName(newLastName);
