@@ -92,4 +92,10 @@ public class PassSlip {
     public void setDuration(Integer duration)      { this.duration  = duration;  }
     public void setStatus(Boolean status)          { this.status    = status;    }
     public void setFilePath(String filePath)       { this.filePath.set(filePath);}
+
+    // Added for dashboard display — not a DB column, joined from employee table.
+    private String employeeName;
+
+    public String getEmployeeName() { return employeeName; }
+    public void setEmployeeName(String employeeName) { this.employeeName = employeeName; }
 }

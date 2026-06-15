@@ -330,3 +330,24 @@
     -fx-font-size: 12px;
     -fx-padding: 4 0 0 0;
 }
+
+.details-cell {
+    -fx-text-fill: #710000;
+    -fx-font-weight: 800;
+    -fx-underline: true;
+}
+
+/* Clickable details button inside the compliance table. */
+.details-link-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #7a0000;
+    -fx-font-weight: bold;
+    -fx-underline: true;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.details-link-button:hover {
+    -fx-text-fill: #a00000;
+}

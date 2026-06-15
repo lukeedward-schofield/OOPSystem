@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ import java.util.List;
  * Repository class for the Reports and Analytics module.
  *
  * Main responsibility:
- * 1. Connect to the PostgreSQL/Supabase database through Database.getConnecttion().
+ * 1. Connect to the PostgreSQL/Supabase database through Database.getConnection().
  * 2. Run SQL queries for reports and analytics.
  * 3. Convert database rows into Java model objects.
  * 4. Return those model objects to the controller.
@@ -31,15 +32,68 @@ import java.util.List;
 public class ReportsAnalyticsRepository {
 
     /**
-     * Default allowed pass duration used for compliance and overdue calculations.
-     *
-     * Example:
-     * If this is 120 minutes, a pass slip is considered on-time when the employee
-     * returns within 2 hours after time_out.
-     *
-     * Later, this value can be replaced by a value from the System Settings module.
+     * Movement Logs marks a pass slip late when it exceeds the estimated duration
+     * plus three grace minutes. Reports use the same rule so every module shows
+     * the same overdue/compliance result.
      */
-    private static final int DEFAULT_PASS_DURATION_MINUTES = 120;
+    private static final int GRACE_PERIOD_MINUTES = 3;
+
+    /**
+     * Gets the earliest and latest available pass slip dates from the database.
+     *
+     * The controller uses this for the initial date picker values. This prevents
+     * the report screen from looking empty just because the selected date range
+     * does not match the database records.
+     */
+    public LocalDate[] getAvailableDateRange() throws SQLException {
+        String sql = """
+                SELECT
+                    MIN(CAST(COALESCE(time_out, created_at) AS DATE)) AS start_date,
+                    MAX(CAST(COALESCE(time_out, created_at) AS DATE)) AS end_date
+                FROM pass_slip
+                """;
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
+
+            if (rs.next()) {
+                Date start = rs.getDate("start_date");
+                Date end = rs.getDate("end_date");
+
+                if (start != null && end != null) {
+                    return new LocalDate[]{start.toLocalDate(), end.toLocalDate()};
+                }
+            }
+        }
+
+        // Fallback when the database has no pass slips yet.
+        return new LocalDate[]{LocalDate.now().minusDays(30), LocalDate.now()};
+    }
+
+    /**
+     * Updates open pass slips into OVERDUE when they already exceeded their
+     * estimated duration plus grace period.
+     *
+     * This mirrors MovementLogRepository so Reports reflects the latest status
+     * even before the Movement Logs page is opened.
+     */
+    public void syncOverdueStatuses() throws SQLException {
+        String sql = """
+                UPDATE pass_slip
+                SET status = 'OVERDUE'
+                WHERE status = 'OUT'
+                  AND time_out IS NOT NULL
+                  AND estimated_duration > 0
+                  AND time_out + ((estimated_duration + ?) * INTERVAL '1 minute') < NOW()
+                """;
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, GRACE_PERIOD_MINUTES);
+            statement.executeUpdate();
+        }
+    }
 
     /**
      * Gets the main summary values shown in the top cards of the Reports screen.
@@ -50,69 +104,39 @@ public class ReportsAnalyticsRepository {
      * - overdue pass slips
      * - average duration
      * - compliance rate
+     * - comparison indicators beside each card
      */
     public ReportSummary getSummary(LocalDate startDate, LocalDate endDate) throws SQLException {
-        String sql = """
-                SELECT
-                    COUNT(*) AS total_pass_slips,
-                    COUNT(*) FILTER (WHERE p.time_in IS NULL) AS currently_out,
-                    COUNT(*) FILTER (
-                        WHERE p.time_in IS NULL
-                        AND p.time_out < NOW() - (? * INTERVAL '1 minute')
-                    ) AS overdue_passes,
-                    COALESCE(AVG(
-                        CASE
-                            WHEN p.time_in IS NOT NULL AND p.time_out IS NOT NULL
-                            THEN EXTRACT(EPOCH FROM (p.time_in - p.time_out)) / 60
-                        END
-                    ), 0) AS average_duration_minutes,
-                    COUNT(*) FILTER (
-                        WHERE p.time_in IS NOT NULL
-                        AND p.time_out IS NOT NULL
-                        AND p.time_in <= p.time_out + (? * INTERVAL '1 minute')
-                    ) AS returned_on_time
-                FROM pass_slip p
-                WHERE p.time_out >= ? AND p.time_out < ?
-                """;
+        SummaryMetrics current = getSummaryMetrics(startDate, endDate);
 
-        // try-with-resources automatically closes the connection, statement, and result set.
-        try (Connection connection = Database.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        long periodLength = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        LocalDate previousEnd = startDate.minusDays(1);
+        LocalDate previousStart = previousEnd.minusDays(periodLength - 1);
+        SummaryMetrics previous = getSummaryMetrics(previousStart, previousEnd);
 
-            // PreparedStatement prevents SQL injection and safely inserts values into the query.
-            statement.setInt(1, DEFAULT_PASS_DURATION_MINUTES);
-            statement.setInt(2, DEFAULT_PASS_DURATION_MINUTES);
-            statement.setTimestamp(3, startTimestamp(startDate));
-            statement.setTimestamp(4, endTimestampExclusive(endDate));
+        double totalChangePercent = percentChange(current.totalPassSlips, previous.totalPassSlips);
+        double complianceChange = current.complianceRate - previous.complianceRate;
+        double averageDurationChange = current.averageDurationMinutes - previous.averageDurationMinutes;
+        int overdueChange = current.overduePasses - previous.overduePasses;
 
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    int total = rs.getInt("total_pass_slips");
-                    int returnedOnTime = rs.getInt("returned_on_time");
-
-                    // Avoid division by zero when there are no pass slips in the selected range.
-                    double complianceRate = total == 0 ? 0 : (returnedOnTime * 100.0) / total;
-
-                    return new ReportSummary(
-                            total,
-                            rs.getInt("currently_out"),
-                            rs.getInt("overdue_passes"),
-                            rs.getDouble("average_duration_minutes"),
-                            complianceRate
-                    );
-                }
-            }
-        }
-
-        // Safe fallback when the query returns no data.
-        return new ReportSummary(0, 0, 0, 0, 0);
+        return new ReportSummary(
+                current.totalPassSlips,
+                current.currentlyOut,
+                current.overduePasses,
+                current.averageDurationMinutes,
+                current.complianceRate,
+                totalChangePercent,
+                complianceChange,
+                averageDurationChange,
+                overdueChange
+        );
     }
 
     /**
      * Gets how many pass slips were issued per department.
      *
      * The query joins pass_slip and employee because the pass_slip table stores
-     * employee_id, while the department is stored in the employee table.
+     * employee_id, while department is stored in the employee table.
      */
     public List<DepartmentUsage> getDepartmentUsage(LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = """
@@ -125,7 +149,8 @@ public class ReportsAnalyticsRepository {
                     END AS percentage
                 FROM pass_slip p
                 INNER JOIN employee e ON e.employee_id = p.employee_id
-                WHERE p.time_out >= ? AND p.time_out < ?
+                WHERE COALESCE(p.time_out, p.created_at) >= ?
+                  AND COALESCE(p.time_out, p.created_at) < ?
                 GROUP BY COALESCE(e.department, 'Unassigned')
                 ORDER BY total_slips DESC, department ASC
                 """;
@@ -153,34 +178,38 @@ public class ReportsAnalyticsRepository {
     }
 
     /**
-     * Gets daily report data for the table.
-     *
-     * One row is returned per date. This makes it easier for the controller to
-     * display the daily compliance and overdue monitoring table.
+     * Gets daily report data for the compliance and overdue monitoring table.
      */
     public List<DailyReport> getDailyReports(LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = """
                 SELECT
-                    CAST(p.time_out AS DATE) AS report_date,
+                    CAST(COALESCE(p.time_out, p.created_at) AS DATE) AS report_date,
                     COUNT(*) AS total_issued,
                     COUNT(*) FILTER (
-                        WHERE p.time_in IS NOT NULL
-                        AND p.time_out IS NOT NULL
-                        AND p.time_in <= p.time_out + (? * INTERVAL '1 minute')
+                        WHERE p.status = 'RETURNED'
+                          AND COALESCE(p.is_late, FALSE) = FALSE
                     ) AS returned_on_time,
                     COUNT(*) FILTER (
-                        WHERE p.time_in IS NULL
-                        AND p.time_out < NOW() - (? * INTERVAL '1 minute')
+                        WHERE p.status = 'OVERDUE'
+                           OR COALESCE(p.is_late, FALSE) = TRUE
+                           OR (
+                                p.status = 'OUT'
+                                AND p.time_out IS NOT NULL
+                                AND p.estimated_duration > 0
+                                AND p.time_out + ((p.estimated_duration + ?) * INTERVAL '1 minute') < NOW()
+                           )
                     ) AS overdue,
                     COALESCE(AVG(
                         CASE
+                            WHEN p.actual_duration IS NOT NULL AND p.actual_duration > 0 THEN p.actual_duration
                             WHEN p.time_in IS NOT NULL AND p.time_out IS NOT NULL
-                            THEN EXTRACT(EPOCH FROM (p.time_in - p.time_out)) / 60
+                                THEN EXTRACT(EPOCH FROM (p.time_in - p.time_out)) / 60
                         END
                     ), 0) AS average_duration_minutes
                 FROM pass_slip p
-                WHERE p.time_out >= ? AND p.time_out < ?
-                GROUP BY CAST(p.time_out AS DATE)
+                WHERE COALESCE(p.time_out, p.created_at) >= ?
+                  AND COALESCE(p.time_out, p.created_at) < ?
+                GROUP BY CAST(COALESCE(p.time_out, p.created_at) AS DATE)
                 ORDER BY report_date DESC
                 """;
 
@@ -189,10 +218,9 @@ public class ReportsAnalyticsRepository {
         try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, DEFAULT_PASS_DURATION_MINUTES);
-            statement.setInt(2, DEFAULT_PASS_DURATION_MINUTES);
-            statement.setTimestamp(3, startTimestamp(startDate));
-            statement.setTimestamp(4, endTimestampExclusive(endDate));
+            statement.setInt(1, GRACE_PERIOD_MINUTES);
+            statement.setTimestamp(2, startTimestamp(startDate));
+            statement.setTimestamp(3, endTimestampExclusive(endDate));
 
             try (ResultSet rs = statement.executeQuery()) {
                 while (rs.next()) {
@@ -200,7 +228,6 @@ public class ReportsAnalyticsRepository {
                     int returnedOnTime = rs.getInt("returned_on_time");
                     double complianceRate = totalIssued == 0 ? 0 : (returnedOnTime * 100.0) / totalIssued;
 
-                    // Convert java.sql.Date from the database into java.time.LocalDate for JavaFX/model use.
                     Date sqlDate = rs.getDate("report_date");
                     LocalDate reportDate = sqlDate == null ? null : sqlDate.toLocalDate();
 
@@ -219,25 +246,104 @@ public class ReportsAnalyticsRepository {
         return dailyReports;
     }
 
+
     /**
-     * Gets monthly trend data for the bar chart.
+     * Gets weekly report data for the compliance and overdue monitoring table.
      *
-     * The chart compares issued, returned, and overdue pass slips per month.
+     * This uses the same calculations as the daily report, but groups records by
+     * the start date of each week. The controller reuses the DailyReport model so
+     * the same TableView can display either daily or weekly summaries.
+     */
+    public List<DailyReport> getWeeklyReports(LocalDate startDate, LocalDate endDate) throws SQLException {
+        String sql = """
+                SELECT
+                    DATE_TRUNC('week', COALESCE(p.time_out, p.created_at))::DATE AS report_date,
+                    COUNT(*) AS total_issued,
+                    COUNT(*) FILTER (
+                        WHERE p.status = 'RETURNED'
+                          AND COALESCE(p.is_late, FALSE) = FALSE
+                    ) AS returned_on_time,
+                    COUNT(*) FILTER (
+                        WHERE p.status = 'OVERDUE'
+                           OR COALESCE(p.is_late, FALSE) = TRUE
+                           OR (
+                                p.status = 'OUT'
+                                AND p.time_out IS NOT NULL
+                                AND p.estimated_duration > 0
+                                AND p.time_out + ((p.estimated_duration + ?) * INTERVAL '1 minute') < NOW()
+                           )
+                    ) AS overdue,
+                    COALESCE(AVG(
+                        CASE
+                            WHEN p.actual_duration IS NOT NULL AND p.actual_duration > 0 THEN p.actual_duration
+                            WHEN p.time_in IS NOT NULL AND p.time_out IS NOT NULL
+                                THEN EXTRACT(EPOCH FROM (p.time_in - p.time_out)) / 60
+                        END
+                    ), 0) AS average_duration_minutes
+                FROM pass_slip p
+                WHERE COALESCE(p.time_out, p.created_at) >= ?
+                  AND COALESCE(p.time_out, p.created_at) < ?
+                GROUP BY DATE_TRUNC('week', COALESCE(p.time_out, p.created_at))::DATE
+                ORDER BY report_date DESC
+                """;
+
+        List<DailyReport> weeklyReports = new ArrayList<>();
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, GRACE_PERIOD_MINUTES);
+            statement.setTimestamp(2, startTimestamp(startDate));
+            statement.setTimestamp(3, endTimestampExclusive(endDate));
+
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    int totalIssued = rs.getInt("total_issued");
+                    int returnedOnTime = rs.getInt("returned_on_time");
+                    double complianceRate = totalIssued == 0 ? 0 : (returnedOnTime * 100.0) / totalIssued;
+
+                    Date sqlDate = rs.getDate("report_date");
+                    LocalDate reportDate = sqlDate == null ? null : sqlDate.toLocalDate();
+
+                    weeklyReports.add(new DailyReport(
+                            reportDate,
+                            totalIssued,
+                            returnedOnTime,
+                            rs.getInt("overdue"),
+                            rs.getDouble("average_duration_minutes"),
+                            complianceRate
+                    ));
+                }
+            }
+        }
+
+        return weeklyReports;
+    }
+
+    /**
+     * Gets trend data for the bar chart.
+     *
+     * The submitted design shows Official vs Personal movement trends by week,
+     * so this query groups records into WK1-WK5 and categorizes each reason.
      */
     public List<MonthlyTrend> getMonthlyTrends(LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = """
+                WITH filtered AS (
+                    SELECT
+                        COALESCE(p.time_out, p.created_at) AS movement_time,
+                        p.reason
+                    FROM pass_slip p
+                    WHERE COALESCE(p.time_out, p.created_at) >= ?
+                      AND COALESCE(p.time_out, p.created_at) < ?
+                )
                 SELECT
-                    TO_CHAR(DATE_TRUNC('month', p.time_out), 'YYYY-MM') AS period,
-                    COUNT(*) AS total_issued,
-                    COUNT(*) FILTER (WHERE p.time_in IS NOT NULL) AS returned,
-                    COUNT(*) FILTER (
-                        WHERE p.time_in IS NULL
-                        AND p.time_out < NOW() - (? * INTERVAL '1 minute')
-                    ) AS overdue
-                FROM pass_slip p
-                WHERE p.time_out >= ? AND p.time_out < ?
-                GROUP BY DATE_TRUNC('month', p.time_out)
-                ORDER BY DATE_TRUNC('month', p.time_out)
+                    CEIL(EXTRACT(DAY FROM movement_time) / 7.0)::INT AS week_number,
+                    'WK' || CEIL(EXTRACT(DAY FROM movement_time) / 7.0)::INT AS period,
+                    SUM(CASE WHEN reason ILIKE '%personal%' THEN 0 ELSE 1 END) AS official_count,
+                    SUM(CASE WHEN reason ILIKE '%personal%' THEN 1 ELSE 0 END) AS personal_count
+                FROM filtered
+                GROUP BY week_number, period
+                ORDER BY week_number
                 """;
 
         List<MonthlyTrend> trends = new ArrayList<>();
@@ -245,17 +351,15 @@ public class ReportsAnalyticsRepository {
         try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, DEFAULT_PASS_DURATION_MINUTES);
-            statement.setTimestamp(2, startTimestamp(startDate));
-            statement.setTimestamp(3, endTimestampExclusive(endDate));
+            statement.setTimestamp(1, startTimestamp(startDate));
+            statement.setTimestamp(2, endTimestampExclusive(endDate));
 
             try (ResultSet rs = statement.executeQuery()) {
                 while (rs.next()) {
                     trends.add(new MonthlyTrend(
                             rs.getString("period"),
-                            rs.getInt("total_issued"),
-                            rs.getInt("returned"),
-                            rs.getInt("overdue")
+                            rs.getInt("official_count"),
+                            rs.getInt("personal_count")
                     ));
                 }
             }
@@ -265,8 +369,82 @@ public class ReportsAnalyticsRepository {
     }
 
     /**
+     * Runs the actual summary query for one date range.
+     */
+    private SummaryMetrics getSummaryMetrics(LocalDate startDate, LocalDate endDate) throws SQLException {
+        String sql = """
+                SELECT
+                    COUNT(*) AS total_pass_slips,
+                    COUNT(*) FILTER (
+                        WHERE p.status IN ('OUT', 'OVERDUE')
+                          AND p.time_in IS NULL
+                    ) AS currently_out,
+                    COUNT(*) FILTER (
+                        WHERE p.status = 'OVERDUE'
+                           OR COALESCE(p.is_late, FALSE) = TRUE
+                           OR (
+                                p.status = 'OUT'
+                                AND p.time_out IS NOT NULL
+                                AND p.estimated_duration > 0
+                                AND p.time_out + ((p.estimated_duration + ?) * INTERVAL '1 minute') < NOW()
+                           )
+                    ) AS overdue_passes,
+                    COALESCE(AVG(
+                        CASE
+                            WHEN p.actual_duration IS NOT NULL AND p.actual_duration > 0 THEN p.actual_duration
+                            WHEN p.time_in IS NOT NULL AND p.time_out IS NOT NULL
+                                THEN EXTRACT(EPOCH FROM (p.time_in - p.time_out)) / 60
+                        END
+                    ), 0) AS average_duration_minutes,
+                    COUNT(*) FILTER (
+                        WHERE p.status = 'RETURNED'
+                          AND COALESCE(p.is_late, FALSE) = FALSE
+                    ) AS returned_on_time
+                FROM pass_slip p
+                WHERE COALESCE(p.time_out, p.created_at) >= ?
+                  AND COALESCE(p.time_out, p.created_at) < ?
+                """;
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, GRACE_PERIOD_MINUTES);
+            statement.setTimestamp(2, startTimestamp(startDate));
+            statement.setTimestamp(3, endTimestampExclusive(endDate));
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    int total = rs.getInt("total_pass_slips");
+                    int returnedOnTime = rs.getInt("returned_on_time");
+                    double complianceRate = total == 0 ? 0 : (returnedOnTime * 100.0) / total;
+
+                    return new SummaryMetrics(
+                            total,
+                            rs.getInt("currently_out"),
+                            rs.getInt("overdue_passes"),
+                            rs.getDouble("average_duration_minutes"),
+                            complianceRate
+                    );
+                }
+            }
+        }
+
+        return new SummaryMetrics(0, 0, 0, 0, 0);
+    }
+
+    /**
+     * Calculates percentage change safely, including cases where previous value is zero.
+     */
+    private double percentChange(double currentValue, double previousValue) {
+        if (previousValue == 0) {
+            return currentValue == 0 ? 0 : 100;
+        }
+
+        return ((currentValue - previousValue) / previousValue) * 100.0;
+    }
+
+    /**
      * Converts a LocalDate into the start of that day.
-     * Example: 2026-05-24 becomes 2026-05-24 00:00:00.
      */
     private Timestamp startTimestamp(LocalDate date) {
         return Timestamp.valueOf(date.atStartOfDay());
@@ -274,12 +452,32 @@ public class ReportsAnalyticsRepository {
 
     /**
      * Converts the selected end date into an exclusive timestamp.
-     *
-     * Example:
-     * If the user selects 2026-05-24 as the end date, this method returns
-     * 2026-05-25 00:00:00, so all records during May 24 are included.
+     * Example: selecting 2026-05-24 includes all records until 2026-05-25 00:00:00.
      */
     private Timestamp endTimestampExclusive(LocalDate date) {
         return Timestamp.valueOf(date.plusDays(1).atStartOfDay());
+    }
+
+    /**
+     * Small private container used only inside this repository.
+     */
+    private static class SummaryMetrics {
+        private final int totalPassSlips;
+        private final int currentlyOut;
+        private final int overduePasses;
+        private final double averageDurationMinutes;
+        private final double complianceRate;
+
+        private SummaryMetrics(int totalPassSlips,
+                               int currentlyOut,
+                               int overduePasses,
+                               double averageDurationMinutes,
+                               double complianceRate) {
+            this.totalPassSlips = totalPassSlips;
+            this.currentlyOut = currentlyOut;
+            this.overduePasses = overduePasses;
+            this.averageDurationMinutes = averageDurationMinutes;
+            this.complianceRate = complianceRate;
+        }
     }
 }

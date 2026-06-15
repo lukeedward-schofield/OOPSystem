@@ -3,39 +3,33 @@ package oopsystem.model;
 /**
  * Model class for the monthly movement trend chart.
  *
- * Each object represents one month and the number of issued, returned,
- * and overdue pass slips for that month.
+ * The Figma/PDF report chart compares Official and Personal movement counts,
+ * so each object stores one week label and the number of pass slips that fall
+ * under each movement type.
  */
 public class MonthlyTrend {
     private final String period;
-    private final int totalIssued;
-    private final int returned;
-    private final int overdue;
+    private final int officialCount;
+    private final int personalCount;
 
-    public MonthlyTrend(String period, int totalIssued, int returned, int overdue) {
+    public MonthlyTrend(String period, int officialCount, int personalCount) {
         this.period = period;
-        this.totalIssued = totalIssued;
-        this.returned = returned;
-        this.overdue = overdue;
+        this.officialCount = officialCount;
+        this.personalCount = personalCount;
     }
 
-    // Month label displayed on the chart, for example: 2026-05.
+    // Week label displayed on the chart, for example: WK1.
     public String getPeriod() {
         return period;
     }
 
-    // Total pass slips issued during the month.
-    public int getTotalIssued() {
-        return totalIssued;
+    // Pass slips whose reason is official or not marked as personal.
+    public int getOfficialCount() {
+        return officialCount;
     }
 
-    // Number of issued pass slips with a recorded time-in.
-    public int getReturned() {
-        return returned;
-    }
-
-    // Number of pass slips considered overdue during the month.
-    public int getOverdue() {
-        return overdue;
+    // Pass slips whose reason contains "personal".
+    public int getPersonalCount() {
+        return personalCount;
     }
 }

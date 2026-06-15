@@ -294,6 +294,115 @@ public class PassSlipRepository {
     }
 
     // =========================================================================
+    // GET LATEST TODAY PASS SLIP (used by Dashboard)
+    // =========================================================================
+
+    /**
+     * Returns the most recent pass slip issued today, joined with employee name.
+     * Used by DashboardController to populate the Official Pass Slip section.
+     * Returns null if no pass slip was issued today.
+     */
+    public PassSlip getLatestTodayPassSlip() {
+
+        String sql = """
+                SELECT ps.*,
+                       e.first_name || ' ' || e.last_name AS employee_name
+                FROM pass_slip ps
+                INNER JOIN employee e ON ps.employee_id = e.employee_id
+                WHERE DATE(ps.time_out) = CURRENT_DATE
+                ORDER BY ps.time_out DESC
+                LIMIT 1
+                """;
+
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+            if (rs.next()) {
+                PassSlip slip = mapPassSlip(rs);
+                slip.setEmployeeName(rs.getString("employee_name"));
+                return slip;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error getting latest pass slip: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    // =========================================================================
+    // DASHBOARD STAT COUNTS
+    // =========================================================================
+
+    /**
+     * Returns count of employees currently out (status = OUT) today.
+     * Used by DashboardController for "Total Employees Out" stat card.
+     */
+    public int getEmployeesOutCount() {
+        String sql = """
+                SELECT COUNT(*) FROM pass_slip
+                WHERE DATE(time_out) = CURRENT_DATE
+                  AND status = 'OUT'
+                """;
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Returns count of overdue pass slips today.
+     * Used by DashboardController for "Pending Returns" stat card.
+     */
+    public int getPendingReturnsCount() {
+        String sql = """
+                SELECT COUNT(*) FROM pass_slip
+                WHERE DATE(time_out) = CURRENT_DATE
+                  AND status = 'OVERDUE'
+                """;
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Returns total count of pass slips issued today.
+     * Used by DashboardController for "Total Pass Slips Today" stat card.
+     */
+    public int getTotalPassSlipsToday() {
+        String sql = """
+                SELECT COUNT(*) FROM pass_slip
+                WHERE DATE(time_out) = CURRENT_DATE
+                """;
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // =========================================================================
     // PRIVATE MAPPERS
     // =========================================================================
 
