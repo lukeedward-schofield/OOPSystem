@@ -71,6 +71,32 @@ public class EmployeeRepository {
         return false;
     }
 
+    public boolean updateEmployee(Employee employee) {
+        String sql = """
+        UPDATE employee
+        SET first_name = ?, last_name = ?, department = ?, role = ?, contact_number = ?, email_address = ?
+        WHERE employee_id = ?
+    """;
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, employee.getFirstName());
+            pstmt.setString(2, employee.getLastName());
+            pstmt.setString(3, employee.getDepartment());
+            pstmt.setString(4, employee.getRole());
+            pstmt.setString(5, employee.getContactNumber());
+            pstmt.setString(6, employee.getEmailAddress());
+            pstmt.setInt(7, employee.getEmployeeId());
+
+            return pstmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public int getActiveEmployeeCount(){
         int employeeOnLeaveCount = 0;
         String sql = """
