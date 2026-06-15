@@ -12,21 +12,11 @@ public class UserRepository {
     public User authenticate(String username, String password) throws SQLException {
 
         String sql = """
-        SELECT u.user_id,
-               u.username,
-               u.user_password,
-               u.first_name,
-               u.last_name,
-               u.active_status,
-               u.created_at,
-               u.employee_id,
-               e.department,
-               e.role
-        FROM users u
-        INNER JOIN employee e ON u.employee_id = e.employee_id
-        WHERE u.username = ?
-        AND u.user_password = ?
-        AND u.active_status = true
+        SELECT *
+        FROM users
+        WHERE username = ?
+        AND user_password = ?
+        AND active_status = true
         """;
 
         try (Connection conn = Database.getConnection();
@@ -46,9 +36,7 @@ public class UserRepository {
                         rs.getString("last_name"),
                         rs.getBoolean("active_status"),
                         rs.getTimestamp("created_at"),
-                        rs.getInt("employee_id"),
-                        rs.getString("department"),
-                        rs.getString("role")
+                        rs.getInt("employee_id")
                 );
             }
 
@@ -82,9 +70,7 @@ public class UserRepository {
                         rs.getString("last_name"),
                         rs.getBoolean("active_status"),
                         rs.getTimestamp("created_at"),
-                        rs.getInt("employee_id"),
-                        rs.getString("department"),
-                        rs.getString("role")
+                        rs.getInt("employee_id")
                 ));
             }
         }

@@ -22,7 +22,7 @@ public class User {
     }
 
     public User(int userId, String username, String userPassword, String firstName, String lastName,
-                boolean activeStatus, Timestamp createdAt, int employeeId, String department, String role) {
+                boolean activeStatus, Timestamp createdAt, int employeeId) {
         this.userId = userId;
         this.username = username;
         this.userPassword = userPassword;
