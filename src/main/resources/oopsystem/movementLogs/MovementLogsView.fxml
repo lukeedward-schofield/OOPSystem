@@ -80,7 +80,7 @@
             <!-- TABLE -->
             <VBox styleClass="content-box" spacing="10.0" VBox.vgrow="ALWAYS">
                 <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
-                <TableView fx:id="movementLogsTable" VBox.vgrow="ALWAYS" prefHeight="220.0">
+                <TableView fx:id="movementLogsTable" VBox.vgrow="ALWAYS" >
                     <columns>
                         <TableColumn fx:id="dateColumn"     text="DATE"                prefWidth="110.0"/>
                         <TableColumn fx:id="employeeColumn" text="EMPLOYEE"            prefWidth="170.0"/>
