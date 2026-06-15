@@ -5,10 +5,110 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import oopsystem.util.Database;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserRepository {
 
+    public User authenticate(String username, String password) throws SQLException {
+        String sql = """
+        SELECT *
+        FROM users
+        WHERE username = ?
+        AND active_status = true
+        """;
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                String storedHash = rs.getString("user_password");
+                if (BCrypt.checkpw(password, storedHash)) {
+                    return new User(
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("user_password"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getBoolean("active_status"),
+                            rs.getTimestamp("created_at"),
+                            rs.getInt("employee_id")
+                    );
+                }
+            }
+            return null;
+        }
+    }
+    public boolean createUser(String username, String password, int employeeId, String firstName, String lastName) throws SQLException {
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+        String sql = "INSERT INTO users (username, user_password, first_name, last_name, active_status, employee_id) " +
+                "VALUES (?, ?, ?, ?, true, ?)";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword);
+            pstmt.setString(3, firstName);
+            pstmt.setString(4, lastName);
+            pstmt.setInt(5, employeeId);
+
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean existsByUsername(String username) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        }
+        return false;
+    }
+    /**
+     * UPDATE: Updates username, first name, last name, and optionally password
+     */
+    public boolean updateCredentials(int userId, String newUsername, String newFirstName, String newLastName, String newHashedPassword) throws SQLException {
+        String sql = "UPDATE users SET username = ?, first_name = ?, last_name = ?, user_password = ? WHERE user_id = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, newUsername);
+            pstmt.setString(2, newFirstName);
+            pstmt.setString(3, newLastName);
+            pstmt.setString(4, newHashedPassword);
+            pstmt.setInt(5, userId);
+
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
+    /**
+     * READ: Check if username is taken by a DIFFERENT user (exclude current user)
+     */
+    public boolean existsByUsernameExcluding(String username, int excludeUserId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ? AND user_id != ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            pstmt.setInt(2, excludeUserId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        }
+        return false;
+    }
     /**
      * READ: Fetches all users joined with their employee details for the TableView
      */
@@ -35,15 +135,31 @@ public class UserRepository {
                         rs.getString("last_name"),
                         rs.getBoolean("active_status"),
                         rs.getTimestamp("created_at"),
-                        rs.getInt("employee_id"),
-                        rs.getString("department"),
-                        rs.getString("role")
+                        rs.getInt("employee_id")
                 ));
             }
         }
         return users;
     }
 
+
+    /**
+     * READ: Returns list of employee IDs that already have a user account
+     */
+    public List<Integer> findEmployeeIdsWithExistingUsers() throws SQLException {
+        List<Integer> ids = new ArrayList<>();
+        String sql = "SELECT employee_id FROM users";
+
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                ids.add(rs.getInt("employee_id"));
+            }
+        }
+        return ids;
+    }
     /**
      * UPDATE: Modifies the user credentials and baseline metadata
      */

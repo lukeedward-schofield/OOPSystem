@@ -1,5 +1,8 @@
 package oopsystem.controller;
 
+import oopsystem.util.SessionManager;
+import org.mindrot.jbcrypt.BCrypt;
+
 import oopsystem.model.User;
 import oopsystem.repository.UserRepository;
 import javafx.collections.FXCollections;
@@ -10,17 +13,26 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import oopsystem.util.SceneNavigator;
+
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class ProfileController implements Initializable {
+
+    @FXML private TextField firstName;
+    @FXML private TextField lastName;
+    @FXML private TextField username;
+    @FXML private PasswordField currentPassword;
+    @FXML private PasswordField newPassword;
+    @FXML private PasswordField confirmNewPassword;
 
     // --- YOUR TABLES AND COLUMNS INJECTIONS FROM FXML ---
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, String> usernameColumn;
     @FXML private TableColumn<User, String> departmentColumn;
-    @FXML private TableColumn<User, String> roleColumn;
-    @FXML private TableColumn<User, Void> actionColumn; // Void because it holds custom buttons, not data text
+    @FXML private TableColumn<User, String> roleColumn;// Void because it holds custom buttons, not data text
 
     // The data container linked directly to your UI table view
     private final ObservableList<User> userList = FXCollections.observableArrayList();
@@ -38,79 +50,12 @@ public class ProfileController implements Initializable {
         usersTable.setItems(userList);
 
         // 3. ADD BUTTONS DYNAMICALLY: Build the edit/delete layout rows
-        setupActionButtonsColumn();
 
         // 4. POPULATE DATA: Run database retrieval to fill rows
         loadUsersFromDatabase();
+
+        populateProfileFields();
     }
-
-    /**
-     * =========================================================================
-     * FOCUS AREA: DYNAMICALLY CREATING AND ATTACHING BUTTONS TO EACH ROW
-     * =========================================================================
-     */
-    private void setupActionButtonsColumn() {
-        // We set a Cell Factory on the action column to completely override text rendering
-        actionColumn.setCellFactory(param -> new TableCell<User, Void>() {
-
-            // Create layout containers and controls once per row pool instance for optimization
-            private final HBox layoutContainer = new HBox(10); // 10px spacing between buttons
-            private final Button editBtn = new Button("Edit");
-            private final Button deleteBtn = new Button("Delete");
-
-            {
-                // Optional: Basic styling to make the layout look clean
-                editBtn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;");
-                deleteBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-cursor: hand;");
-
-                // Pack both buttons neatly inside the horizontal HBox row box
-                layoutContainer.getChildren().addAll(editBtn, deleteBtn);
-
-                // -------------------------------------------------------------
-                // HANDLE CLICK ACTION FOR THE EDIT BUTTON PER ROW
-                // -------------------------------------------------------------
-                editBtn.setOnAction(event -> {
-                    // getIndex() tells JavaFX exactly which row number was interacted with
-                    // We pull the complete User object directly from memory via that index
-                    User selectedUser = getTableView().getItems().get(getIndex());
-
-                    // You have complete access to the ID and fields here without extra database calls
-                    System.out.println("User clicked EDIT on row index: " + getIndex());
-                    System.out.println("Extracted Hidden Database ID: " + selectedUser.getUserId());
-                    System.out.println("Extracted Target Username: " + selectedUser.getUsername());
-
-                    // TODO: Put your view transition or overlay activation logic here!
-                });
-
-                // -------------------------------------------------------------
-                // HANDLE CLICK ACTION FOR THE DELETE BUTTON PER ROW
-                // -------------------------------------------------------------
-                deleteBtn.setOnAction(event -> {
-                    User selectedUser = getTableView().getItems().get(getIndex());
-
-                    System.out.println("User clicked DELETE on row index: " + getIndex());
-                    System.out.println("Extracted Target ID to drop: " + selectedUser.getUserId());
-
-                    // Example action: Removing the item from your ObservableList
-                    // instantly forces the row to vanish from the screen layout smoothly
-                    userList.remove(selectedUser);
-                });
-            }
-
-            // This method controls rendering. It hides components on blank lines so they don't glitch
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty) {
-                    setGraphic(null); // Clear graphics completely on empty spacer rows
-                } else {
-                    setGraphic(layoutContainer); // Inject the buttons container layout on active rows
-                }
-            }
-        });
-    }
-
     /**
      * =========================================================================
      * BACKGROUND PROCESS: POPULATING THE DATA FROM THE REPOSITORY LAYER
@@ -133,5 +78,139 @@ public class ProfileController implements Initializable {
         Thread thread = new Thread(fetchTask);
         thread.setDaemon(true); // Closes the background processing thread if the application window is terminated
         thread.start();
+    }
+
+
+    private void populateProfileFields() {
+        User currentUser = SessionManager.getCurrentUser();
+        if (currentUser != null) {
+            firstName.setText(currentUser.getFirstName());
+            lastName.setText(currentUser.getLastName());
+            username.setText(currentUser.getUsername());
+        }
+    }
+
+    @FXML
+    private void handleSaveProfile() {
+
+        System.out.println("change button clicked");
+        User currentUser = SessionManager.getCurrentUser();
+        if (currentUser == null) return;
+
+        String newFirstName = firstName.getText().trim();
+        String newLastName = lastName.getText().trim();
+        String newUsername = username.getText().trim();
+        String currentPw = currentPassword.getText();
+        String newPw = newPassword.getText();
+        String confirmPw = confirmNewPassword.getText();
+
+        // --- Validation ---
+        if (newFirstName.isBlank() || newLastName.isBlank() || newUsername.isBlank()) {
+            showAlert(Alert.AlertType.WARNING, "First name, last name, and username cannot be empty.");
+            return;
+        }
+
+        if (currentPw.isBlank()) {
+            showAlert(Alert.AlertType.WARNING, "Please enter your current password to save changes.");
+            return;
+        }
+
+        // Verify current password against stored hash
+        if (!BCrypt.checkpw(currentPw, currentUser.getUserPassword())) {
+            showAlert(Alert.AlertType.ERROR, "Current password is incorrect.");
+            return;
+        }
+
+        // Check if new username is taken by someone else
+        try {
+            if (userRepository.existsByUsernameExcluding(newUsername, currentUser.getUserId())) {
+                showAlert(Alert.AlertType.WARNING, "Username '" + newUsername + "' is already taken.");
+                return;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Database error: " + e.getMessage());
+            return;
+        }
+
+        // Determine final password — keep existing if no new password entered
+        String finalHashedPassword;
+        if (newPw.isBlank()) {
+            // No change to password — keep the current hash
+            finalHashedPassword = currentUser.getUserPassword();
+        } else {
+            if (!newPw.equals(confirmPw)) {
+                showAlert(Alert.AlertType.WARNING, "New passwords do not match.");
+                return;
+            }
+            finalHashedPassword = BCrypt.hashpw(newPw, BCrypt.gensalt());
+        }
+
+        // --- Save ---
+        try {
+            boolean success = userRepository.updateCredentials(
+                    currentUser.getUserId(),
+                    newUsername,
+                    newFirstName,
+                    newLastName,
+                    finalHashedPassword
+            );
+
+            if (success) {
+                // Update the session so the navbar/other screens reflect changes immediately
+                currentUser.setFirstName(newFirstName);
+                currentUser.setLastName(newLastName);
+                currentUser.setUsername(newUsername);
+                currentUser.setUserPassword(finalHashedPassword);
+
+                currentPassword.clear();
+                newPassword.clear();
+                confirmNewPassword.clear();
+
+                showAlert(Alert.AlertType.INFORMATION, "Profile updated successfully.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Failed to update profile. Please try again.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Database error: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleDeleteOwnAccount() {
+        User currentUser = SessionManager.getCurrentUser();
+        if (currentUser == null) return;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Delete Account");
+        confirm.setHeaderText("Are you sure you want to delete your account?");
+        confirm.setContentText("This action is permanent and cannot be undone. You will be logged out immediately.");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    userRepository.deleteUser(currentUser.getUserId());
+                    SessionManager.clearSession();
+                    SceneNavigator.switchTo("login/LoginView");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Failed to delete account: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void showAlert(Alert.AlertType type, String message) {
+        Alert alert = new Alert(type);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void goToAddEmployee(){
+        SceneNavigator.switchTo("addUserView");
     }
 }

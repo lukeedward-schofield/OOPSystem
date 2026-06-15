@@ -17,8 +17,12 @@ public class User {
     private String role;
 
     // Full constructor for loading data
+    public User(){
+
+    }
+
     public User(int userId, String username, String userPassword, String firstName, String lastName,
-                boolean activeStatus, Timestamp createdAt, int employeeId, String department, String role) {
+                boolean activeStatus, Timestamp createdAt, int employeeId) {
         this.userId = userId;
         this.username = username;
         this.userPassword = userPassword;
@@ -44,8 +48,15 @@ public class User {
     public String getRole() { return role; }
 
     // Setters (For fields you want to update inside your app)
-    public void setUsername(String username) { this.username = username; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
+    public void setUserId(int userId){this.userId = userId;}
+    public void setUserPassword(String userPassword){this.userPassword = userPassword;}
+    public void setUsername(String username){ this.username = username; }
+    public void setFirstName(String firstName){ this.firstName = firstName; }
+    public void setLastName(String lastName){ this.lastName = lastName; }
     public void setActiveStatus(boolean activeStatus) { this.activeStatus = activeStatus; }
+    public void setCreatedAt(Timestamp createdAt){this.createdAt = createdAt;}
+    public void setEmployeeId(int employeeId) {this.employeeId = employeeId;}
+    public void setDepartment(String department){ this.department = department; }
+    public void setRole(String role) { this.role = role; }
+
 }

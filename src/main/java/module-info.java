@@ -12,6 +12,7 @@ module oopsystem {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires org.postgresql.jdbc;
+    requires jbcrypt;
 
 //    Open packages to JavaFX for reflection
     opens oopsystem.app to javafx.graphics;
