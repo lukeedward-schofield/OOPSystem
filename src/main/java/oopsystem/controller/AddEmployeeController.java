@@ -72,7 +72,12 @@ public class AddEmployeeController {
 
             activityLogRepository.log(
                     "CREATE_EMPLOYEE",
-                    "Created employee " + firstName + " " + lastName
+                    String.format(
+                            "Employee created: %s %s (%s)",
+                            employee.getFirstName(),
+                            employee.getLastName(),
+                            employee.getDepartment()
+                    )
             );
 
             SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");

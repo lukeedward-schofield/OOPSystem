@@ -63,6 +63,7 @@ src/main/java/oopsystem/controller/ReportsAnalyticsController.java
 src/main/java/oopsystem/factory/.gitkeep
 src/main/java/oopsystem/Launcher.java
 src/main/java/oopsystem/model/.gitkeep
+src/main/java/oopsystem/model/ActivityLog.java
 src/main/java/oopsystem/model/DailyReport.java
 src/main/java/oopsystem/model/DepartmentUsage.java
 src/main/java/oopsystem/model/Employee.java
@@ -72,6 +73,7 @@ src/main/java/oopsystem/model/PassSlip.java
 src/main/java/oopsystem/model/ReportSummary.java
 src/main/java/oopsystem/model/User.java
 src/main/java/oopsystem/repository/.gitkeep
+src/main/java/oopsystem/repository/ActivityLogRepository.java
 src/main/java/oopsystem/repository/EmployeeRepository.java
 src/main/java/oopsystem/repository/MovementLogRepository.java
 src/main/java/oopsystem/repository/PassSlipRepository.java
@@ -665,6 +667,24 @@ if "%MAVEN_TERMINATE_CMD%"=="on" exit %ERROR_CODE%
 cmd /C exit /B %ERROR_CODE%
 </file>
 
+<file path="src/main/java/oopsystem/app/EmployeeConsole.java">
+package oopsystem.app;
+
+public class EmployeeConsole {
+
+    public static void menu(){
+        System.out.println("Enter menu number: ");
+    }
+
+    public static void employeeDirectory(){
+        System.out.println("EMPLOYEES");
+    }
+
+
+
+}
+</file>
+
 <file path="src/main/java/oopsystem/controller/.gitkeep">
 
 </file>
@@ -840,6 +860,146 @@ public class DashboardController implements Initializable {
 </VBox>
 </file>
 
+<file path="pom.xml">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+
+<!-- Project Identity   -->
+    <groupId>oopsystem</groupId>
+    <artifactId>OOPSystem</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>OOPSystem</name>
+
+
+<!-- Java + JavaFX Version Properties    -->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.12.1</junit.version>
+    </properties>
+
+    <dependencies>
+
+<!-- JavaFX Controls (buttons, tables, forms)-->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>21.0.6</version>
+        </dependency>
+
+<!-- avaFX FXML (loads .fxml view files)-->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>21.0.6</version>
+        </dependency>
+
+<!-- Extra JavaFX UI components-->
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>11.2.1</version>
+        </dependency>
+
+<!--  Icon library-->
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+
+<!-- Bootstrap-style CSS for JavaFX-->
+        <dependency>
+            <groupId>org.kordamp.bootstrapfx</groupId>
+            <artifactId>bootstrapfx-core</artifactId>
+            <version>0.4.0</version>
+        </dependency>
+
+<!-- JUnit Testing-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.4</version>
+        </dependency>
+
+        <!-- FontAwesomeFX icons -->
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-fontawesome</artifactId>
+            <version>4.7.0-9.1.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+<!--            Java Compiler Plugin-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+
+<!--            JavaFX Maven Plugin (run with: mvn javafx:run-->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <executions>
+                    <execution>
+                        <!-- Default configuration for running with: mvn clean javafx:run -->
+                        <id>default-cli</id>
+                        <configuration>
+                            <mainClass>oopsystem.app.EmployeeApplication</mainClass>
+                            <launcher>app</launcher>
+                            <jlinkZipName>app</jlinkZipName>
+                            <jlinkImageName>app</jlinkImageName>
+                            <noManPages>true</noManPages>
+                            <stripDebug>true</stripDebug>
+                            <noHeaderFiles>true</noHeaderFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
+</file>
+
 <file path="src/main/java/module-info.java">
 module oopsystem {
 //    javaFX modules
@@ -864,24 +1024,6 @@ module oopsystem {
 
 //    Export entry point
     exports oopsystem.app;
-}
-</file>
-
-<file path="src/main/java/oopsystem/app/EmployeeConsole.java">
-package oopsystem.app;
-
-public class EmployeeConsole {
-
-    public static void menu(){
-        System.out.println("Enter menu number: ");
-    }
-
-    public static void employeeDirectory(){
-        System.out.println("EMPLOYEES");
-    }
-
-
-
 }
 </file>
 
@@ -1667,6 +1809,38 @@ public class ReportsAnalyticsController {
 }
 </file>
 
+<file path="src/main/java/oopsystem/model/ActivityLog.java">
+package oopsystem.model;
+
+import java.time.ZonedDateTime;
+
+public class ActivityLog {
+
+    private int logId;
+    private int userId;
+    private String action;
+    private String logInDetails;
+    private ZonedDateTime createdAt;
+    private String username;
+
+    public ActivityLog(int logId, int userId, String action, String logInDetails, ZonedDateTime createdAt, String username) {
+        this.logId = logId;
+        this.userId = userId;
+        this.action = action;
+        this.logInDetails = logInDetails;
+        this.createdAt = createdAt;
+        this.username = username;
+    }
+
+    public int getLogId() { return logId; }
+    public int getUserId() { return userId; }
+    public String getAction() { return action; }
+    public String getLogInDetails() { return logInDetails; }
+    public ZonedDateTime getCreatedAt() { return createdAt; }
+    public String getUsername() { return username; }
+}
+</file>
+
 <file path="src/main/java/oopsystem/model/MonthlyTrend.java">
 package oopsystem.model;
 
@@ -1860,70 +2034,6 @@ public class DB_TEST {
             System.out.println("ERROR CONNECTING TO DATABASE");
             e.printStackTrace();
         }
-    }
-}
-</file>
-
-<file path="src/main/java/oopsystem/util/SessionManager.java">
-package oopsystem.util;
-
-/**
- * Holds the currently logged-in user's data for the duration of the session.
- *
- * This is a static singleton — no DB calls are made here.
- * LoginController calls setLoggedInUser() once after authentication.
- * Every other controller reads from it (e.g. PassSlipIssuanceController
- * needs getLoggedInUserId() to populate the issued_by column).
- *
- * Cleared on logout via clearSession().
- */
-public final class SessionManager {
-
-    private static int    loggedInUserId   = -1;
-    private static String loggedInUsername = null;
-    private static String loggedInFullName = null;
-
-    private SessionManager() {}
-
-    // -------------------------------------------------------------------------
-    // SET  — called once by LoginController after authentication succeeds
-    // -------------------------------------------------------------------------
-
-    public static void setLoggedInUser(int userId, String username, String fullName) {
-        loggedInUserId   = userId;
-        loggedInUsername = username;
-        loggedInFullName = fullName;
-    }
-
-    // -------------------------------------------------------------------------
-    // GET
-    // -------------------------------------------------------------------------
-
-    /** Returns the user_id of the active session. -1 if no user is logged in. */
-    public static int getLoggedInUserId() {
-        return loggedInUserId;
-    }
-
-    public static String getLoggedInUsername() {
-        return loggedInUsername;
-    }
-
-    public static String getLoggedInFullName() {
-        return loggedInFullName;
-    }
-
-    public static boolean isLoggedIn() {
-        return loggedInUserId != -1;
-    }
-
-    // -------------------------------------------------------------------------
-    // CLEAR  — called by logout handlers before navigating back to Login
-    // -------------------------------------------------------------------------
-
-    public static void clearSession() {
-        loggedInUserId   = -1;
-        loggedInUsername = null;
-        loggedInFullName = null;
     }
 }
 </file>
@@ -2175,6 +2285,96 @@ public final class SessionManager {
    </center>
 
 </BorderPane>
+</file>
+
+<file path="src/main/resources/oopsystem/styling/employeeDirectory.css">
+.root{
+    -fx-background-color:#f8f8f8;
+}
+
+/* Sidebar */
+
+.sidebar{
+    -fx-background-color:white;
+    -fx-border-color:#e5e5e5;
+}
+
+.logo-title{
+    -fx-font-size:18;
+    -fx-font-weight:bold;
+}
+
+.logo-subtitle{
+    -fx-text-fill:#888;
+}
+
+/* Active Menu */
+
+.active-menu{
+    -fx-background-color:#6d1111;
+    -fx-text-fill:white;
+}
+
+/* Titles */
+
+.page-title{
+    -fx-font-size:24;
+    -fx-font-weight:bold;
+}
+
+.page-subtitle{
+    -fx-text-fill:#777;
+}
+
+/* Cards */
+
+.stat-card{
+    -fx-background-color:white;
+    -fx-border-color:#e7d9d9;
+    -fx-border-radius:6;
+    -fx-background-radius:6;
+    -fx-padding:15;
+}
+
+.stat-number{
+    -fx-font-size:20;
+    -fx-font-weight:bold;
+}
+
+.stat-icon{
+    -fx-background-color:#f3ecec;
+    -fx-background-radius:8;
+}
+
+/* Table Section */
+
+.table-card{
+    -fx-background-color:white;
+    -fx-border-color:#e5e5e5;
+    -fx-border-radius:6;
+    -fx-background-radius:6;
+}
+
+.table-view{
+    -fx-background-color:white;
+}
+
+.table-view .column-header{
+    -fx-background-color:#f7f7f7;
+}
+
+.table-view .column-header-background{
+    -fx-background-color:#f7f7f7;
+}
+
+.pagination .page-separator,
+.pagination .pagination-control + StackPane {
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+    -fx-opacity: 0;
+    -fx-visible: false;
+}
 </file>
 
 <file path="src/main/resources/oopsystem/styling/reports-analytics.css">
@@ -2533,146 +2733,6 @@ public final class SessionManager {
 }
 </file>
 
-<file path="pom.xml">
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-
-<!-- Project Identity   -->
-    <groupId>oopsystem</groupId>
-    <artifactId>OOPSystem</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <name>OOPSystem</name>
-
-
-<!-- Java + JavaFX Version Properties    -->
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.12.1</junit.version>
-    </properties>
-
-    <dependencies>
-
-<!-- JavaFX Controls (buttons, tables, forms)-->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>21.0.6</version>
-        </dependency>
-
-<!-- avaFX FXML (loads .fxml view files)-->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>21.0.6</version>
-        </dependency>
-
-<!-- Extra JavaFX UI components-->
-        <dependency>
-            <groupId>org.controlsfx</groupId>
-            <artifactId>controlsfx</artifactId>
-            <version>11.2.1</version>
-        </dependency>
-
-<!--  Icon library-->
-        <dependency>
-            <groupId>org.kordamp.ikonli</groupId>
-            <artifactId>ikonli-javafx</artifactId>
-            <version>12.3.1</version>
-        </dependency>
-
-<!-- Bootstrap-style CSS for JavaFX-->
-        <dependency>
-            <groupId>org.kordamp.bootstrapfx</groupId>
-            <artifactId>bootstrapfx-core</artifactId>
-            <version>0.4.0</version>
-        </dependency>
-
-<!-- JUnit Testing-->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.cdimascio</groupId>
-            <artifactId>dotenv-java</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.7.4</version>
-        </dependency>
-
-        <!-- FontAwesomeFX icons -->
-        <dependency>
-            <groupId>de.jensd</groupId>
-            <artifactId>fontawesomefx-fontawesome</artifactId>
-            <version>4.7.0-9.1.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
-        </dependency>
-
-    </dependencies>
-
-    <build>
-        <plugins>
-
-<!--            Java Compiler Plugin-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-                <configuration>
-                    <source>21</source>
-                    <target>21</target>
-                </configuration>
-            </plugin>
-
-<!--            JavaFX Maven Plugin (run with: mvn javafx:run-->
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <executions>
-                    <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
-                        <id>default-cli</id>
-                        <configuration>
-                            <mainClass>oopsystem.app.EmployeeApplication</mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-        </plugins>
-    </build>
-</project>
-</file>
-
 <file path="src/main/java/oopsystem/controller/DashboardController.java">
 package oopsystem.controller;
 
@@ -2820,6 +2880,82 @@ public class Launcher {
         Application.launch(EmployeeApplication.class, args);
     }
 
+}
+</file>
+
+<file path="src/main/java/oopsystem/repository/ActivityLogRepository.java">
+package oopsystem.repository;
+
+import oopsystem.model.ActivityLog;
+import oopsystem.util.Database;
+import oopsystem.util.SessionManager;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.sql.*;
+
+public class ActivityLogRepository {
+
+    /**
+     * INSERT: Logs a user action into activity_logs.
+     * Call this after every CRUD action across all controllers.
+     */
+    public void log(String action, String details) {
+        int userId = SessionManager.getLoggedInUserId();
+        System.out.println("LOG CALLED — userId: " + userId + " | action: " + action + " | details: " + details);
+
+        if (userId == -1) {
+            System.out.println("LOG SKIPPED — no active session");
+            return;
+        }
+
+        String sql = "INSERT INTO activity_logs (user_id, action, log_in_details) VALUES (?, ?, ?)";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, userId);
+            pstmt.setString(2, action);
+            pstmt.setString(3, details);
+            pstmt.executeUpdate();
+            System.out.println("LOG SUCCESS");
+
+        } catch (SQLException e) {
+            System.err.println("LOG FAILED: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    /**
+     * READ: Fetches all activity logs joined with username for the TableView.
+     */
+    public ObservableList<ActivityLog> findAll() throws SQLException {
+        ObservableList<ActivityLog> logs = FXCollections.observableArrayList();
+
+        String sql = """
+            SELECT al.log_id, al.user_id, al.action, al.log_in_details, al.created_at, u.username
+            FROM activity_logs al
+            INNER JOIN users u ON al.user_id = u.user_id
+            ORDER BY al.created_at DESC
+            """;
+
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                logs.add(new ActivityLog(
+                        rs.getInt("log_id"),
+                        rs.getInt("user_id"),
+                        rs.getString("action"),
+                        rs.getString("log_in_details"),
+                        rs.getTimestamp("created_at").toInstant().atZone(java.time.ZoneId.systemDefault()),
+                        rs.getString("username")
+                ));
+            }
+        }
+        return logs;
+    }
 }
 </file>
 
@@ -3309,6 +3445,160 @@ public class ReportsAnalyticsRepository {
 }
 </file>
 
+<file path="src/main/java/oopsystem/util/SceneNavigator.java">
+package oopsystem.util;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+/**
+ * Handles switching between JavaFX pages in the system.
+ *
+ * Important sizing fix:
+ * Instead of creating a brand-new Scene every time a page changes, this class
+ * reuses the existing Scene and only replaces its root. This preserves the
+ * current window size, maximized state, and full-screen state while navigating.
+ */
+public class SceneNavigator {
+
+    private static Stage stage;
+
+    public static void setStage(Stage primaryStage) {
+        stage = primaryStage;
+    }
+
+    /**
+     * Normal page navigation. This preserves whatever size/state the user is
+     * already using, including maximized/full-screen mode.
+     */
+    public static void switchTo(String fxmlName) {
+        switchToInternal(fxmlName, false);
+    }
+
+    /**
+     * Used after login. The login window starts small, but the main dashboard
+     * should open maximized instead of staying at the login window size.
+     */
+    public static void switchToMaximized(String fxmlName) {
+        switchToInternal(fxmlName, true);
+    }
+
+    private static void switchToInternal(String fxmlName, boolean maximizeAfterLoad) {
+        try {
+            if (stage == null) {
+                throw new IllegalStateException("SceneNavigator stage was not initialized. Call SceneNavigator.setStage(stage) first.");
+            }
+
+            String[] paths = {
+                    "/oopsystem/dashboard/" + fxmlName + ".fxml",
+                    "/oopsystem/employeeDirectory/" + fxmlName + ".fxml",
+                    "/oopsystem/passSlipIssuance/" + fxmlName + ".fxml",
+                    "/oopsystem/movementLogs/" + fxmlName + ".fxml",
+                    "/oopsystem/reports/" + fxmlName + ".fxml",
+                    "/oopsystem/login/" + fxmlName + ".fxml",
+                    "/oopsystem/profile/" + fxmlName + ".fxml",
+                    "/oopsystem/" + fxmlName + ".fxml"
+            };
+
+            FXMLLoader loader = null;
+            for (String path : paths) {
+                var url = SceneNavigator.class.getResource(path);
+                if (url != null) {
+                    loader = new FXMLLoader(url);
+                    break;
+                }
+            }
+
+            if (loader == null) {
+                throw new RuntimeException("FXML NOT FOUND: " + fxmlName);
+            }
+
+            Parent root = loader.load();
+
+            // Save the current window state before changing pages.
+            boolean wasFullScreen = stage.isFullScreen();
+            boolean wasMaximized = stage.isMaximized();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+
+            Scene currentScene = stage.getScene();
+
+            if (currentScene == null) {
+                // First load only. Use a reasonable default size.
+                stage.setScene(new Scene(root, 1200, 760));
+            } else {
+                // Main fix: keep the same Scene so the Stage does not resize.
+                currentScene.setRoot(root);
+
+                // If the user is not maximized/full-screen, preserve the exact window size.
+                if (!wasMaximized && !wasFullScreen && !maximizeAfterLoad) {
+                    stage.setWidth(currentWidth);
+                    stage.setHeight(currentHeight);
+                }
+            }
+
+            if (maximizeAfterLoad) {
+                stage.setFullScreen(false);
+                stage.setMaximized(true);
+            } else {
+                // Restore maximized/full-screen states after normal navigation.
+                stage.setMaximized(wasMaximized);
+                stage.setFullScreen(wasFullScreen);
+            }
+
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+</file>
+
+<file path="src/main/java/oopsystem/util/SessionManager.java">
+package oopsystem.util;
+
+import oopsystem.model.User;
+
+public final class SessionManager {
+
+    private static User currentUser = null;
+
+    private SessionManager() {}
+
+    public static void setCurrentUser(User user) {
+        currentUser = user;
+    }
+
+    public static User getCurrentUser() {
+        return currentUser;
+    }
+
+    // Convenience getters so existing code doesn't break
+    public static int getLoggedInUserId() {
+        return currentUser != null ? currentUser.getUserId() : -1;
+    }
+
+    public static String getLoggedInUsername() {
+        return currentUser != null ? currentUser.getUsername() : null;
+    }
+
+    public static String getLoggedInFullName() {
+        return currentUser != null ? currentUser.getFirstName() + " " + currentUser.getLastName() : null;
+    }
+
+    public static boolean isLoggedIn() {
+        return currentUser != null;
+    }
+
+    public static void clearSession() {
+        currentUser = null;
+    }
+}
+</file>
+
 <file path="src/main/resources/oopsystem/employeeDirectory/AddEmployeeView.fxml">
 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -3434,194 +3724,140 @@ public class ReportsAnalyticsRepository {
 </BorderPane>
 </file>
 
-<file path="src/main/resources/oopsystem/styling/employeeDirectory.css">
-.root{
-    -fx-background-color:#f8f8f8;
+<file path="src/main/resources/oopsystem/styling/dashboard.css">
+/* ============================================================
+   DASHBOARD — Stylesheet
+   ============================================================ */
+
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 13px;
+    -fx-background-color: #F5F5F5;
 }
 
-/* Sidebar */
+/* ── CONTENT ───────────────────────────────────────────────── */
+.content-scroll { -fx-background-color: transparent; -fx-background: transparent; }
+.content-scroll > .viewport { -fx-background-color: #F5F5F5; }
+.content-area { -fx-background-color: #F5F5F5; -fx-padding: 24px; }
 
-.sidebar{
-    -fx-background-color:white;
-    -fx-border-color:#e5e5e5;
+/* ── CARDS ─────────────────────────────────────────────────── */
+.card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8px;
+    -fx-border-color: #8B0000;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);
 }
-
-.logo-title{
-    -fx-font-size:18;
-    -fx-font-weight:bold;
+.stat-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8px;
+    -fx-border-color: #8B0000;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);
 }
+.stat-label { -fx-text-fill: #999999; -fx-font-size: 11px; -fx-font-weight: bold; }
+.stat-value { -fx-text-fill: #1A1A1A; -fx-font-size: 28px; -fx-font-weight: bold; }
+.stat-value-warn { -fx-text-fill: #C07000; -fx-font-size: 28px; -fx-font-weight: bold; }
+.stat-note { -fx-text-fill: #999999; -fx-font-size: 11px; }
+.stat-note-warn { -fx-text-fill: #D97706; -fx-font-size: 11px; }
 
-.logo-subtitle{
-    -fx-text-fill:#888;
+/* ── TABLE ─────────────────────────────────────────────────── */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-effect: null;
 }
-
-/* Active Menu */
-
-.active-menu{
-    -fx-background-color:#6d1111;
-    -fx-text-fill:white;
+.table-view .column-header-background {
+    -fx-background-color: #F9F0F0;
+    -fx-border-color: transparent transparent #8B0000 transparent;
+    -fx-border-width: 0 0 1.5px 0;
 }
-
-/* Titles */
-
-.page-title{
-    -fx-font-size:24;
-    -fx-font-weight:bold;
+.table-view .column-header-background .filler { -fx-background-color: #F9F0F0; }
+.table-view .corner { -fx-background-color: #F9F0F0; }
+.table-view .column-header { -fx-background-color: transparent; }
+.table-view .column-header .label {
+    -fx-text-fill: #8B0000;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10px 12px;
 }
-
-.page-subtitle{
-    -fx-text-fill:#777;
+.table-view .table-cell {
+    -fx-text-fill: #1A1A1A;
+    -fx-font-size: 12px;
+    -fx-padding: 10px 12px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-border-color: transparent transparent #E8D0D0 transparent;
+    -fx-border-width: 0 0 1 0;
 }
+.table-row-cell { -fx-cell-size: 45px; -fx-border-color: transparent; }
+.table-row-cell:even { -fx-background-color: #FFFFFF; }
+.table-row-cell:odd  { -fx-background-color: #FDF5F5; }
+.table-row-cell:selected { -fx-background-color: #F5E6E6; }
+.table-row-cell:selected .table-cell { -fx-text-fill: #1A1A1A; }
+.table-row-cell:hover { -fx-background-color: #FAF0F0; }
+.table-view .table-row-cell:empty { -fx-background-color: transparent; -fx-border-color: transparent; }
 
-/* Cards */
-
-.stat-card{
-    -fx-background-color:white;
-    -fx-border-color:#e7d9d9;
-    -fx-border-radius:6;
-    -fx-background-radius:6;
-    -fx-padding:15;
+/* ── BUTTONS ───────────────────────────────────────────────── */
+.btn-primary {
+    -fx-background-color: #8B0000;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 8px 18px;
 }
+.btn-primary:hover { -fx-background-color: #9D0000; }
+.btn-primary:pressed { -fx-background-color: #700000; }
 
-.stat-number{
-    -fx-font-size:20;
-    -fx-font-weight:bold;
+.btn-yellow {
+    -fx-background-color: #E6A817;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 7px 14px;
 }
+.btn-yellow:hover { -fx-background-color: #C99210; }
 
-.stat-icon{
-    -fx-background-color:#f3ecec;
-    -fx-background-radius:8;
+.btn-icon {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 10px;
+    -fx-font-size: 13px;
+    -fx-border-color: #DDDDDD;
+    -fx-border-radius: 6px;
+    -fx-border-width: 1px;
 }
+.btn-icon:hover { -fx-background-color: #F5F5F5; }
 
-/* Table Section */
+/* ── SECTION ───────────────────────────────────────────────── */
+.section-title { -fx-text-fill: #1A1A1A; -fx-font-size: 14px; -fx-font-weight: bold; }
+.separator .line { -fx-border-color: #EEEEEE; -fx-border-width: 1 0 0 0; }
 
-.table-card{
-    -fx-background-color:white;
-    -fx-border-color:#e5e5e5;
-    -fx-border-radius:6;
-    -fx-background-radius:6;
+.sidebar {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent #8B0000 transparent transparent;
+    -fx-border-width: 0 1 0 0;
 }
-
-.table-view{
-    -fx-background-color:white;
-}
-
-.table-view .column-header{
-    -fx-background-color:#f7f7f7;
-}
-
-.table-view .column-header-background{
-    -fx-background-color:#f7f7f7;
-}
-
-.pagination .page-separator,
-.pagination .pagination-control + StackPane {
-    -fx-max-height: 0;
-    -fx-pref-height: 0;
-    -fx-min-height: 0;
-    -fx-opacity: 0;
-    -fx-visible: false;
-}
-</file>
-
-<file path="src/main/java/oopsystem/controller/AddEmployeeController.java">
-package oopsystem.controller;
-
-import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TextField;
-
-import oopsystem.model.Employee;
-import oopsystem.repository.EmployeeRepository;
-import oopsystem.util.SceneNavigator;
-
-public class AddEmployeeController {
-
-    @FXML private TextField firstNameField;
-    @FXML private TextField lastNameField;
-    @FXML private TextField emailField;
-    @FXML private TextField contactNumberField;
-    @FXML private TextField departmentField;
-    @FXML private TextField positionField;
-
-    private final EmployeeRepository repo =
-            new EmployeeRepository();
-
-
-    @FXML
-    private void handleAddEmployee() {
-
-        String firstName = firstNameField.getText().trim();
-        String lastName = lastNameField.getText().trim();
-        String email = emailField.getText().trim();
-        String contact = contactNumberField.getText().trim();
-        String department = departmentField.getText().trim();
-        String position = positionField.getText().trim();
-
-        // 1. Validation for Blank Required Fields
-        if (firstName.isBlank() || lastName.isBlank() || email.isBlank()) {
-            showAlert(Alert.AlertType.WARNING, "Validation Error", "Missing Fields",
-                    "First Name, Last Name, and Email are required fields.");
-            return;
-        }
-
-        // 2. Database Validation: Check for Duplicate Email
-        if (repo.existsByEmail(email)) {
-            showAlert(Alert.AlertType.ERROR, "Duplicate Data Error", "Email Already Registered",
-                    "The email address '" + email + "' is already assigned to an employee.");
-            return;
-        }
-
-        // 3. Database Validation: Check for Duplicate Full Name (Case-Insensitive)
-        if (repo.existsByFullName(firstName, lastName)) {
-            showAlert(Alert.AlertType.ERROR, "Duplicate Data Error", "Employee Name Exists",
-                    "An employee named '" + firstName + " " + lastName + "' already exists in the directory.");
-            return;
-        }
-
-        Employee employee = new Employee(
-                0,
-                firstName,
-                lastName,
-                department,
-                position,
-                contact,
-                email,
-                true
-        );
-
-        boolean success = repo.addEmployee(employee);
-
-        if (success) {
-            SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
-            System.out.println("Employee added");
-            clearForm();
-        }
-    }
-
-    // Helper method to keep alert popup code clean and reusable
-    private void showAlert(Alert.AlertType type, String title, String header, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
-    private void clearForm() {
-
-        firstNameField.clear();
-        lastNameField.clear();
-        emailField.clear();
-        contactNumberField.clear();
-        departmentField.clear();
-        positionField.clear();
-    }
-
-    @FXML
-    private void handleCancel() {
-        SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
-    }
+.logo-title { -fx-text-fill: #1A1A1A; -fx-font-size: 15px; -fx-font-weight: bold; }
+.logo-subtitle { -fx-text-fill: #999999; -fx-font-size: 11px; }
+.active-menu {
+    -fx-background-color: #FDF5F5;
+    -fx-text-fill: #8B0000;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent transparent transparent #8B0000;
+    -fx-border-width: 0 0 0 3px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10px 0 10px 18px;
+    -fx-background-radius: 0;
 }
 </file>
 
@@ -3762,38 +3998,6 @@ public class AddUserController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-}
-</file>
-
-<file path="src/main/java/oopsystem/controller/NavbarController.java">
-package oopsystem.controller;
-
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import oopsystem.util.SceneNavigator;
-
-import java.net.URL;
-import java.util.ResourceBundle;
-
-public class NavbarController implements Initializable {
-
-    @FXML public Button dashboardMenu;
-    @FXML public Button passSlipMenu;
-    @FXML public Button movementLogsMenu;
-    @FXML public Button employeeDirectoryMenu;
-    @FXML public Button reportsMenu;
-    @FXML public Button profileMenu;
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        dashboardMenu.setOnAction(e -> SceneNavigator.switchTo("dashboard/DashboardView"));
-        passSlipMenu.setOnAction(e -> SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView"));
-        movementLogsMenu.setOnAction(e -> SceneNavigator.switchTo("movementLogs/MovementLogsView"));
-        employeeDirectoryMenu.setOnAction(e -> SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView"));
-        reportsMenu.setOnAction(e -> SceneNavigator.switchTo("reports/ReportsView"));
-        profileMenu.setOnAction(e -> SceneNavigator.switchTo("profile/ProfileView"));
     }
 }
 </file>
@@ -4540,118 +4744,6 @@ public class PassSlipRepository {
 }
 </file>
 
-<file path="src/main/java/oopsystem/util/SceneNavigator.java">
-package oopsystem.util;
-
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-
-/**
- * Handles switching between JavaFX pages in the system.
- *
- * Important sizing fix:
- * Instead of creating a brand-new Scene every time a page changes, this class
- * reuses the existing Scene and only replaces its root. This preserves the
- * current window size, maximized state, and full-screen state while navigating.
- */
-public class SceneNavigator {
-
-    private static Stage stage;
-
-    public static void setStage(Stage primaryStage) {
-        stage = primaryStage;
-    }
-
-    /**
-     * Normal page navigation. This preserves whatever size/state the user is
-     * already using, including maximized/full-screen mode.
-     */
-    public static void switchTo(String fxmlName) {
-        switchToInternal(fxmlName, false);
-    }
-
-    /**
-     * Used after login. The login window starts small, but the main dashboard
-     * should open maximized instead of staying at the login window size.
-     */
-    public static void switchToMaximized(String fxmlName) {
-        switchToInternal(fxmlName, true);
-    }
-
-    private static void switchToInternal(String fxmlName, boolean maximizeAfterLoad) {
-        try {
-            if (stage == null) {
-                throw new IllegalStateException("SceneNavigator stage was not initialized. Call SceneNavigator.setStage(stage) first.");
-            }
-
-            String[] paths = {
-                    "/oopsystem/dashboard/" + fxmlName + ".fxml",
-                    "/oopsystem/employeeDirectory/" + fxmlName + ".fxml",
-                    "/oopsystem/passSlipIssuance/" + fxmlName + ".fxml",
-                    "/oopsystem/movementLogs/" + fxmlName + ".fxml",
-                    "/oopsystem/reports/" + fxmlName + ".fxml",
-                    "/oopsystem/login/" + fxmlName + ".fxml",
-                    "/oopsystem/profile/" + fxmlName + ".fxml",
-                    "/oopsystem/" + fxmlName + ".fxml"
-            };
-
-            FXMLLoader loader = null;
-            for (String path : paths) {
-                var url = SceneNavigator.class.getResource(path);
-                if (url != null) {
-                    loader = new FXMLLoader(url);
-                    break;
-                }
-            }
-
-            if (loader == null) {
-                throw new RuntimeException("FXML NOT FOUND: " + fxmlName);
-            }
-
-            Parent root = loader.load();
-
-            // Save the current window state before changing pages.
-            boolean wasFullScreen = stage.isFullScreen();
-            boolean wasMaximized = stage.isMaximized();
-            double currentWidth = stage.getWidth();
-            double currentHeight = stage.getHeight();
-
-            Scene currentScene = stage.getScene();
-
-            if (currentScene == null) {
-                // First load only. Use a reasonable default size.
-                stage.setScene(new Scene(root, 1200, 760));
-            } else {
-                // Main fix: keep the same Scene so the Stage does not resize.
-                currentScene.setRoot(root);
-
-                // If the user is not maximized/full-screen, preserve the exact window size.
-                if (!wasMaximized && !wasFullScreen && !maximizeAfterLoad) {
-                    stage.setWidth(currentWidth);
-                    stage.setHeight(currentHeight);
-                }
-            }
-
-            if (maximizeAfterLoad) {
-                stage.setFullScreen(false);
-                stage.setMaximized(true);
-            } else {
-                // Restore maximized/full-screen states after normal navigation.
-                stage.setMaximized(wasMaximized);
-                stage.setFullScreen(wasFullScreen);
-            }
-
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
-</file>
-
 <file path="src/main/resources/oopsystem/login/LoginView.fxml">
 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -5024,402 +5116,195 @@ public class SceneNavigator {
 </BorderPane>
 </file>
 
-<file path="src/main/resources/oopsystem/styling/dashboard.css">
-/* ============================================================
-   DASHBOARD — Stylesheet
-   ============================================================ */
+<file path="src/main/java/oopsystem/app/EmployeeApplication.java">
+package oopsystem.app;
 
-.root {
-    -fx-font-family: "Segoe UI", Arial, sans-serif;
-    -fx-font-size: 13px;
-    -fx-background-color: #F5F5F5;
-}
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import oopsystem.util.SceneNavigator;
 
-/* ── CONTENT ───────────────────────────────────────────────── */
-.content-scroll { -fx-background-color: transparent; -fx-background: transparent; }
-.content-scroll > .viewport { -fx-background-color: #F5F5F5; }
-.content-area { -fx-background-color: #F5F5F5; -fx-padding: 24px; }
+import java.io.IOException;
 
-/* ── CARDS ─────────────────────────────────────────────────── */
-.card {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 8px;
-    -fx-border-color: #8B0000;
-    -fx-border-radius: 8px;
-    -fx-border-width: 1px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);
-}
-.stat-card {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 8px;
-    -fx-border-color: #8B0000;
-    -fx-border-radius: 8px;
-    -fx-border-width: 1px;
-    -fx-padding: 16px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);
-}
-.stat-label { -fx-text-fill: #999999; -fx-font-size: 11px; -fx-font-weight: bold; }
-.stat-value { -fx-text-fill: #1A1A1A; -fx-font-size: 28px; -fx-font-weight: bold; }
-.stat-value-warn { -fx-text-fill: #C07000; -fx-font-size: 28px; -fx-font-weight: bold; }
-.stat-note { -fx-text-fill: #999999; -fx-font-size: 11px; }
-.stat-note-warn { -fx-text-fill: #D97706; -fx-font-size: 11px; }
+public class EmployeeApplication extends Application {
 
-/* ── TABLE ─────────────────────────────────────────────────── */
-.table-view {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-table-cell-border-color: transparent;
-    -fx-effect: null;
-}
-.table-view .column-header-background {
-    -fx-background-color: #F9F0F0;
-    -fx-border-color: transparent transparent #8B0000 transparent;
-    -fx-border-width: 0 0 1.5px 0;
-}
-.table-view .column-header-background .filler { -fx-background-color: #F9F0F0; }
-.table-view .corner { -fx-background-color: #F9F0F0; }
-.table-view .column-header { -fx-background-color: transparent; }
-.table-view .column-header .label {
-    -fx-text-fill: #8B0000;
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 10px 12px;
-}
-.table-view .table-cell {
-    -fx-text-fill: #1A1A1A;
-    -fx-font-size: 12px;
-    -fx-padding: 10px 12px;
-    -fx-alignment: CENTER_LEFT;
-    -fx-border-color: transparent transparent #E8D0D0 transparent;
-    -fx-border-width: 0 0 1 0;
-}
-.table-row-cell { -fx-cell-size: 45px; -fx-border-color: transparent; }
-.table-row-cell:even { -fx-background-color: #FFFFFF; }
-.table-row-cell:odd  { -fx-background-color: #FDF5F5; }
-.table-row-cell:selected { -fx-background-color: #F5E6E6; }
-.table-row-cell:selected .table-cell { -fx-text-fill: #1A1A1A; }
-.table-row-cell:hover { -fx-background-color: #FAF0F0; }
-.table-view .table-row-cell:empty { -fx-background-color: transparent; -fx-border-color: transparent; }
+    @Override
+    public void start(Stage stage) throws IOException {
+        SceneNavigator.setStage(stage);
 
-/* ── BUTTONS ───────────────────────────────────────────────── */
-.btn-primary {
-    -fx-background-color: #8B0000;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 6px;
-    -fx-cursor: hand;
-    -fx-padding: 8px 18px;
-}
-.btn-primary:hover { -fx-background-color: #9D0000; }
-.btn-primary:pressed { -fx-background-color: #700000; }
-
-.btn-yellow {
-    -fx-background-color: #E6A817;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 6px;
-    -fx-cursor: hand;
-    -fx-padding: 7px 14px;
-}
-.btn-yellow:hover { -fx-background-color: #C99210; }
-
-.btn-icon {
-    -fx-background-color: transparent;
-    -fx-cursor: hand;
-    -fx-background-radius: 6px;
-    -fx-padding: 6px 10px;
-    -fx-font-size: 13px;
-    -fx-border-color: #DDDDDD;
-    -fx-border-radius: 6px;
-    -fx-border-width: 1px;
-}
-.btn-icon:hover { -fx-background-color: #F5F5F5; }
-
-/* ── SECTION ───────────────────────────────────────────────── */
-.section-title { -fx-text-fill: #1A1A1A; -fx-font-size: 14px; -fx-font-weight: bold; }
-.separator .line { -fx-border-color: #EEEEEE; -fx-border-width: 1 0 0 0; }
-
-.sidebar {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: transparent #8B0000 transparent transparent;
-    -fx-border-width: 0 1 0 0;
-}
-.logo-title { -fx-text-fill: #1A1A1A; -fx-font-size: 15px; -fx-font-weight: bold; }
-.logo-subtitle { -fx-text-fill: #999999; -fx-font-size: 11px; }
-.active-menu {
-    -fx-background-color: #FDF5F5;
-    -fx-text-fill: #8B0000;
-    -fx-font-weight: bold;
-    -fx-border-color: transparent transparent transparent #8B0000;
-    -fx-border-width: 0 0 0 3px;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 10px 0 10px 18px;
-    -fx-background-radius: 0;
+        FXMLLoader fxmlLoader = new FXMLLoader(
+                EmployeeApplication.class.getResource("/oopsystem/login/LoginView.fxml")
+        );
+        Scene scene = new Scene(fxmlLoader.load(), 700, 500);
+        stage.setTitle("Hello!");
+        stage.setScene(scene);
+        stage.show();
+    }
 }
 </file>
 
-<file path="src/main/java/oopsystem/controller/ProfileController.java">
+<file path="src/main/java/oopsystem/controller/AddEmployeeController.java">
 package oopsystem.controller;
 
-import oopsystem.util.SessionManager;
-import org.mindrot.jbcrypt.BCrypt;
-
-import oopsystem.model.User;
-import oopsystem.repository.UserRepository;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
+
+import oopsystem.model.Employee;
+import oopsystem.repository.ActivityLogRepository;
+import oopsystem.repository.EmployeeRepository;
 import oopsystem.util.SceneNavigator;
 
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.ResourceBundle;
+public class AddEmployeeController {
 
-public class ProfileController implements Initializable {
+    @FXML private TextField firstNameField;
+    @FXML private TextField lastNameField;
+    @FXML private TextField emailField;
+    @FXML private TextField contactNumberField;
+    @FXML private TextField departmentField;
+    @FXML private TextField positionField;
 
-    @FXML private TextField firstName;
-    @FXML private TextField lastName;
-    @FXML private TextField username;
-    @FXML private PasswordField currentPassword;
-    @FXML private PasswordField newPassword;
-    @FXML private PasswordField confirmNewPassword;
+    private final EmployeeRepository repo =
+            new EmployeeRepository();
 
-    // --- YOUR TABLES AND COLUMNS INJECTIONS FROM FXML ---
-    @FXML private TableView<User> usersTable;
-    @FXML private TableColumn<User, String> usernameColumn;
-    @FXML private TableColumn<User, String> departmentColumn;
-    @FXML private TableColumn<User, String> roleColumn;
-    @FXML private TableColumn<User, Void> actionColumn; // Void because it holds custom buttons, not data text
+    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
 
-    // The data container linked directly to your UI table view
-    private final ObservableList<User> userList = FXCollections.observableArrayList();
-    private final UserRepository userRepository = new UserRepository();
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-
-        // 1. LINK TEXT DATA: Match table text columns to your User class property names
-        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
-        departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
-        roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
-
-        // 2. CONNECT DATA CONTAINER: Point your table view to your live list wrapper
-        usersTable.setItems(userList);
-
-        // 3. ADD BUTTONS DYNAMICALLY: Build the edit/delete layout rows
-        setupActionButtonsColumn();
-
-        // 4. POPULATE DATA: Run database retrieval to fill rows
-        loadUsersFromDatabase();
-
-        populateProfileFields();
-    }
-
-    /**
-     * =========================================================================
-     * FOCUS AREA: DYNAMICALLY CREATING AND ATTACHING BUTTONS TO EACH ROW
-     * =========================================================================
-     */
-    private void setupActionButtonsColumn() {
-        // We set a Cell Factory on the action column to completely override text rendering
-        actionColumn.setCellFactory(param -> new TableCell<User, Void>() {
-
-            // Create layout containers and controls once per row pool instance for optimization
-            private final HBox layoutContainer = new HBox(10); // 10px spacing between buttons
-            private final Button editBtn = new Button("Edit");
-            private final Button deleteBtn = new Button("Delete");
-
-            {
-                // Optional: Basic styling to make the layout look clean
-                editBtn.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;");
-                deleteBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-cursor: hand;");
-
-                // Pack both buttons neatly inside the horizontal HBox row box
-                layoutContainer.getChildren().addAll(editBtn, deleteBtn);
-
-                // -------------------------------------------------------------
-                // HANDLE CLICK ACTION FOR THE EDIT BUTTON PER ROW
-                // -------------------------------------------------------------
-                editBtn.setOnAction(event -> {
-                    // getIndex() tells JavaFX exactly which row number was interacted with
-                    // We pull the complete User object directly from memory via that index
-                    User selectedUser = getTableView().getItems().get(getIndex());
-
-                    // You have complete access to the ID and fields here without extra database calls
-                    System.out.println("User clicked EDIT on row index: " + getIndex());
-                    System.out.println("Extracted Hidden Database ID: " + selectedUser.getUserId());
-                    System.out.println("Extracted Target Username: " + selectedUser.getUsername());
-
-                    // TODO: Put your view transition or overlay activation logic here!
-                });
-
-                // -------------------------------------------------------------
-                // HANDLE CLICK ACTION FOR THE DELETE BUTTON PER ROW
-                // -------------------------------------------------------------
-                deleteBtn.setOnAction(event -> {
-                    User selectedUser = getTableView().getItems().get(getIndex());
-
-                    System.out.println("User clicked DELETE on row index: " + getIndex());
-                    System.out.println("Extracted Target ID to drop: " + selectedUser.getUserId());
-
-                    // Example action: Removing the item from your ObservableList
-                    // instantly forces the row to vanish from the screen layout smoothly
-                    userList.remove(selectedUser);
-                });
-            }
-
-            // This method controls rendering. It hides components on blank lines so they don't glitch
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty) {
-                    setGraphic(null); // Clear graphics completely on empty spacer rows
-                } else {
-                    setGraphic(layoutContainer); // Inject the buttons container layout on active rows
-                }
-            }
-        });
-    }
-
-    /**
-     * =========================================================================
-     * BACKGROUND PROCESS: POPULATING THE DATA FROM THE REPOSITORY LAYER
-     * =========================================================================
-     */
-    private void loadUsersFromDatabase() {
-        // Run database calls in a background Task thread so your user interface stays responsive
-        Task<ObservableList<User>> fetchTask = new Task<>() {
-            @Override
-            protected ObservableList<User> call() throws Exception {
-                // Returns an ObservableList populated via the INNER JOIN query from your Repository class
-                return userRepository.findAllUsersWithEmployeeDetails();
-            }
-        };
-
-        // When the database fetching completes, push the final results into your live UI list tracking wrapper
-        fetchTask.setOnSucceeded(event -> userList.setAll(fetchTask.getValue()));
-        fetchTask.setOnFailed(event -> fetchTask.getException().printStackTrace());
-
-        Thread thread = new Thread(fetchTask);
-        thread.setDaemon(true); // Closes the background processing thread if the application window is terminated
-        thread.start();
-    }
-
-
-    private void populateProfileFields() {
-        User currentUser = SessionManager.getCurrentUser();
-        if (currentUser != null) {
-            firstName.setText(currentUser.getFirstName());
-            lastName.setText(currentUser.getLastName());
-            username.setText(currentUser.getUsername());
-        }
-    }
 
     @FXML
-    private void handleSaveProfile() {
-        User currentUser = SessionManager.getCurrentUser();
-        if (currentUser == null) return;
+    private void handleAddEmployee() {
 
-        String newFirstName = firstName.getText().trim();
-        String newLastName = lastName.getText().trim();
-        String newUsername = username.getText().trim();
-        String currentPw = currentPassword.getText();
-        String newPw = newPassword.getText();
-        String confirmPw = confirmNewPassword.getText();
+        String firstName = firstNameField.getText().trim();
+        String lastName = lastNameField.getText().trim();
+        String email = emailField.getText().trim();
+        String contact = contactNumberField.getText().trim();
+        String department = departmentField.getText().trim();
+        String position = positionField.getText().trim();
 
-        // --- Validation ---
-        if (newFirstName.isBlank() || newLastName.isBlank() || newUsername.isBlank()) {
-            showAlert(Alert.AlertType.WARNING, "First name, last name, and username cannot be empty.");
+        // 1. Validation for Blank Required Fields
+        if (firstName.isBlank() || lastName.isBlank() || email.isBlank()) {
+            showAlert(Alert.AlertType.WARNING, "Validation Error", "Missing Fields",
+                    "First Name, Last Name, and Email are required fields.");
             return;
         }
 
-        if (currentPw.isBlank()) {
-            showAlert(Alert.AlertType.WARNING, "Please enter your current password to save changes.");
+        // 2. Database Validation: Check for Duplicate Email
+        if (repo.existsByEmail(email)) {
+            showAlert(Alert.AlertType.ERROR, "Duplicate Data Error", "Email Already Registered",
+                    "The email address '" + email + "' is already assigned to an employee.");
             return;
         }
 
-        // Verify current password against stored hash
-        if (!BCrypt.checkpw(currentPw, currentUser.getUserPassword())) {
-            showAlert(Alert.AlertType.ERROR, "Current password is incorrect.");
+        // 3. Database Validation: Check for Duplicate Full Name (Case-Insensitive)
+        if (repo.existsByFullName(firstName, lastName)) {
+            showAlert(Alert.AlertType.ERROR, "Duplicate Data Error", "Employee Name Exists",
+                    "An employee named '" + firstName + " " + lastName + "' already exists in the directory.");
             return;
         }
 
-        // Check if new username is taken by someone else
-        try {
-            if (userRepository.existsByUsernameExcluding(newUsername, currentUser.getUserId())) {
-                showAlert(Alert.AlertType.WARNING, "Username '" + newUsername + "' is already taken.");
-                return;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Database error: " + e.getMessage());
-            return;
-        }
+        Employee employee = new Employee(
+                0,
+                firstName,
+                lastName,
+                department,
+                position,
+                contact,
+                email,
+                true
+        );
 
-        // Determine final password — keep existing if no new password entered
-        String finalHashedPassword;
-        if (newPw.isBlank()) {
-            // No change to password — keep the current hash
-            finalHashedPassword = currentUser.getUserPassword();
-        } else {
-            if (!newPw.equals(confirmPw)) {
-                showAlert(Alert.AlertType.WARNING, "New passwords do not match.");
-                return;
-            }
-            finalHashedPassword = BCrypt.hashpw(newPw, BCrypt.gensalt());
-        }
+        boolean success = repo.addEmployee(employee);
 
-        // --- Save ---
-        try {
-            boolean success = userRepository.updateCredentials(
-                    currentUser.getUserId(),
-                    newUsername,
-                    newFirstName,
-                    newLastName,
-                    finalHashedPassword
+        if (success) {
+
+            activityLogRepository.log(
+                    "CREATE_EMPLOYEE",
+                    "Created employee " + firstName + " " + lastName
             );
 
-            if (success) {
-                // Update the session so the navbar/other screens reflect changes immediately
-                currentUser.setFirstName(newFirstName);
-                currentUser.setLastName(newLastName);
-                currentUser.setUsername(newUsername);
-                currentUser.setUserPassword(finalHashedPassword);
-
-                currentPassword.clear();
-                newPassword.clear();
-                confirmNewPassword.clear();
-
-                showAlert(Alert.AlertType.INFORMATION, "Profile updated successfully.");
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Failed to update profile. Please try again.");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Database error: " + e.getMessage());
+            SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
+            System.out.println("Employee added");
+            clearForm();
         }
     }
 
-    private void showAlert(Alert.AlertType type, String message) {
+    // Helper method to keep alert popup code clean and reusable
+    private void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
         alert.showAndWait();
     }
 
+    private void clearForm() {
+
+        firstNameField.clear();
+        lastNameField.clear();
+        emailField.clear();
+        contactNumberField.clear();
+        departmentField.clear();
+        positionField.clear();
+    }
+
     @FXML
-    private void goToAddEmployee(){
-        SceneNavigator.switchTo("addUserView");
+    private void handleCancel() {
+        SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
+    }
+}
+</file>
+
+<file path="src/main/java/oopsystem/controller/NavbarController.java">
+package oopsystem.controller;
+
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import oopsystem.repository.ActivityLogRepository;
+import oopsystem.util.SceneNavigator;
+import oopsystem.util.SessionManager;
+
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class NavbarController implements Initializable {
+
+    @FXML public Button dashboardMenu;
+    @FXML public Button passSlipMenu;
+    @FXML public Button movementLogsMenu;
+    @FXML public Button employeeDirectoryMenu;
+    @FXML public Button reportsMenu;
+    @FXML public Button profileMenu;
+    @FXML public Button logoutBtn;
+
+    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        dashboardMenu.setOnAction(e -> SceneNavigator.switchTo("dashboard/DashboardView"));
+        passSlipMenu.setOnAction(e -> SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView"));
+        movementLogsMenu.setOnAction(e -> SceneNavigator.switchTo("movementLogs/MovementLogsView"));
+        employeeDirectoryMenu.setOnAction(e -> SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView"));
+        reportsMenu.setOnAction(e -> SceneNavigator.switchTo("reports/ReportsView"));
+        profileMenu.setOnAction(e -> SceneNavigator.switchTo("profile/ProfileView"));
+
+        logoutBtn.setOnAction(e -> handleLogout());
+    }
+
+    private void handleLogout() {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Logout");
+        confirm.setHeaderText("Are you sure you want to logout?");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                activityLogRepository.log("LOGOUT", "User " + SessionManager.getLoggedInUsername() + " logged out");
+                SessionManager.clearSession();
+                SceneNavigator.switchTo("login/LoginView");
+            }
+        });
     }
 }
 </file>
@@ -5487,45 +5372,6 @@ public class User {
     public void setRole(String role) { this.role = role; }
 
 }
-</file>
-
-<file path="src/main/resources/oopsystem/components/Nav.fxml">
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
-<VBox fillWidth="false" prefHeight="850.0" prefWidth="263.0" spacing="10" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.NavbarController">
-
-    <VBox fillWidth="false" prefHeight="850.0" prefWidth="264.0" style="-fx-border-color: red;" styleClass="sidebar" stylesheets="@../styling/employeeDirectory.css">
-      <VBox prefHeight="83.0" prefWidth="228.0">
-         <children>
-            <Label text="E-Pass Portal" />
-            <Label prefHeight="74.0" prefWidth="188.0" text="Pass Slip Monitoring System" textOverrun="CLIP" wrapText="true" />
-         </children>
-      </VBox>
-      <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="765.0" prefWidth="264.0">
-         <children>
-      
-              <!--NAVIGATION-->
-             <Button fx:id="dashboardMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Dashboard"/>
-             <Button fx:id="passSlipMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Issue Pass Slip"/>
-             <Button fx:id="movementLogsMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Movement Logs"/>
-             <Button fx:id="employeeDirectoryMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" styleClass="active-menu" text="Employee Directory"/>
-             <Button fx:id="reportsMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Reports">
-                 <VBox.margin>
-                     <Insets bottom="345.0"/>
-                 </VBox.margin>
-             </Button>
-             <Button fx:id="profileMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Settings"/>
-             <Button maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Logout"/>
-         </children>
-      </VBox>
-
-    </VBox>
-</VBox>
 </file>
 
 <file path="src/main/resources/oopsystem/passSlipIssuance/PassSlipIssuanceView.fxml">
@@ -5641,44 +5487,262 @@ public class User {
 </BorderPane>
 </file>
 
-<file path="src/main/java/oopsystem/app/EmployeeApplication.java">
-package oopsystem.app;
+<file path="src/main/java/oopsystem/controller/ProfileController.java">
+package oopsystem.controller;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import oopsystem.util.SessionManager;
+import org.mindrot.jbcrypt.BCrypt;
+
+import oopsystem.model.User;
+import oopsystem.repository.UserRepository;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import oopsystem.util.SceneNavigator;
 
-import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.ResourceBundle;
 
-public class EmployeeApplication extends Application {
+public class ProfileController implements Initializable {
+
+    @FXML private TextField firstName;
+    @FXML private TextField lastName;
+    @FXML private TextField username;
+    @FXML private PasswordField currentPassword;
+    @FXML private PasswordField newPassword;
+    @FXML private PasswordField confirmNewPassword;
+
+    // --- YOUR TABLES AND COLUMNS INJECTIONS FROM FXML ---
+    @FXML private TableView<User> usersTable;
+    @FXML private TableColumn<User, String> usernameColumn;
+    @FXML private TableColumn<User, String> departmentColumn;
+    @FXML private TableColumn<User, String> roleColumn;// Void because it holds custom buttons, not data text
+
+    // The data container linked directly to your UI table view
+    private final ObservableList<User> userList = FXCollections.observableArrayList();
+    private final UserRepository userRepository = new UserRepository();
 
     @Override
-    public void start(Stage stage) throws IOException {
-        SceneNavigator.setStage(stage);
+    public void initialize(URL location, ResourceBundle resources) {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(
-                EmployeeApplication.class.getResource("/oopsystem/login/LoginView.fxml")
-        );
-        Scene scene = new Scene(fxmlLoader.load(), 700, 500);
-        stage.setTitle("Hello!");
-        stage.setScene(scene);
-        stage.show();
+        // 1. LINK TEXT DATA: Match table text columns to your User class property names
+        usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
+        departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
+        roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
+
+        // 2. CONNECT DATA CONTAINER: Point your table view to your live list wrapper
+        usersTable.setItems(userList);
+
+        // 3. ADD BUTTONS DYNAMICALLY: Build the edit/delete layout rows
+
+        // 4. POPULATE DATA: Run database retrieval to fill rows
+        loadUsersFromDatabase();
+
+        populateProfileFields();
+    }
+    /**
+     * =========================================================================
+     * BACKGROUND PROCESS: POPULATING THE DATA FROM THE REPOSITORY LAYER
+     * =========================================================================
+     */
+    private void loadUsersFromDatabase() {
+        // Run database calls in a background Task thread so your user interface stays responsive
+        Task<ObservableList<User>> fetchTask = new Task<>() {
+            @Override
+            protected ObservableList<User> call() throws Exception {
+                // Returns an ObservableList populated via the INNER JOIN query from your Repository class
+                return userRepository.findAllUsersWithEmployeeDetails();
+            }
+        };
+
+        // When the database fetching completes, push the final results into your live UI list tracking wrapper
+        fetchTask.setOnSucceeded(event -> userList.setAll(fetchTask.getValue()));
+        fetchTask.setOnFailed(event -> fetchTask.getException().printStackTrace());
+
+        Thread thread = new Thread(fetchTask);
+        thread.setDaemon(true); // Closes the background processing thread if the application window is terminated
+        thread.start();
+    }
+
+
+    private void populateProfileFields() {
+        User currentUser = SessionManager.getCurrentUser();
+        if (currentUser != null) {
+            firstName.setText(currentUser.getFirstName());
+            lastName.setText(currentUser.getLastName());
+            username.setText(currentUser.getUsername());
+        }
+    }
+
+    @FXML
+    private void handleSaveProfile() {
+
+        System.out.println("change button clicked");
+        User currentUser = SessionManager.getCurrentUser();
+        if (currentUser == null) return;
+
+        String newFirstName = firstName.getText().trim();
+        String newLastName = lastName.getText().trim();
+        String newUsername = username.getText().trim();
+        String currentPw = currentPassword.getText();
+        String newPw = newPassword.getText();
+        String confirmPw = confirmNewPassword.getText();
+
+        // --- Validation ---
+        if (newFirstName.isBlank() || newLastName.isBlank() || newUsername.isBlank()) {
+            showAlert(Alert.AlertType.WARNING, "First name, last name, and username cannot be empty.");
+            return;
+        }
+
+        if (currentPw.isBlank()) {
+            showAlert(Alert.AlertType.WARNING, "Please enter your current password to save changes.");
+            return;
+        }
+
+        // Verify current password against stored hash
+        if (!BCrypt.checkpw(currentPw, currentUser.getUserPassword())) {
+            showAlert(Alert.AlertType.ERROR, "Current password is incorrect.");
+            return;
+        }
+
+        // Check if new username is taken by someone else
+        try {
+            if (userRepository.existsByUsernameExcluding(newUsername, currentUser.getUserId())) {
+                showAlert(Alert.AlertType.WARNING, "Username '" + newUsername + "' is already taken.");
+                return;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Database error: " + e.getMessage());
+            return;
+        }
+
+        // Determine final password — keep existing if no new password entered
+        String finalHashedPassword;
+        if (newPw.isBlank()) {
+            // No change to password — keep the current hash
+            finalHashedPassword = currentUser.getUserPassword();
+        } else {
+            if (!newPw.equals(confirmPw)) {
+                showAlert(Alert.AlertType.WARNING, "New passwords do not match.");
+                return;
+            }
+            finalHashedPassword = BCrypt.hashpw(newPw, BCrypt.gensalt());
+        }
+
+        // --- Save ---
+        try {
+            boolean success = userRepository.updateCredentials(
+                    currentUser.getUserId(),
+                    newUsername,
+                    newFirstName,
+                    newLastName,
+                    finalHashedPassword
+            );
+
+            if (success) {
+                // Update the session so the navbar/other screens reflect changes immediately
+                currentUser.setFirstName(newFirstName);
+                currentUser.setLastName(newLastName);
+                currentUser.setUsername(newUsername);
+                currentUser.setUserPassword(finalHashedPassword);
+
+                currentPassword.clear();
+                newPassword.clear();
+                confirmNewPassword.clear();
+
+                showAlert(Alert.AlertType.INFORMATION, "Profile updated successfully.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Failed to update profile. Please try again.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Database error: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleDeleteOwnAccount() {
+        User currentUser = SessionManager.getCurrentUser();
+        if (currentUser == null) return;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Delete Account");
+        confirm.setHeaderText("Are you sure you want to delete your account?");
+        confirm.setContentText("This action is permanent and cannot be undone. You will be logged out immediately.");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    userRepository.deleteUser(currentUser.getUserId());
+                    SessionManager.clearSession();
+                    SceneNavigator.switchTo("login/LoginView");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Failed to delete account: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void showAlert(Alert.AlertType type, String message) {
+        Alert alert = new Alert(type);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    @FXML
+    private void goToAddEmployee(){
+        SceneNavigator.switchTo("addUserView");
     }
 }
 </file>
 
-<file path="src/main/java/oopsystem/util/AppConfig.java">
-package oopsystem.util;
+<file path="src/main/resources/oopsystem/components/Nav.fxml">
+<?xml version="1.0" encoding="UTF-8"?>
 
-public class AppConfig {
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
 
-    private AppConfig(){}
+<VBox fillWidth="false" prefHeight="850.0" prefWidth="263.0" spacing="10" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.NavbarController">
 
-    public static final boolean DEV_MODE = true;
+    <VBox fillWidth="false" prefHeight="850.0" prefWidth="264.0" style="-fx-border-color: red;" styleClass="sidebar" stylesheets="@../styling/employeeDirectory.css">
+      <VBox prefHeight="83.0" prefWidth="228.0">
+         <children>
+            <Label text="E-Pass Portal" />
+            <Label prefHeight="74.0" prefWidth="188.0" text="Pass Slip Monitoring System" textOverrun="CLIP" wrapText="true" />
+         </children>
+      </VBox>
+      <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="765.0" prefWidth="264.0">
+         <children>
+      
+              <!--NAVIGATION-->
+             <Button fx:id="dashboardMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Dashboard"/>
+             <Button fx:id="passSlipMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Issue Pass Slip"/>
+             <Button fx:id="movementLogsMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Movement Logs"/>
+             <Button fx:id="employeeDirectoryMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" styleClass="active-menu" text="Employee Directory"/>
+             <Button fx:id="reportsMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Reports">
+                 <VBox.margin>
+                     <Insets bottom="345.0"/>
+                 </VBox.margin>
+             </Button>
+             <Button fx:id="profileMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Settings"/>
+             <Button fx:id="logoutBtn" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Logout"/>
+         </children>
+      </VBox>
 
-}
+    </VBox>
+</VBox>
 </file>
 
 <file path="src/main/resources/oopsystem/employeeDirectory/EmployeeDirectoryView.fxml">
@@ -6818,138 +6882,6 @@ public class MovementLogRepository {
 }
 </file>
 
-<file path="src/main/resources/oopsystem/profile/ProfileView.fxml">
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<?import javafx.scene.control.PasswordField?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="oopsystem.controller.ProfileController">
-
-    <left>
-        <fx:include fx:id="navBar" source="../components/Nav.fxml" />
-    </left>
-   <center>
-
-      <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-         <!--HEADER-->
-         <HBox prefHeight="57.0" prefWidth="1017.0" style="-fx-border-color: red;" />
-
-         <!--MAIN-->
-         <VBox prefHeight="42.0" prefWidth="1017.0">
-            <Label text="Profile">
-               <font>
-                  <Font name="System Bold" size="25.0" />
-               </font>
-               <VBox.margin>
-                  <Insets left="22.0" />
-               </VBox.margin>
-            </Label>
-            <Label text="Manage your account preferences and administrative controls">
-               <VBox.margin>
-                  <Insets left="22.0" />
-               </VBox.margin>
-            </Label>
-         </VBox>
-
-         <HBox alignment="CENTER" fillHeight="false" prefHeight="379.0" prefWidth="1017.0">
-            <VBox alignment="CENTER" fillWidth="false" prefHeight="329.0" prefWidth="573.0" style="-fx-border-color: red;">
-
-               <HBox.margin><Insets right="20.0" /></HBox.margin>
-
-               <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="520.0">
-                  <Label text="Profile Settings" />
-               </HBox>
-
-               <!-- FIRST AND LAST NAME -->
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="570.0">
-                  <VBox prefHeight="81.0" prefWidth="285.0">
-                     <Label text="First Name" />
-                     <TextField fx:id="firstName" />
-                  </VBox>
-                  <VBox prefHeight="81.0" prefWidth="280.0">
-                     <Label text="Last Name" />
-                     <TextField fx:id="lastName" />
-                  </VBox>
-               </HBox>
-
-               <!-- USERNAME -->
-               <VBox prefHeight="90.0" prefWidth="570.0">
-                  <Label text="Username" />
-                  <TextField fx:id="username" />
-               </VBox>
-
-               <!-- CURRENT PASSWORD -->
-               <VBox prefHeight="90.0" prefWidth="570.0">
-                  <Label text="Current Password" />
-                  <PasswordField fx:id="currentPassword" />
-               </VBox>
-
-               <!-- NEW PASSWORD -->
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="570.0">
-                  <VBox prefHeight="81.0" prefWidth="285.0">
-                     <Label text="New Password" />
-                     <PasswordField fx:id="newPassword" />
-                  </VBox>
-                  <VBox prefHeight="81.0" prefWidth="280.0">
-                     <Label text="Confirm New Password" />
-                     <PasswordField fx:id="confirmNewPassword" />
-                  </VBox>
-               </HBox>
-
-               <!-- SAVE BUTTON -->
-               <HBox alignment="CENTER_RIGHT" prefHeight="50.0" prefWidth="570.0">
-                  <Button fx:id="saveProfileBtn" mnemonicParsing="false" onAction="#handleSaveProfile"
-                          prefHeight="35.0" prefWidth="120.0"
-                          style="-fx-background-color: #2196F3; -fx-text-fill: white;"
-                          text="Save Changes" />
-               </HBox>
-
-            </VBox>
-            <VBox prefHeight="329.0" prefWidth="374.0" style="-fx-border-color: red;" />
-         </HBox>
-
-         <HBox alignment="TOP_CENTER" fillHeight="false" prefHeight="360.0" prefWidth="1017.0">
-
-            <!--TABLE CONTAINER-->
-            <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="340.0" prefWidth="967.0" style="-fx-border-color: red;">
-
-               <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="921.0">
-                  <Label text="User Management" />
-
-                  <Button fx:id="addUserBtn" onAction="#goToAddEmployee"  mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="+ Create New User" />
-               </HBox>
-
-               <TableView fx:id="usersTable" prefHeight="239.0" prefWidth="920.0">
-                  <columns>
-                     <TableColumn fx:id="usernameColumn" prefWidth="334.0" text="User" />
-                     <TableColumn fx:id="departmentColumn" minWidth="0.0" prefWidth="219.0" text="Department" />
-                     <TableColumn fx:id="roleColumn" prefWidth="257.0" text="Roles" />
-                     <TableColumn fx:id="actionColumn" prefWidth="109.0" text="Actions" />
-                  </columns>
-               </TableView>
-
-            </VBox>
-
-         </HBox>
-
-      </VBox>
-
-   </center>
-
-</BorderPane>
-</file>
-
 <file path="src/main/java/oopsystem/controller/MovementLogController.java">
 package oopsystem.controller;
 
@@ -7396,6 +7328,165 @@ public class MovementLogController {
 }
 </file>
 
+<file path="src/main/java/oopsystem/util/AppConfig.java">
+package oopsystem.util;
+
+public class AppConfig {
+
+    private AppConfig(){}
+
+    public static final boolean DEV_MODE = true;
+
+}
+</file>
+
+<file path="src/main/resources/oopsystem/profile/ProfileView.fxml">
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.control.PasswordField?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="oopsystem.controller.ProfileController">
+
+    <left>
+        <fx:include fx:id="navBar" source="../components/Nav.fxml" />
+    </left>
+   <center>
+
+      <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <!--HEADER-->
+         <HBox prefHeight="57.0" prefWidth="1017.0" style="-fx-border-color: red;" />
+
+         <!--MAIN-->
+         <VBox prefHeight="42.0" prefWidth="1017.0">
+            <Label text="Profile">
+               <font>
+                  <Font name="System Bold" size="25.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="22.0" />
+               </VBox.margin>
+            </Label>
+            <Label text="Manage your account preferences and administrative controls">
+               <VBox.margin>
+                  <Insets left="22.0" />
+               </VBox.margin>
+            </Label>
+         </VBox>
+
+         <HBox alignment="CENTER" fillHeight="false" prefHeight="379.0" prefWidth="1017.0">
+            <VBox alignment="CENTER" fillWidth="false" prefHeight="329.0" prefWidth="573.0" style="-fx-border-color: red;">
+
+               <HBox.margin><Insets right="20.0" /></HBox.margin>
+
+               <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="520.0">
+                  <Label text="Profile Settings" />
+               </HBox>
+
+               <!-- FIRST AND LAST NAME -->
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="570.0">
+                  <VBox prefHeight="81.0" prefWidth="285.0">
+                     <Label text="First Name" />
+                     <TextField fx:id="firstName" />
+                  </VBox>
+                  <VBox prefHeight="81.0" prefWidth="280.0">
+                     <Label text="Last Name" />
+                     <TextField fx:id="lastName" />
+                  </VBox>
+               </HBox>
+
+               <!-- USERNAME -->
+               <VBox prefHeight="90.0" prefWidth="570.0">
+                  <Label text="Username" />
+                  <TextField fx:id="username" />
+               </VBox>
+
+               <!-- CURRENT PASSWORD -->
+               <VBox prefHeight="90.0" prefWidth="570.0">
+                  <Label text="Current Password" />
+                  <PasswordField fx:id="currentPassword" />
+               </VBox>
+
+               <!-- NEW PASSWORD -->
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="570.0">
+                  <VBox prefHeight="81.0" prefWidth="285.0">
+                     <Label text="New Password" />
+                     <PasswordField fx:id="newPassword" />
+                  </VBox>
+                  <VBox prefHeight="81.0" prefWidth="280.0">
+                     <Label text="Confirm New Password" />
+                     <PasswordField fx:id="confirmNewPassword" />
+                  </VBox>
+               </HBox>
+
+               <!-- SAVE BUTTON -->
+               <HBox alignment="CENTER_RIGHT" prefHeight="50.0" prefWidth="570.0">
+                  <Button fx:id="saveProfileBtn" mnemonicParsing="false" onAction="#handleSaveProfile"
+                          prefHeight="35.0" prefWidth="120.0"
+                          style="-fx-background-color: #2196F3; -fx-text-fill: white;"
+                          text="Save Changes" />
+               </HBox>
+
+            </VBox>
+            <VBox prefHeight="329.0" prefWidth="374.0" style="-fx-border-color: red;" />
+         </HBox>
+
+         <HBox alignment="TOP_CENTER" fillHeight="false" prefHeight="360.0" prefWidth="1017.0">
+
+            <!--TABLE CONTAINER-->
+            <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="340.0" prefWidth="967.0" style="-fx-border-color: red;">
+
+               <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="921.0">
+                  <Label text="User Management" />
+
+                  <Button fx:id="addUserBtn" onAction="#goToAddEmployee"  mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="+ Create New User" />
+               </HBox>
+
+               <TableView fx:id="usersTable" prefHeight="239.0" prefWidth="920.0">
+                  <columns>
+                     <TableColumn fx:id="usernameColumn" prefWidth="334.0" text="User" />
+                     <TableColumn fx:id="departmentColumn" minWidth="0.0" prefWidth="219.0" text="Department" />
+                     <TableColumn fx:id="roleColumn" prefWidth="257.0" text="Roles" />
+                  </columns>
+               </TableView>
+
+            </VBox>
+
+         </HBox>
+
+         <HBox alignment="CENTER_LEFT" prefHeight="120.0" prefWidth="1017.0" style="-fx-border-color: #e53935; -fx-border-radius: 6; -fx-background-color: #fff5f5; -fx-background-radius: 6;">
+            <VBox prefHeight="80.0" prefWidth="800.0">
+               <HBox.margin><Insets left="22.0" top="10.0" /></HBox.margin>
+               <Label text="Danger Zone" style="-fx-text-fill: #e53935; -fx-font-weight: bold; -fx-font-size: 14;">
+                  <VBox.margin><Insets bottom="4.0" /></VBox.margin>
+               </Label>
+               <Label text="Deleting your account is permanent and cannot be undone." style="-fx-text-fill: #555;" />
+            </VBox>
+            <Button fx:id="deleteAccountBtn" mnemonicParsing="false" onAction="#handleDeleteOwnAccount"
+                    text="Delete My Account"
+                    style="-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                    prefHeight="35.0" prefWidth="160.0">
+               <HBox.margin><Insets right="22.0" /></HBox.margin>
+            </Button>
+         </HBox>
+
+      </VBox>
+
+   </center>
+
+</BorderPane>
+</file>
+
 <file path="src/main/java/oopsystem/repository/UserRepository.java">
 package oopsystem.repository;
 
@@ -7644,6 +7735,28 @@ public class UserRepository {
             }
         }
     }
+
+
+    public User findFirstUser() throws SQLException {
+        String sql = "SELECT * FROM users LIMIT 1";
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("user_password"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getBoolean("active_status"),
+                        rs.getTimestamp("created_at"),
+                        rs.getInt("employee_id")
+                );
+            }
+        }
+        return null;
+    }
 }
 </file>
 
@@ -7651,6 +7764,7 @@ public class UserRepository {
 package oopsystem.controller;
 
 import oopsystem.model.User;
+import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.UserRepository;
 import oopsystem.util.AppConfig;
 
@@ -7659,6 +7773,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import oopsystem.util.SceneNavigator;
+import oopsystem.util.SessionManager;
 
 import java.sql.SQLException;
 
@@ -7670,37 +7785,43 @@ public class LoginController {
     PasswordField passwordField;
     @FXML
     Button loginButton;
-
+    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
 
     @FXML
     public void login() {
 
         if (AppConfig.DEV_MODE) {
+            try {
+                UserRepository repo = new UserRepository();
+                // Load the first available user from DB as the dev session user
+                User devUser = repo.findFirstUser();
+                if (devUser != null) {
+                    SessionManager.setCurrentUser(devUser);
+
+                    activityLogRepository.log("LOGIN", "User " + devUser.getUsername() + " logged in");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
             return;
         }
 
         try {
             UserRepository repo = new UserRepository();
-
-            System.out.println("Username: " + usernameField.getText());
-            System.out.println("Password: " + passwordField.getText());
-
-            User user = repo.authenticate(
-                    usernameField.getText(),
-                    passwordField.getText()
-            );
+            User user = repo.authenticate(usernameField.getText(), passwordField.getText());
 
             if (user != null) {
+                SessionManager.setCurrentUser(user);
+                activityLogRepository.log("LOGIN", "User " + user.getUsername() + " logged in");
+
                 SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
             } else {
                 System.out.println("Invalid username or password");
             }
 
         } catch (SQLException e) {
-
             e.printStackTrace();
-
         }
     }
 }
@@ -7722,6 +7843,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import oopsystem.model.Employee;
+import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.EmployeeRepository;
 import oopsystem.util.SceneNavigator;
 
@@ -7759,7 +7881,7 @@ public class EmployeeDirectoryController implements Initializable {
     private final EmployeeRepository employeeRepository = new EmployeeRepository();
     private final ObservableList<Employee> allEmployeesMasterList = FXCollections.observableArrayList();
     private FilteredList<Employee> filteredEmployees;
-
+    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
     // =========================
     // TABLE DATA & PAGINATION VARIABLES
     // =========================
@@ -7863,6 +7985,12 @@ public class EmployeeDirectoryController implements Initializable {
                         boolean isDeleted = employeeRepository.deleteEmployeeById(selectedEmployee.getEmployeeId());
 
                         if (isDeleted) {
+
+                            activityLogRepository.log(
+                                    "DELETE_EMPLOYEE",
+                                    "Deleted employee " + selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName()
+                            );
+
                             // 4. If DB deletion succeeds, drop it from the ObservableList to update the TableView instantly
                             allEmployeesMasterList.remove(selectedEmployee);
                             System.out.println("Successfully deleted from DB and UI.");
@@ -8029,6 +8157,12 @@ public class EmployeeDirectoryController implements Initializable {
         dialog.showAndWait().ifPresent(updatedEmployee -> {
             boolean success = employeeRepository.updateEmployee(updatedEmployee);
             if (success) {
+
+                activityLogRepository.log(
+                        "CREATE_EMPLOYEE",
+                        "Created employee " + firstNameField + " " + lastNameField
+                );
+
                 // Refresh the master list in place so pagination/search stay intact
                 int index = allEmployeesMasterList.indexOf(employee);
                 if (index >= 0) {
