@@ -113,10 +113,28 @@
     -fx-border-radius: 4;
     -fx-cursor: hand;
 }
-
+/*export button*/
 .btn-outline:hover {
-    -fx-background-color: #fcfcfc;
+    -fx-background-color: #750016;
+    -fx-text-fill: white;
 }
+
+.btn-time-in {
+    -fx-background-color: #16a34a;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-background-radius: 6px;
+}
+
+.btn-time-in:hover {
+    -fx-background-color: #15803d;
+}
+
+.btn-time-in:pressed {
+    -fx-background-color: #001A09;
+}
+
 
 /*STATS*/
 

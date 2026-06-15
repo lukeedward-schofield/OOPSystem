@@ -13,21 +13,25 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.geometry.Side;
 
 public class MovementLogController {
 
     /* NAVIGATION */
-    @FXML public void goToDashboard()        { SceneNavigator.switchTo("DashboardView"); }
-    @FXML public void goToPassSlipIssuance() { SceneNavigator.switchTo("PassSlipIssuanceView"); }
-    @FXML public void goToMovementLogs()     { SceneNavigator.switchTo("MovementlogView"); }
-    @FXML public void goToEmployeeDirectory(){ SceneNavigator.switchTo("EmployeeDirectoryView"); }
-    @FXML public void gotoReports()          { SceneNavigator.switchTo("ReportsView"); }
+    @FXML public void goToDashboard()         { SceneNavigator.switchTo("DashboardView"); }
+    @FXML public void goToPassSlipIssuance()  { SceneNavigator.switchTo("PassSlipIssuanceView"); }
+    @FXML public void goToMovementLogs()      { SceneNavigator.switchTo("MovementlogView"); }
+    @FXML public void goToEmployeeDirectory() { SceneNavigator.switchTo("EmployeeDirectoryView"); }
+    @FXML public void gotoReports()           { SceneNavigator.switchTo("ReportsView"); }
 
     /* FILTERS */
     @FXML private DatePicker startDatePicker;
     @FXML private DatePicker endDatePicker;
     @FXML private ComboBox<String> departmentFilter;
     @FXML private TextField employeeNameFilter;
+    @FXML private Button exportBtn;
 
     /* STAT CARDS */
     @FXML private Label totalMovementsLabel;
@@ -35,7 +39,7 @@ public class MovementLogController {
     @FXML private Label complianceRateLabel;
 
     /* TABLE */
-    @FXML private TableView<MovementLog> movementLogsTable;
+    @FXML private TableView<MovementLog>           movementLogsTable;
     @FXML private TableColumn<MovementLog, String> dateColumn;
     @FXML private TableColumn<MovementLog, String> employeeColumn;
     @FXML private TableColumn<MovementLog, String> reasonColumn;
@@ -50,13 +54,13 @@ public class MovementLogController {
     @FXML private Label  pageInfoLabel;
 
     /* DETAIL CARD */
-    @FXML private VBox   detailCard;
-    @FXML private Label  detailTransactionId;
-    @FXML private Label  detailEmployee;
-    @FXML private Label  detailDepartment;
-    @FXML private Label  detailTimestamp;
-    @FXML private Label  detailStatus;
-    @FXML private Label  detailNotes;
+    @FXML private VBox  detailCard;
+    @FXML private Label detailTransactionId;
+    @FXML private Label detailEmployee;
+    @FXML private Label detailDepartment;
+    @FXML private Label detailTimestamp;
+    @FXML private Label detailStatus;
+    @FXML private Label detailNotes;
 
     /* STATE */
     private final ObservableList<MovementLog> masterData   = FXCollections.observableArrayList();
@@ -71,6 +75,7 @@ public class MovementLogController {
     private final DateTimeFormatter dateFmt      = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private final DateTimeFormatter timeFmt      = DateTimeFormatter.ofPattern("hh:mm a");
     private final DateTimeFormatter cardStampFmt = DateTimeFormatter.ofPattern("MMM dd, yyyy | hh:mm a");
+    private ContextMenu exportMenu;
 
     /* ------------------------------------------------------------------ */
     @FXML
@@ -80,6 +85,8 @@ public class MovementLogController {
         loadMovementLogs();
         setupAutoFiltering();
         setupSelectionListener();
+        setupExportMenu();
+        setupClickOutsideListener();
     }
 
     /* ------------------------------------------------------------------ */
@@ -94,7 +101,7 @@ public class MovementLogController {
                 d.getValue().getEmployeeName()));
 
         reasonColumn.setCellValueFactory(d -> {
-            String dest = d.getValue().getDestination();
+            String dest   = d.getValue().getDestination();
             String reason = d.getValue().getReason();
             return new SimpleStringProperty(
                     (dest != null && !dest.isBlank()) ? reason + " - " + dest : reason);
@@ -109,10 +116,39 @@ public class MovementLogController {
                         : d.getValue().getTimeIn().format(timeFmt)));
 
         durationColumn.setCellValueFactory(d -> new SimpleStringProperty(
-                d.getValue().getDuration() + " min"));
+                d.getValue().getEstimatedDuration() + " min"));
 
-        statusColumn.setCellValueFactory(d -> new SimpleStringProperty(
-                d.getValue().isStatus() ? "Returned" : "Out"));
+        // STATUS column — shows RETURNED LATE, RETURNED, OVERDUE, OUT
+        statusColumn.setCellValueFactory(d -> {
+            MovementLog log = d.getValue();
+            // returned late — use is_late flag from DB
+            if ("RETURNED".equals(log.getPassStatus()) && log.isLate()) {
+                return new SimpleStringProperty("RETURNED LATE");
+            }
+            return new SimpleStringProperty(log.getPassStatus());
+        });
+
+        statusColumn.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                if (empty || status == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(status);
+                    String color = switch (status) {
+                        case "RETURNED"      -> "#16a34a";
+                        case "RETURNED LATE" -> "#FFBB00";
+                        case "OVERDUE"       -> "#ea580c";
+                        default              -> "#cc0000"; // OUT
+                    };
+                    setStyle("-fx-text-fill: " + color + "; "
+                            + "-fx-font-weight: bold; "
+                            + "-fx-background-color: transparent;");
+                }
+            }
+        });
     }
 
     /* ------------------------------------------------------------------ */
@@ -136,14 +172,35 @@ public class MovementLogController {
     }
 
     private void setupAutoFiltering() {
-        departmentFilter.setOnAction(e -> applyFilters());
+        departmentFilter.setOnAction(e -> {
+            if (departmentFilter.getValue() != null) applyFilters();
+        });
         startDatePicker.setOnAction(e -> applyFilters());
         endDatePicker.setOnAction(e -> applyFilters());
         employeeNameFilter.textProperty().addListener((obs, o, n) -> applyFilters());
     }
 
-    @FXML
-    private void handleApplyFilters() { applyFilters(); }
+    private void setupClickOutsideListener() {
+        movementLogsTable.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, e -> {
+                    javafx.scene.Node target = (javafx.scene.Node) e.getTarget();
+                    while (target != null) {
+                        if (target instanceof Button
+                                || target instanceof TextField
+                                || target instanceof ComboBox
+                                || target instanceof TableView) {
+                            return;
+                        }
+                        target = target.getParent();
+                    }
+                    movementLogsTable.getSelectionModel().clearSelection();
+                });
+            }
+        });
+    }
+
+    @FXML private void handleApplyFilters() { applyFilters(); }
 
     private void applyFilters() {
         List<MovementLog> result = masterData.stream()
@@ -160,7 +217,7 @@ public class MovementLogController {
         if (log.getCreatedAt() == null) return true;
         LocalDate d = log.getCreatedAt().toLocalDate();
         if (startDatePicker.getValue() != null && d.isBefore(startDatePicker.getValue())) return false;
-        if (endDatePicker.getValue()   != null && d.isAfter(endDatePicker.getValue()))   return false;
+        if (endDatePicker.getValue()   != null && d.isAfter(endDatePicker.getValue()))    return false;
         return true;
     }
 
@@ -197,8 +254,8 @@ public class MovementLogController {
         updateStatistics();
     }
 
-    @FXML private void handlePrevPage() { if (currentPage > 1)          { currentPage--; refreshPage(); } }
-    @FXML private void handleNextPage() { if (currentPage < totalPages)  { currentPage++; refreshPage(); } }
+    @FXML private void handlePrevPage() { if (currentPage > 1)         { currentPage--; refreshPage(); } }
+    @FXML private void handleNextPage() { if (currentPage < totalPages) { currentPage++; refreshPage(); } }
 
     /* ------------------------------------------------------------------ */
     /*  DETAIL CARD                                                         */
@@ -220,15 +277,48 @@ public class MovementLogController {
         detailDepartment.setText(log.getDepartment() != null ? log.getDepartment() : "N/A");
         detailTimestamp.setText(log.getCreatedAt() != null
                 ? log.getCreatedAt().format(cardStampFmt) : "-");
-        detailStatus.setText(log.isStatus() ? "RETURNED" : "OUT");
-        detailStatus.setStyle(log.isStatus()
-                ? "-fx-text-fill: #16a34a; -fx-font-weight: bold;"
-                : "-fx-text-fill: #dc2626; -fx-font-weight: bold;");
 
-        String dest = (log.getDestination() != null && !log.getDestination().isBlank())
+        // show RETURNED LATE in detail card status too
+        String displayStatus = ("RETURNED".equals(log.getPassStatus()) && log.isLate())
+                ? "RETURNED LATE" : log.getPassStatus();
+
+        detailStatus.setText(displayStatus);
+        detailStatus.setStyle(switch (displayStatus) {
+            case "RETURNED"      -> "-fx-text-fill: #16a34a; -fx-font-weight: bold;";
+            case "RETURNED LATE" -> "-fx-text-fill: #d97706; -fx-font-weight: bold;";
+            case "OVERDUE"       -> "-fx-text-fill: #ea580c; -fx-font-weight: bold;";
+            default              -> "-fx-text-fill: #800000; -fx-font-weight: bold;";
+        });
+
+        String dest   = (log.getDestination() != null && !log.getDestination().isBlank())
                 ? " heading to " + log.getDestination() : "";
-        detailNotes.setText("Employee requested pass slip for " +
-                log.getReason().toLowerCase() + dest + ".");
+        String reason = log.getReason() != null ? log.getReason().toLowerCase() : "unknown reason";
+
+        StringBuilder notes = new StringBuilder();
+        notes.append("Employee requested pass slip for ").append(reason).append(dest).append(".");
+
+        // still out and overdue
+        if ("OVERDUE".equals(log.getPassStatus()) && log.getTimeOut() != null) {
+            long allowedMinutes = log.getEstimatedDuration() + 3;
+            long minutesOverdue = java.time.Duration.between(
+                    log.getTimeOut().plusMinutes(allowedMinutes),
+                    java.time.LocalDateTime.now()
+            ).toMinutes();
+            notes.append("\n⚠️ Employee is still outside and is overdue by ")
+                    .append(minutesOverdue).append(" minute(s).");
+        }
+
+        // returned late — use is_late from DB
+        if ("RETURNED".equals(log.getPassStatus()) && log.isLate()
+                && log.getTimeOut() != null && log.getTimeIn() != null) {
+            long allowedMinutes = log.getEstimatedDuration() + 3;
+            long actualMinutes  = java.time.Duration.between(
+                    log.getTimeOut(), log.getTimeIn()).toMinutes();
+            long lateBy = actualMinutes - allowedMinutes;
+            notes.append("\n⚠️ Employee returned late by ").append(lateBy).append(" minute(s).");
+        }
+
+        detailNotes.setText(notes.toString());
     }
 
     private void clearDetailCard() {
@@ -240,15 +330,114 @@ public class MovementLogController {
     /*  STATS                                                               */
     /* ------------------------------------------------------------------ */
     private void updateStatistics() {
+        long out      = filteredData.stream().filter(l -> "OUT".equals(l.getPassStatus())).count();
+        long returned = filteredData.stream().filter(l -> "RETURNED".equals(l.getPassStatus())).count();
+        long overdue  = filteredData.stream().filter(l -> "OVERDUE".equals(l.getPassStatus())).count();
+
         totalMovementsLabel.setText(String.valueOf(filteredData.size()));
-        long out      = filteredData.stream().filter(l -> !l.isStatus()).count();
-        long returned = filteredData.stream().filter(MovementLog::isStatus).count();
-        currentlyOutLabel.setText(String.valueOf(out));
+        currentlyOutLabel.setText(String.valueOf(out + overdue));
         double rate = filteredData.isEmpty() ? 0 : (returned * 100.0 / filteredData.size());
         complianceRateLabel.setText(String.format("%.1f%%", rate));
     }
 
-    /* EXPORT */
-    @FXML private void handleExportPdf()   { new Alert(Alert.AlertType.INFORMATION, "PDF export coming soon.").show(); }
-    @FXML private void handleExportExcel() { new Alert(Alert.AlertType.INFORMATION, "Excel export coming soon.").show(); }
+    /* ------------------------------------------------------------------ */
+    /*  TIME IN                                                             */
+    /* ------------------------------------------------------------------ */
+    @FXML
+    private void handleTimeIn() {
+        MovementLog selected = movementLogsTable.getSelectionModel().getSelectedItem();
+
+        if (selected == null) {
+            new Alert(Alert.AlertType.WARNING, "Please select a record first.").show();
+            return;
+        }
+
+        if ("RETURNED".equals(selected.getPassStatus())) {
+            new Alert(Alert.AlertType.WARNING,
+                    selected.getEmployeeName() + " has already returned.").show();
+            return;
+        }
+
+        String msg = "OVERDUE".equals(selected.getPassStatus())
+                ? "This employee is OVERDUE.\nAre you sure you want to record TIME IN?"
+                : "Record TIME IN for " + selected.getEmployeeName() + "?";
+
+        ButtonType yesBtn = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+        ButtonType noBtn  = new ButtonType("No",  ButtonBar.ButtonData.NO);
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm Time In");
+        confirm.setHeaderText("Time In Confirmation");
+        confirm.setContentText(msg);
+        confirm.getButtonTypes().setAll(yesBtn, noBtn);
+
+        confirm.showAndWait().ifPresent(btn -> {
+            if (btn == yesBtn) {
+                boolean success = repository.recordTimeIn(selected.getPassSlipId());
+                if (success) {
+                    new Alert(Alert.AlertType.INFORMATION,
+                            "Time In recorded for " + selected.getEmployeeName() + ".").show();
+                    loadMovementLogs();
+                } else {
+                    new Alert(Alert.AlertType.ERROR,
+                            "Failed to record Time In. Please try again.").show();
+                }
+            }
+        });
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  EXPORT                                                              */
+    /* ------------------------------------------------------------------ */
+    private void setupExportMenu() {
+        exportMenu = new ContextMenu();
+
+        MenuItem exportPdf   = new MenuItem("📄 Export as PDF");
+        MenuItem exportExcel = new MenuItem("📊 Export as Excel");
+
+        exportPdf.setOnAction(e   -> handleExportPdf());
+        exportExcel.setOnAction(e -> handleExportExcel());
+
+        exportMenu.getItems().addAll(exportPdf, exportExcel);
+
+        exportBtn.setOnAction(e -> {
+            if (exportMenu.isShowing()) exportMenu.hide();
+            else exportMenu.show(exportBtn, Side.BOTTOM, 0, 4);
+        });
+    }
+
+    private void handleExportPdf() {
+        showScopeDialog("PDF", (data, label) -> {
+            new Alert(Alert.AlertType.INFORMATION,
+                    "Exporting " + data.size() + " records to PDF (" + label + ").").show();
+        });
+    }
+
+    private void handleExportExcel() {
+        showScopeDialog("Excel", (data, label) -> {
+            new Alert(Alert.AlertType.INFORMATION,
+                    "Exporting " + data.size() + " records to Excel (" + label + ").").show();
+        });
+    }
+
+    private void showScopeDialog(String format, java.util.function.BiConsumer<List<MovementLog>, String> onConfirm) {
+        Alert scopeDialog = new Alert(Alert.AlertType.NONE);
+        scopeDialog.setTitle("Export as " + format);
+        scopeDialog.setHeaderText("What data do you want to export?");
+        scopeDialog.setContentText("Choose the scope of your " + format + " export.");
+
+        ButtonType filteredBtn = new ButtonType("Filtered Data (" + filteredData.size() + " records)");
+        ButtonType allBtn      = new ButtonType("All Records ("   + masterData.size()   + " records)");
+        ButtonType cancelBtn   = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        scopeDialog.getButtonTypes().setAll(filteredBtn, allBtn, cancelBtn);
+
+        scopeDialog.showAndWait().ifPresent(choice -> {
+            if (choice == filteredBtn) {
+                onConfirm.accept(new java.util.ArrayList<>(filteredData), "Filtered Data");
+            } else if (choice == allBtn) {
+                onConfirm.accept(new java.util.ArrayList<>(masterData), "All Records");
+            }
+        });
+    }
 }
