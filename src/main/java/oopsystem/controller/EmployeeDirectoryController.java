@@ -328,9 +328,16 @@ public class EmployeeDirectoryController implements Initializable {
             boolean success = employeeRepository.updateEmployee(updatedEmployee);
             if (success) {
 
-                activityLogRepository.log(
-                        "CREATE_EMPLOYEE",
-                        "Created employee " + firstNameField + " " + lastNameField
+                ActivityLogRepository logRepo = new ActivityLogRepository();
+
+                logRepo.log(
+                        "UPDATE_EMPLOYEE",
+                        String.format(
+                                "Employee updated: %s %s (%s)",
+                                employee.getFirstName(),
+                                employee.getLastName(),
+                                employee.getDepartment()
+                        )
                 );
 
                 // Refresh the master list in place so pagination/search stay intact
