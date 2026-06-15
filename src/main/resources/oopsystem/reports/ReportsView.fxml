@@ -65,8 +65,8 @@
 
                         <Region HBox.hgrow="ALWAYS" />
 
-                        <Button text="⇩  Export Excel" styleClass="outline-button" />
-                        <Button text="▣  Export PDF" styleClass="maroon-button" />
+                        <Button fx:id="exportExcelButton" text="⇩  Export Excel" onAction="#handleExportExcel" styleClass="outline-button" />
+                        <Button fx:id="exportPdfButton" text="▣  Export PDF" onAction="#handleExportPdf" styleClass="maroon-button" />
                     </HBox>
 
                     <!-- Four KPI cards. The expected prototype uses four cards on the Reports page. -->
@@ -75,7 +75,7 @@
                             <Label text="TOTAL PASS SLIPS" styleClass="summary-title" />
                             <HBox alignment="BOTTOM_LEFT" spacing="12">
                                 <Label fx:id="totalPassSlipsLabel" text="0" styleClass="summary-value" />
-                                <Label text="+12%↗" styleClass="positive-change" />
+                                <Label fx:id="totalPassSlipsChangeLabel" text="+0.0%↗" styleClass="positive-change" />
                             </HBox>
                         </VBox>
 
@@ -83,7 +83,7 @@
                             <Label text="COMPLIANCE RATE" styleClass="summary-title" />
                             <HBox alignment="BOTTOM_LEFT" spacing="12">
                                 <Label fx:id="complianceRateLabel" text="0.0%" styleClass="summary-value" />
-                                <Label text="+2.1%↗" styleClass="positive-change" />
+                                <Label fx:id="complianceRateChangeLabel" text="+0.0%↗" styleClass="positive-change" />
                             </HBox>
                         </VBox>
 
@@ -91,7 +91,7 @@
                             <Label text="AVG. DURATION" styleClass="summary-title" />
                             <HBox alignment="BOTTOM_LEFT" spacing="12">
                                 <Label fx:id="averageDurationLabel" text="0m" styleClass="summary-value" />
-                                <Label text="-0.5h↘" styleClass="negative-change" />
+                                <Label fx:id="averageDurationChangeLabel" text="+0m↗" styleClass="positive-change" />
                             </HBox>
                         </VBox>
 
@@ -99,7 +99,7 @@
                             <Label text="OVERDUE PASSES" styleClass="summary-title" />
                             <HBox alignment="BOTTOM_LEFT" spacing="12">
                                 <Label fx:id="overduePassesLabel" text="0" styleClass="summary-value" />
-                                <Label text="+3△" styleClass="negative-change" />
+                                <Label fx:id="overduePassesChangeLabel" text="+0△" styleClass="positive-change" />
                             </HBox>
                         </VBox>
                     </HBox>
@@ -132,7 +132,7 @@
                                     <TableColumn fx:id="departmentPercentageColumn" text="Usage" prefWidth="70" />
                                 </columns>
                             </TableView>
-                            <Label text="View All Departments ›" styleClass="link-label" />
+                            <Label fx:id="viewAllDepartmentsLabel" text="View All Departments ›" onMouseClicked="#handleViewAllDepartments" styleClass="link-label" />
                         </VBox>
                     </HBox>
 
@@ -140,8 +140,8 @@
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Compliance &amp; Overdue Monitoring" styleClass="section-title" />
                             <Region HBox.hgrow="ALWAYS" />
-                            <Button text="Daily" styleClass="tab-button-active" />
-                            <Button text="Weekly" styleClass="tab-button" />
+                            <Button fx:id="dailyTabButton" text="Daily" onAction="#handleShowDaily" styleClass="tab-button-active" />
+                            <Button fx:id="weeklyTabButton" text="Weekly" onAction="#handleShowWeekly" styleClass="tab-button" />
                         </HBox>
 
                         <TableView fx:id="dailyReportTable" prefHeight="190" styleClass="report-table">
@@ -152,7 +152,7 @@
                                 <TableColumn fx:id="overdueColumn" text="OVERDUE" prefWidth="130" />
                                 <TableColumn fx:id="averageDurationColumn" text="AVG DURATION" prefWidth="1" visible="false" />
                                 <TableColumn fx:id="dailyComplianceColumn" text="COMPLIANCE RATE" prefWidth="170" />
-                                <TableColumn text="ACTION" prefWidth="110" />
+                                <TableColumn fx:id="actionColumn" text="ACTION" prefWidth="110" />
                             </columns>
                         </TableView>
                     </VBox>
