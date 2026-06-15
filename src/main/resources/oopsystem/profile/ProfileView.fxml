@@ -114,12 +114,27 @@
                      <TableColumn fx:id="usernameColumn" prefWidth="334.0" text="User" />
                      <TableColumn fx:id="departmentColumn" minWidth="0.0" prefWidth="219.0" text="Department" />
                      <TableColumn fx:id="roleColumn" prefWidth="257.0" text="Roles" />
-                     <TableColumn fx:id="actionColumn" prefWidth="109.0" text="Actions" />
                   </columns>
                </TableView>
 
             </VBox>
 
+         </HBox>
+
+         <HBox alignment="CENTER_LEFT" prefHeight="120.0" prefWidth="1017.0" style="-fx-border-color: #e53935; -fx-border-radius: 6; -fx-background-color: #fff5f5; -fx-background-radius: 6;">
+            <VBox prefHeight="80.0" prefWidth="800.0">
+               <HBox.margin><Insets left="22.0" top="10.0" /></HBox.margin>
+               <Label text="Danger Zone" style="-fx-text-fill: #e53935; -fx-font-weight: bold; -fx-font-size: 14;">
+                  <VBox.margin><Insets bottom="4.0" /></VBox.margin>
+               </Label>
+               <Label text="Deleting your account is permanent and cannot be undone." style="-fx-text-fill: #555;" />
+            </VBox>
+            <Button fx:id="deleteAccountBtn" mnemonicParsing="false" onAction="#handleDeleteOwnAccount"
+                    text="Delete My Account"
+                    style="-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                    prefHeight="35.0" prefWidth="160.0">
+               <HBox.margin><Insets right="22.0" /></HBox.margin>
+            </Button>
          </HBox>
 
       </VBox>

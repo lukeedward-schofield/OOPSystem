@@ -1,61 +1,39 @@
 package oopsystem.util;
 
-/**
- * Holds the currently logged-in user's data for the duration of the session.
- *
- * This is a static singleton — no DB calls are made here.
- * LoginController calls setLoggedInUser() once after authentication.
- * Every other controller reads from it (e.g. PassSlipIssuanceController
- * needs getLoggedInUserId() to populate the issued_by column).
- *
- * Cleared on logout via clearSession().
- */
+import oopsystem.model.User;
+
 public final class SessionManager {
 
-    private static int    loggedInUserId   = -1;
-    private static String loggedInUsername = null;
-    private static String loggedInFullName = null;
+    private static User currentUser = null;
 
     private SessionManager() {}
 
-    // -------------------------------------------------------------------------
-    // SET  — called once by LoginController after authentication succeeds
-    // -------------------------------------------------------------------------
-
-    public static void setLoggedInUser(int userId, String username, String fullName) {
-        loggedInUserId   = userId;
-        loggedInUsername = username;
-        loggedInFullName = fullName;
+    public static void setCurrentUser(User user) {
+        currentUser = user;
     }
 
-    // -------------------------------------------------------------------------
-    // GET
-    // -------------------------------------------------------------------------
+    public static User getCurrentUser() {
+        return currentUser;
+    }
 
-    /** Returns the user_id of the active session. -1 if no user is logged in. */
+    // Convenience getters so existing code doesn't break
     public static int getLoggedInUserId() {
-        return loggedInUserId;
+        return currentUser != null ? currentUser.getUserId() : -1;
     }
 
     public static String getLoggedInUsername() {
-        return loggedInUsername;
+        return currentUser != null ? currentUser.getUsername() : null;
     }
 
     public static String getLoggedInFullName() {
-        return loggedInFullName;
+        return currentUser != null ? currentUser.getFirstName() + " " + currentUser.getLastName() : null;
     }
 
     public static boolean isLoggedIn() {
-        return loggedInUserId != -1;
+        return currentUser != null;
     }
 
-    // -------------------------------------------------------------------------
-    // CLEAR  — called by logout handlers before navigating back to Login
-    // -------------------------------------------------------------------------
-
     public static void clearSession() {
-        loggedInUserId   = -1;
-        loggedInUsername = null;
-        loggedInFullName = null;
+        currentUser = null;
     }
 }

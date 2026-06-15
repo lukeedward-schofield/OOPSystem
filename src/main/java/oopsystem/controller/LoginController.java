@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import oopsystem.util.SceneNavigator;
+import oopsystem.util.SessionManager;
 
 import java.sql.SQLException;
 
@@ -42,6 +43,7 @@ public class LoginController {
             );
 
             if (user != null) {
+                SessionManager.setCurrentUser(user);
                 SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
             } else {
                 System.out.println("Invalid username or password");
