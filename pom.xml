@@ -94,6 +94,21 @@
             <version>0.4</version>
         </dependency>
 
+        <!-- 1. JavaFX Swing Extension (Required for SwingFXUtils snapshot conversions) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>21.0.6</version> <!-- Match this version number exactly to your other javafx dependencies -->
+        </dependency>
+
+        <!-- 2. OpenPDF Engine (Required to write data streams into clean PDF files) -->
+        <dependency>
+            <groupId>com.github.librepdf</groupId>
+            <artifactId>openpdf</artifactId>
+            <version>2.0.3</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
