@@ -87,7 +87,21 @@ public class MovementLogController {
         setupSelectionListener();
         setupExportMenu();
         setupClickOutsideListener();
+
+        reasonColumn.prefWidthProperty().bind(
+                movementLogsTable.widthProperty()
+                        .subtract(
+                                dateColumn.widthProperty()
+                                        .add(employeeColumn.widthProperty())
+                                        .add(timeOutColumn.widthProperty())
+                                        .add(timeInColumn.widthProperty())
+                                        .add(durationColumn.widthProperty())
+                                        .add(statusColumn.widthProperty())
+                                        .add(20)
+                        )
+        );
     }
+
 
     /* ------------------------------------------------------------------ */
     /*  TABLE COLUMNS                                                       */

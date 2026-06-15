@@ -21,5 +21,6 @@ public class EmployeeApplication extends Application {
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
+        stage.setMaximized(true);
     }
 }
