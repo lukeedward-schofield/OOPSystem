@@ -13,6 +13,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import oopsystem.model.Employee;
+import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.EmployeeRepository;
 import oopsystem.util.SceneNavigator;
 
@@ -50,7 +51,7 @@ public class EmployeeDirectoryController implements Initializable {
     private final EmployeeRepository employeeRepository = new EmployeeRepository();
     private final ObservableList<Employee> allEmployeesMasterList = FXCollections.observableArrayList();
     private FilteredList<Employee> filteredEmployees;
-
+    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
     // =========================
     // TABLE DATA & PAGINATION VARIABLES
     // =========================
@@ -154,6 +155,12 @@ public class EmployeeDirectoryController implements Initializable {
                         boolean isDeleted = employeeRepository.deleteEmployeeById(selectedEmployee.getEmployeeId());
 
                         if (isDeleted) {
+
+                            activityLogRepository.log(
+                                    "DELETE_EMPLOYEE",
+                                    "Deleted employee " + selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName()
+                            );
+
                             // 4. If DB deletion succeeds, drop it from the ObservableList to update the TableView instantly
                             allEmployeesMasterList.remove(selectedEmployee);
                             System.out.println("Successfully deleted from DB and UI.");
@@ -320,6 +327,12 @@ public class EmployeeDirectoryController implements Initializable {
         dialog.showAndWait().ifPresent(updatedEmployee -> {
             boolean success = employeeRepository.updateEmployee(updatedEmployee);
             if (success) {
+
+                activityLogRepository.log(
+                        "CREATE_EMPLOYEE",
+                        "Created employee " + firstNameField + " " + lastNameField
+                );
+
                 // Refresh the master list in place so pagination/search stay intact
                 int index = allEmployeesMasterList.indexOf(employee);
                 if (index >= 0) {

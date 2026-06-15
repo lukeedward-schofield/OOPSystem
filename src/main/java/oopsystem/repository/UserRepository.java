@@ -245,4 +245,26 @@ public class UserRepository {
             }
         }
     }
+
+
+    public User findFirstUser() throws SQLException {
+        String sql = "SELECT * FROM users LIMIT 1";
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("user_password"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getBoolean("active_status"),
+                        rs.getTimestamp("created_at"),
+                        rs.getInt("employee_id")
+                );
+            }
+        }
+        return null;
+    }
 }

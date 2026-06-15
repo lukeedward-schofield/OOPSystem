@@ -4,6 +4,6 @@ public class AppConfig {
 
     private AppConfig(){}
 
-    public static final boolean DEV_MODE = false;
+    public static final boolean DEV_MODE = true;
 
 }

@@ -28,9 +28,18 @@ public class LoginController {
     public void login() {
 
         if (AppConfig.DEV_MODE) {
-            User devUser = new User(1, "dev", "", "Dev", "User", true, null, 1);
-            SessionManager.setCurrentUser(devUser);
-            activityLogRepository.log("LOGIN", "User dev logged in (DEV MODE)");
+            try {
+                UserRepository repo = new UserRepository();
+                // Load the first available user from DB as the dev session user
+                User devUser = repo.findFirstUser();
+                if (devUser != null) {
+                    SessionManager.setCurrentUser(devUser);
+
+                    activityLogRepository.log("LOGIN", "User " + devUser.getUsername() + " logged in");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
             return;
         }
@@ -42,6 +51,7 @@ public class LoginController {
             if (user != null) {
                 SessionManager.setCurrentUser(user);
                 activityLogRepository.log("LOGIN", "User " + user.getUsername() + " logged in");
+
                 SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
             } else {
                 System.out.println("Invalid username or password");

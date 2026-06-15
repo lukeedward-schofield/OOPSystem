@@ -17,7 +17,12 @@ public class ActivityLogRepository {
      */
     public void log(String action, String details) {
         int userId = SessionManager.getLoggedInUserId();
-        if (userId == -1) return; // No active session, skip logging
+        System.out.println("LOG CALLED — userId: " + userId + " | action: " + action + " | details: " + details);
+
+        if (userId == -1) {
+            System.out.println("LOG SKIPPED — no active session");
+            return;
+        }
 
         String sql = "INSERT INTO activity_logs (user_id, action, log_in_details) VALUES (?, ?, ?)";
 
@@ -28,13 +33,13 @@ public class ActivityLogRepository {
             pstmt.setString(2, action);
             pstmt.setString(3, details);
             pstmt.executeUpdate();
+            System.out.println("LOG SUCCESS");
 
         } catch (SQLException e) {
-            // Never crash the app because of a logging failure
-            System.err.println("Failed to write activity log: " + e.getMessage());
+            System.err.println("LOG FAILED: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-
     /**
      * READ: Fetches all activity logs joined with username for the TableView.
      */
