@@ -64,4 +64,9 @@ public class Employee {
     public boolean isActiveStatus() {
         return activeStatus.get();
     }
+
+    @Override
+    public String toString() {
+        return firstName + " " + lastName;
+    }
 }
