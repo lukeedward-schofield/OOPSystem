@@ -214,6 +214,19 @@ public class ProfileController implements Initializable {
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
+                    String username = currentUser.getUsername();
+                    ActivityLogRepository logRepo = new ActivityLogRepository();
+
+                    logRepo.log(
+                            "DELETE_OWN_ACCOUNT",
+                            "User deleted their own account: " + username
+                    );
+
+                    userRepository.deleteUser(currentUser.getUserId());
+
+                    SessionManager.clearSession();
+
+
                     userRepository.deleteUser(currentUser.getUserId());
                     SessionManager.clearSession();
                     SceneNavigator.switchTo("login/LoginView");
