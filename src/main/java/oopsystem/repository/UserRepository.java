@@ -5,6 +5,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import oopsystem.util.Database;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +14,10 @@ import java.util.List;
 public class UserRepository {
 
     public User authenticate(String username, String password) throws SQLException {
-
         String sql = """
         SELECT *
         FROM users
         WHERE username = ?
-        AND user_password = ?
         AND active_status = true
         """;
 
@@ -25,28 +25,29 @@ public class UserRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
-            pstmt.setString(2, password);
-
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                return new User(
-                        rs.getInt("user_id"),
-                        rs.getString("username"),
-                        rs.getString("user_password"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name"),
-                        rs.getBoolean("active_status"),
-                        rs.getTimestamp("created_at"),
-                        rs.getInt("employee_id")
-                );
+                String storedHash = rs.getString("user_password");
+                if (BCrypt.checkpw(password, storedHash)) {
+                    return new User(
+                            rs.getInt("user_id"),
+                            rs.getString("username"),
+                            rs.getString("user_password"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getBoolean("active_status"),
+                            rs.getTimestamp("created_at"),
+                            rs.getInt("employee_id")
+                    );
+                }
             }
-
             return null;
         }
     }
-
     public boolean createUser(String username, String password, int employeeId, String firstName, String lastName) throws SQLException {
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
         String sql = "INSERT INTO users (username, user_password, first_name, last_name, active_status, employee_id) " +
                 "VALUES (?, ?, ?, ?, true, ?)";
 
@@ -54,7 +55,7 @@ public class UserRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
-            pstmt.setString(2, password);
+            pstmt.setString(2, hashedPassword);
             pstmt.setString(3, firstName);
             pstmt.setString(4, lastName);
             pstmt.setInt(5, employeeId);
@@ -62,7 +63,6 @@ public class UserRepository {
             return pstmt.executeUpdate() > 0;
         }
     }
-
     public boolean existsByUsername(String username) throws SQLException {
         String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
         try (Connection conn = Database.getConnection();
