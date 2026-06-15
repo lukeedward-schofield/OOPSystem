@@ -156,9 +156,15 @@ public class EmployeeDirectoryController implements Initializable {
 
                         if (isDeleted) {
 
-                            activityLogRepository.log(
-                                    "DELETE_EMPLOYEE",
-                                    "Deleted employee " + selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName()
+                            ActivityLogRepository logRepo = new ActivityLogRepository();
+
+                            logRepo.log(
+                                    "DEACTIVATE_EMPLOYEE",
+                                    String.format(
+                                            "Employee deactivated: %s %s",
+                                            selectedEmployee.getFirstName(),
+                                            selectedEmployee.getLastName()
+                                    )
                             );
 
                             // 4. If DB deletion succeeds, drop it from the ObservableList to update the TableView instantly
