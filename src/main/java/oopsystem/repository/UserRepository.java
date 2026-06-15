@@ -135,7 +135,9 @@ public class UserRepository {
                         rs.getString("last_name"),
                         rs.getBoolean("active_status"),
                         rs.getTimestamp("created_at"),
-                        rs.getInt("employee_id")
+                        rs.getInt("employee_id"),
+                        rs.getString("department"),
+                        rs.getString("role")
                 ));
             }
         }

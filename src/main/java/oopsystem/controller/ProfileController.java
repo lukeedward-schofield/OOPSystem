@@ -72,7 +72,19 @@ public class ProfileController implements Initializable {
         };
 
         // When the database fetching completes, push the final results into your live UI list tracking wrapper
-        fetchTask.setOnSucceeded(event -> userList.setAll(fetchTask.getValue()));
+        fetchTask.setOnSucceeded(event -> {
+            userList.setAll(fetchTask.getValue());
+
+            for (User user : userList) {
+                System.out.println(
+                        user.getUsername()
+                                + " | "
+                                + user.getDepartment()
+                                + " | "
+                                + user.getRole()
+                );
+            }
+        });
         fetchTask.setOnFailed(event -> fetchTask.getException().printStackTrace());
 
         Thread thread = new Thread(fetchTask);
