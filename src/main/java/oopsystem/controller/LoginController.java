@@ -40,7 +40,7 @@ public class LoginController {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
+            SceneNavigator.switchToMaximized("employeeDirectory/EmployeeDirectoryView");
             return;
         }
 
@@ -52,7 +52,7 @@ public class LoginController {
                 SessionManager.setCurrentUser(user);
                 activityLogRepository.log("LOGIN", "User " + user.getUsername() + " logged in");
 
-                SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
+                SceneNavigator.switchToMaximized("employeeDirectory/EmployeeDirectoryView");
             } else {
                 System.out.println("Invalid username or password");
             }

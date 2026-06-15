@@ -104,8 +104,9 @@ public class ReportsAnalyticsController {
         setupDatePickers();
         setupDailyReportTable();
         setupDepartmentUsageTable();
+        setupResponsiveLayout();
         updateTabStyles();
-        loadReports();
+        loadReports(false);
     }
 
     /**
@@ -113,7 +114,7 @@ public class ReportsAnalyticsController {
      */
     @FXML
     private void handleApplyFilters() {
-        loadReports();
+        loadReports(true);
     }
 
     /**
@@ -121,7 +122,7 @@ public class ReportsAnalyticsController {
      */
     @FXML
     private void handleRefresh() {
-        loadReports();
+        loadReports(true);
     }
 
     /**
@@ -132,7 +133,9 @@ public class ReportsAnalyticsController {
         weeklyMode = false;
         updateTabStyles();
         displayCachedComplianceTable();
-        statusLabel.setText("Showing daily compliance records.");
+        setStatus(currentReportRows.isEmpty()
+                ? "Daily view loaded. No records found for the selected date range."
+                : "Daily view loaded successfully.", false);
     }
 
     /**
@@ -143,7 +146,9 @@ public class ReportsAnalyticsController {
         weeklyMode = true;
         updateTabStyles();
         displayCachedComplianceTable();
-        statusLabel.setText("Showing weekly compliance records.");
+        setStatus(currentReportRows.isEmpty()
+                ? "Weekly view loaded. No records found for the selected date range."
+                : "Weekly view loaded successfully.", false);
     }
 
     /**
@@ -161,6 +166,7 @@ public class ReportsAnalyticsController {
 
         File file = fileChooser.showSaveDialog(exportExcelButton.getScene().getWindow());
         if (file == null) {
+            setStatus("Excel export cancelled.", false);
             return;
         }
 
@@ -187,6 +193,7 @@ public class ReportsAnalyticsController {
 
         File file = fileChooser.showSaveDialog(exportPdfButton.getScene().getWindow());
         if (file == null) {
+            setStatus("PDF export cancelled.", false);
             return;
         }
 
@@ -203,6 +210,11 @@ public class ReportsAnalyticsController {
      */
     @FXML
     private void handleViewAllDepartments() {
+        if (currentDepartments == null || currentDepartments.isEmpty()) {
+            showInfo("No department data", "No department usage records were found for the selected date range.");
+            return;
+        }
+
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Departmental Usage");
         dialog.setHeaderText("All departments in the selected date range");
@@ -210,6 +222,7 @@ public class ReportsAnalyticsController {
 
         TableView<DepartmentUsage> table = new TableView<>();
         table.setPrefSize(520, 360);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setItems(FXCollections.observableArrayList(currentDepartments));
 
         TableColumn<DepartmentUsage, String> department = new TableColumn<>("Department");
@@ -233,6 +246,7 @@ public class ReportsAnalyticsController {
 
         table.getColumns().addAll(department, slips, usage);
         dialog.getDialogPane().setContent(table);
+        setStatus("Department usage details opened successfully.", false);
         dialog.showAndWait();
     }
 
@@ -252,7 +266,7 @@ public class ReportsAnalyticsController {
             // Fallback if the database is temporarily unavailable during startup.
             endDatePicker.setValue(LocalDate.now());
             startDatePicker.setValue(LocalDate.now().minusDays(30));
-            statusLabel.setText("Using default date range.");
+            setStatus("Using default date range because database dates could not be loaded.", true);
         }
     }
 
@@ -260,6 +274,7 @@ public class ReportsAnalyticsController {
      * Connects DailyReport model properties to the daily/weekly report table columns.
      */
     private void setupDailyReportTable() {
+        dailyReportTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         reportDateColumn.setCellValueFactory(new PropertyValueFactory<>("reportDate"));
         totalIssuedColumn.setCellValueFactory(new PropertyValueFactory<>("totalIssued"));
         returnedOnTimeColumn.setCellValueFactory(new PropertyValueFactory<>("returnedOnTime"));
@@ -317,6 +332,7 @@ public class ReportsAnalyticsController {
      * Connects DepartmentUsage model properties to the department usage table columns.
      */
     private void setupDepartmentUsageTable() {
+        departmentUsageTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
         departmentTotalColumn.setCellValueFactory(new PropertyValueFactory<>("totalSlips"));
         departmentPercentageColumn.setCellValueFactory(new PropertyValueFactory<>("percentage"));
@@ -337,7 +353,7 @@ public class ReportsAnalyticsController {
      * This validates the selected date range, calls the repository methods,
      * and updates all UI components.
      */
-    private void loadReports() {
+    private void loadReports(boolean showSuccessDialog) {
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
 
@@ -378,9 +394,12 @@ public class ReportsAnalyticsController {
             // Load chart data separately to keep the method organized.
             loadMonthlyTrendChart(startDate, endDate);
 
-            statusLabel.setText("Reports loaded successfully.");
+            setStatus("Reports loaded successfully. " + currentSummary.getTotalPassSlips() + " pass slip record(s) found.", false);
+            if (showSuccessDialog) {
+                showInfo("Reports loaded", "Reports were refreshed successfully for the selected date range.");
+            }
         } catch (SQLException e) {
-            statusLabel.setText("Failed to load reports.");
+            setStatus("Failed to load reports.", true);
             showError("Database error", e.getMessage());
         }
     }
@@ -415,6 +434,7 @@ public class ReportsAnalyticsController {
         }
 
         String periodLabel = weeklyMode ? "Week Start" : "Date";
+        setStatus("Compliance details opened successfully.", false);
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Compliance Details");
         alert.setHeaderText((weeklyMode ? "Weekly" : "Daily") + " Compliance Summary");
@@ -495,6 +515,40 @@ public class ReportsAnalyticsController {
 
         dailyTabButton.getStyleClass().add(weeklyMode ? "tab-button" : "tab-button-active");
         weeklyTabButton.getStyleClass().add(weeklyMode ? "tab-button-active" : "tab-button");
+    }
+
+    /**
+     * Adjusts chart and table heights when the app is opened on different screen sizes.
+     * This prevents the Reports screen from looking compressed on smaller displays
+     * while still using extra space on larger monitors.
+     */
+    private void setupResponsiveLayout() {
+        monthlyTrendChart.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene == null) {
+                return;
+            }
+
+            updateResponsiveSizes(newScene.getWidth(), newScene.getHeight());
+            newScene.widthProperty().addListener((obs, oldWidth, newWidth) ->
+                    updateResponsiveSizes(newWidth.doubleValue(), newScene.getHeight()));
+            newScene.heightProperty().addListener((obs, oldHeight, newHeight) ->
+                    updateResponsiveSizes(newScene.getWidth(), newHeight.doubleValue()));
+        });
+    }
+
+    private void updateResponsiveSizes(double width, double height) {
+        double usableHeight = Math.max(520, height - 130);
+        double chartHeight = clamp(usableHeight * 0.34, 170, 290);
+        double complianceHeight = clamp(usableHeight * 0.23, 125, 220);
+        double departmentHeight = clamp(chartHeight - 38, 150, 250);
+
+        monthlyTrendChart.setPrefHeight(chartHeight);
+        dailyReportTable.setPrefHeight(complianceHeight);
+        departmentUsageTable.setPrefHeight(departmentHeight);
+    }
+
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     /**
@@ -756,9 +810,23 @@ public class ReportsAnalyticsController {
     }
 
     /**
+     * Updates the visible status/assurance label on the Reports page.
+     */
+    private void setStatus(String message, boolean error) {
+        if (statusLabel == null) {
+            return;
+        }
+
+        statusLabel.setText(message);
+        statusLabel.getStyleClass().removeAll("status-label", "status-label-error");
+        statusLabel.getStyleClass().add(error ? "status-label-error" : "status-label");
+    }
+
+    /**
      * Shows a success/information dialog.
      */
     private void showInfo(String title, String message) {
+        setStatus(message, false);
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(title);
@@ -770,6 +838,7 @@ public class ReportsAnalyticsController {
      * Shows an error dialog when validation, database loading, or exporting fails.
      */
     private void showError(String title, String message) {
+        setStatus(message == null || message.isBlank() ? title : message, true);
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(title);

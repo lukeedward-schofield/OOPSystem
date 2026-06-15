@@ -19,18 +19,16 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="oopsystem.controller.ReportsAnalyticsController"
-            prefWidth="1200" prefHeight="850"
+            minWidth="1050" minHeight="650"
             styleClass="app-root"
             stylesheets="@../styling/reports-analytics.css">
 
-    <!-- Left navigation copied visually from the Figma/PDF prototype. -->
     <left>
         <fx:include fx:id="navBar" source="../components/Nav.fxml" />
     </left>
 
     <center>
         <VBox styleClass="main-area">
-            <!-- Top header bar. -->
             <HBox alignment="CENTER_LEFT" spacing="12" styleClass="top-bar">
                 <Label text="Pass Slip Management" styleClass="top-title" />
                 <Region HBox.hgrow="ALWAYS" />
@@ -42,23 +40,22 @@
                 </StackPane>
             </HBox>
 
-            <ScrollPane fitToWidth="true" styleClass="page-scroll">
-                <VBox spacing="18" styleClass="content-wrapper">
+            <!-- The ScrollPane grows with the window, so navigating on different resolutions keeps the reports layout usable. -->
+            <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS" styleClass="page-scroll">
+                <VBox spacing="14" styleClass="content-wrapper">
                     <padding>
-                        <Insets top="22" right="26" bottom="26" left="26" />
+                        <Insets top="18" right="22" bottom="18" left="22" />
                     </padding>
 
-                    <!-- Hidden field kept so the existing controller can still inject currentlyOutLabel. -->
                     <Label fx:id="currentlyOutLabel" text="0" visible="false" managed="false" />
 
-                    <!-- Data filter row based on the expected Reports screen. -->
                     <HBox alignment="CENTER_LEFT" spacing="12" styleClass="filter-row">
                         <VBox spacing="6">
                             <Label text="DATA FILTERING" styleClass="small-section-label" />
                             <HBox alignment="CENTER_LEFT" spacing="8">
-                                <DatePicker fx:id="startDatePicker" prefWidth="160" />
+                                <DatePicker fx:id="startDatePicker" prefWidth="150" />
                                 <Label text="-" styleClass="date-dash" />
-                                <DatePicker fx:id="endDatePicker" prefWidth="160" />
+                                <DatePicker fx:id="endDatePicker" prefWidth="150" />
                                 <Button text="Date Range" onAction="#handleApplyFilters" styleClass="outline-button" />
                             </HBox>
                         </VBox>
@@ -69,43 +66,45 @@
                         <Button fx:id="exportPdfButton" text="▣  Export PDF" onAction="#handleExportPdf" styleClass="maroon-button" />
                     </HBox>
 
-                    <!-- Four KPI cards. The expected prototype uses four cards on the Reports page. -->
-                    <HBox spacing="16" styleClass="summary-row">
-                        <VBox HBox.hgrow="ALWAYS" styleClass="summary-card">
+                    <!-- Visible assurance/status text for actions such as filters, tabs, details, and exports. -->
+                    <Label fx:id="statusLabel" text="Ready." styleClass="status-label" />
+
+                    <HBox spacing="14" styleClass="summary-row">
+                        <VBox HBox.hgrow="ALWAYS" minWidth="0" styleClass="summary-card">
                             <Label text="TOTAL PASS SLIPS" styleClass="summary-title" />
-                            <HBox alignment="BOTTOM_LEFT" spacing="12">
+                            <HBox alignment="BOTTOM_LEFT" spacing="10">
                                 <Label fx:id="totalPassSlipsLabel" text="0" styleClass="summary-value" />
                                 <Label fx:id="totalPassSlipsChangeLabel" text="+0.0%↗" styleClass="positive-change" />
                             </HBox>
                         </VBox>
 
-                        <VBox HBox.hgrow="ALWAYS" styleClass="summary-card">
+                        <VBox HBox.hgrow="ALWAYS" minWidth="0" styleClass="summary-card">
                             <Label text="COMPLIANCE RATE" styleClass="summary-title" />
-                            <HBox alignment="BOTTOM_LEFT" spacing="12">
+                            <HBox alignment="BOTTOM_LEFT" spacing="10">
                                 <Label fx:id="complianceRateLabel" text="0.0%" styleClass="summary-value" />
                                 <Label fx:id="complianceRateChangeLabel" text="+0.0%↗" styleClass="positive-change" />
                             </HBox>
                         </VBox>
 
-                        <VBox HBox.hgrow="ALWAYS" styleClass="summary-card">
+                        <VBox HBox.hgrow="ALWAYS" minWidth="0" styleClass="summary-card">
                             <Label text="AVG. DURATION" styleClass="summary-title" />
-                            <HBox alignment="BOTTOM_LEFT" spacing="12">
+                            <HBox alignment="BOTTOM_LEFT" spacing="10">
                                 <Label fx:id="averageDurationLabel" text="0m" styleClass="summary-value" />
                                 <Label fx:id="averageDurationChangeLabel" text="+0m↗" styleClass="positive-change" />
                             </HBox>
                         </VBox>
 
-                        <VBox HBox.hgrow="ALWAYS" styleClass="summary-card">
+                        <VBox HBox.hgrow="ALWAYS" minWidth="0" styleClass="summary-card">
                             <Label text="OVERDUE PASSES" styleClass="summary-title" />
-                            <HBox alignment="BOTTOM_LEFT" spacing="12">
+                            <HBox alignment="BOTTOM_LEFT" spacing="10">
                                 <Label fx:id="overduePassesLabel" text="0" styleClass="summary-value" />
                                 <Label fx:id="overduePassesChangeLabel" text="+0△" styleClass="positive-change" />
                             </HBox>
                         </VBox>
                     </HBox>
 
-                    <HBox spacing="18">
-                        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="panel trend-panel">
+                    <HBox spacing="16" VBox.vgrow="ALWAYS">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" minWidth="430" styleClass="panel trend-panel">
                             <HBox alignment="CENTER_LEFT">
                                 <Label text="Monthly Movement Trends" styleClass="section-title" />
                                 <Region HBox.hgrow="ALWAYS" />
@@ -113,7 +112,7 @@
                                 <Label text="● Personal" styleClass="legend-olive" />
                             </HBox>
 
-                            <BarChart fx:id="monthlyTrendChart" legendVisible="false" animated="false" prefHeight="250">
+                            <BarChart fx:id="monthlyTrendChart" legendVisible="false" animated="false" prefHeight="220" VBox.vgrow="ALWAYS">
                                 <xAxis>
                                     <CategoryAxis tickLabelRotation="0" />
                                 </xAxis>
@@ -123,11 +122,11 @@
                             </BarChart>
                         </VBox>
 
-                        <VBox spacing="12" prefWidth="310" styleClass="panel department-panel">
+                        <VBox spacing="10" minWidth="250" prefWidth="300" maxWidth="330" styleClass="panel department-panel">
                             <Label text="Departmental Usage" styleClass="section-title" />
-                            <TableView fx:id="departmentUsageTable" prefHeight="242" styleClass="department-table">
+                            <TableView fx:id="departmentUsageTable" prefHeight="220" VBox.vgrow="ALWAYS" styleClass="department-table">
                                 <columns>
-                                    <TableColumn fx:id="departmentColumn" text="Department" prefWidth="165" />
+                                    <TableColumn fx:id="departmentColumn" text="Department" prefWidth="145" />
                                     <TableColumn fx:id="departmentTotalColumn" text="Slips" prefWidth="60" />
                                     <TableColumn fx:id="departmentPercentageColumn" text="Usage" prefWidth="70" />
                                 </columns>
@@ -136,7 +135,7 @@
                         </VBox>
                     </HBox>
 
-                    <VBox spacing="12" styleClass="panel compliance-panel">
+                    <VBox spacing="10" VBox.vgrow="ALWAYS" styleClass="panel compliance-panel">
                         <HBox alignment="CENTER_LEFT">
                             <Label text="Compliance &amp; Overdue Monitoring" styleClass="section-title" />
                             <Region HBox.hgrow="ALWAYS" />
@@ -144,22 +143,18 @@
                             <Button fx:id="weeklyTabButton" text="Weekly" onAction="#handleShowWeekly" styleClass="tab-button" />
                         </HBox>
 
-                        <TableView fx:id="dailyReportTable" prefHeight="190" styleClass="report-table">
+                        <TableView fx:id="dailyReportTable" prefHeight="150" VBox.vgrow="ALWAYS" styleClass="report-table">
                             <columns>
-                                <TableColumn fx:id="reportDateColumn" text="DATE" prefWidth="150" />
-                                <TableColumn fx:id="totalIssuedColumn" text="TOTAL ISSUED" prefWidth="170" />
-                                <TableColumn fx:id="returnedOnTimeColumn" text="RETURNED ON TIME" prefWidth="190" />
-                                <TableColumn fx:id="overdueColumn" text="OVERDUE" prefWidth="130" />
+                                <TableColumn fx:id="reportDateColumn" text="DATE" prefWidth="120" />
+                                <TableColumn fx:id="totalIssuedColumn" text="TOTAL ISSUED" prefWidth="140" />
+                                <TableColumn fx:id="returnedOnTimeColumn" text="RETURNED ON TIME" prefWidth="160" />
+                                <TableColumn fx:id="overdueColumn" text="OVERDUE" prefWidth="110" />
                                 <TableColumn fx:id="averageDurationColumn" text="AVG DURATION" prefWidth="1" visible="false" />
-                                <TableColumn fx:id="dailyComplianceColumn" text="COMPLIANCE RATE" prefWidth="170" />
-                                <TableColumn fx:id="actionColumn" text="ACTION" prefWidth="110" />
+                                <TableColumn fx:id="dailyComplianceColumn" text="COMPLIANCE RATE" prefWidth="150" />
+                                <TableColumn fx:id="actionColumn" text="ACTION" prefWidth="100" />
                             </columns>
                         </TableView>
                     </VBox>
-
-
-                    <!-- Hidden status label kept for the controller so backend status messages can still be updated without showing extra content below the table. -->
-                    <Label fx:id="statusLabel" text="Ready." visible="false" managed="false" styleClass="status-label" />
                 </VBox>
             </ScrollPane>
         </VBox>
