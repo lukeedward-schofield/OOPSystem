@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.PasswordField?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="oopsystem.controller.ProfileController">
 
@@ -48,31 +49,50 @@
                <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="520.0">
                   <Label text="Profile Settings" />
                </HBox>
-               <!--FIRST AND LAST NAME INPUT-->
+
+               <!-- FIRST AND LAST NAME -->
                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="570.0">
-                  <!--FIRST NAME INPUT-->
                   <VBox prefHeight="81.0" prefWidth="285.0">
                      <Label text="First Name" />
                      <TextField fx:id="firstName" />
                   </VBox>
-                  <!--LAST NAME INPUT-->
                   <VBox prefHeight="81.0" prefWidth="280.0">
                      <Label text="Last Name" />
                      <TextField fx:id="lastName" />
                   </VBox>
                </HBox>
 
-               <!--EMAIL ADDRESS INPUT-->
-               <VBox prefHeight="116.0" prefWidth="570.0">
-                  <Label text="Email Address" />
-                  <TextField fx:id="emailAddress" />
+               <!-- USERNAME -->
+               <VBox prefHeight="90.0" prefWidth="570.0">
+                  <Label text="Username" />
+                  <TextField fx:id="username" />
                </VBox>
 
-               <!--PASSWORD INPUT-->
-               <VBox prefHeight="110.0" prefWidth="570.0">
+               <!-- CURRENT PASSWORD -->
+               <VBox prefHeight="90.0" prefWidth="570.0">
                   <Label text="Current Password" />
-                  <TextField fx:id="password" />
+                  <PasswordField fx:id="currentPassword" />
                </VBox>
+
+               <!-- NEW PASSWORD -->
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="570.0">
+                  <VBox prefHeight="81.0" prefWidth="285.0">
+                     <Label text="New Password" />
+                     <PasswordField fx:id="newPassword" />
+                  </VBox>
+                  <VBox prefHeight="81.0" prefWidth="280.0">
+                     <Label text="Confirm New Password" />
+                     <PasswordField fx:id="confirmNewPassword" />
+                  </VBox>
+               </HBox>
+
+               <!-- SAVE BUTTON -->
+               <HBox alignment="CENTER_RIGHT" prefHeight="50.0" prefWidth="570.0">
+                  <Button fx:id="saveProfileBtn" mnemonicParsing="false" onAction="#handleSaveProfile"
+                          prefHeight="35.0" prefWidth="120.0"
+                          style="-fx-background-color: #2196F3; -fx-text-fill: white;"
+                          text="Save Changes" />
+               </HBox>
 
             </VBox>
             <VBox prefHeight="329.0" prefWidth="374.0" style="-fx-border-color: red;" />
