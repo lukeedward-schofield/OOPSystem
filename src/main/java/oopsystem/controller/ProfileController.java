@@ -10,6 +10,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import oopsystem.util.SceneNavigator;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -133,5 +135,10 @@ public class ProfileController implements Initializable {
         Thread thread = new Thread(fetchTask);
         thread.setDaemon(true); // Closes the background processing thread if the application window is terminated
         thread.start();
+    }
+
+    @FXML
+    private void goToAddEmployee(){
+        SceneNavigator.switchTo("addUserView");
     }
 }

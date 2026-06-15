@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.PasswordField?>
-<BorderPane prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CONTROLLER_NAME">
+<BorderPane prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.AddUserController">
 
     <left>
         <fx:include fx:id="navBar" source="../components/Nav.fxml" />
@@ -59,8 +59,8 @@
                         </HBox>
                         <HBox alignment="CENTER_RIGHT" fillHeight="false" prefHeight="100.0" prefWidth="776.0" style="-fx-border-color: red;">
                            <children>
-                              <Button fx:id="cancelButton" onAction="#handleCreateUser" mnemonicParsing="false" text="Cancel" />
-                              <Button fx:id="createUserButton" onAction="#handleCancel" mnemonicParsing="false" text="Create User" />
+                              <Button fx:id="cancelButton" onAction="#handleCancel" mnemonicParsing="false" text="Cancel" />
+                              <Button fx:id="createUserButton" onAction="#handleCreateUser" mnemonicParsing="false" text="Create User" />
                            </children>
                         </HBox>
                      </children>

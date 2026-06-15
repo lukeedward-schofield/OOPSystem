@@ -86,7 +86,7 @@
                <HBox alignment="CENTER_LEFT" prefHeight="37.0" prefWidth="921.0">
                   <Label text="User Management" />
 
-                  <Button fx:id="addUserBtn" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="+ Create New User" />
+                  <Button fx:id="addUserBtn" onAction="#goToAddEmployee"  mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="+ Create New User" />
                </HBox>
 
                <TableView fx:id="usersTable" prefHeight="239.0" prefWidth="920.0">
