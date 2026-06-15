@@ -6,9 +6,11 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import oopsystem.model.Employee;
 import oopsystem.repository.EmployeeRepository;
@@ -132,7 +134,7 @@ public class EmployeeDirectoryController implements Initializable {
                     System.out.println("Extracted Hidden Database ID: " + selectedEmployee.getEmployeeId());
                     System.out.println("Extracted Target Username: " + selectedEmployee.getEmployeeId());
 
-                    // TODO: Put your view transition or overlay activation logic here!
+                    showEditDialog(selectedEmployee);
                 });
 
                 deleteBtn.setOnAction(event -> {
@@ -253,7 +255,85 @@ public class EmployeeDirectoryController implements Initializable {
         updateTablePageFrame(0);
     }
 
+    private void showEditDialog(Employee employee) {
+        Dialog<Employee> dialog = new Dialog<>();
+        dialog.setTitle("Edit Employee");
+        dialog.setHeaderText("Editing: " + employee.getFirstName() + " " + employee.getLastName());
 
+        // --- Form Fields ---
+        TextField firstNameField = new TextField(employee.getFirstName());
+        TextField lastNameField = new TextField(employee.getLastName());
+        TextField departmentField = new TextField(employee.getDepartment());
+        TextField roleField = new TextField(employee.getRole());
+        TextField contactField = new TextField(employee.getContactNumber());
+        TextField emailField = new TextField(employee.getEmailAddress());
+
+        // --- Layout ---
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 20, 10, 10));
+
+        grid.add(new Label("First Name:"), 0, 0);  grid.add(firstNameField, 1, 0);
+        grid.add(new Label("Last Name:"), 0, 1);   grid.add(lastNameField, 1, 1);
+        grid.add(new Label("Department:"), 0, 2);  grid.add(departmentField, 1, 2);
+        grid.add(new Label("Role:"), 0, 3);        grid.add(roleField, 1, 3);
+        grid.add(new Label("Contact:"), 0, 4);     grid.add(contactField, 1, 4);
+        grid.add(new Label("Email:"), 0, 5);       grid.add(emailField, 1, 5);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // --- Buttons ---
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        // --- Result Converter ---
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == saveButtonType) {
+                String firstName = firstNameField.getText().trim();
+                String lastName = lastNameField.getText().trim();
+                String email = emailField.getText().trim();
+
+                if (firstName.isBlank() || lastName.isBlank() || email.isBlank()) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setHeaderText("Missing Fields");
+                    alert.setContentText("First Name, Last Name, and Email are required.");
+                    alert.showAndWait();
+                    return null;
+                }
+
+                return new Employee(
+                        employee.getEmployeeId(),
+                        firstName,
+                        lastName,
+                        departmentField.getText().trim(),
+                        roleField.getText().trim(),
+                        contactField.getText().trim(),
+                        email,
+                        employee.isActiveStatus()
+                );
+            }
+            return null;
+        });
+
+        // --- Handle Result ---
+        dialog.showAndWait().ifPresent(updatedEmployee -> {
+            boolean success = employeeRepository.updateEmployee(updatedEmployee);
+            if (success) {
+                // Refresh the master list in place so pagination/search stay intact
+                int index = allEmployeesMasterList.indexOf(employee);
+                if (index >= 0) {
+                    allEmployeesMasterList.set(index, updatedEmployee);
+                }
+                updateTablePageFrame(pagination.getCurrentPageIndex());
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Update Failed");
+                alert.setContentText("Could not update employee record.");
+                alert.showAndWait();
+            }
+        });
+    }
 
     // =========================
     // PAGINATION BUTTON ACTIONS
