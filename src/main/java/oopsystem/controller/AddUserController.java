@@ -32,8 +32,20 @@ public class AddUserController implements Initializable {
     }
 
     private void loadEmployees() {
-        List<Employee> employees = employeeRepository.getAllEmployees();
-        employeeComboBox.getItems().setAll(employees);
+        try {
+            List<Integer> takenIds = userRepository.findEmployeeIdsWithExistingUsers();
+            List<Employee> allEmployees = employeeRepository.getAllEmployees();
+
+            List<Employee> available = allEmployees.stream()
+                    .filter(e -> !takenIds.contains(e.getEmployeeId()))
+                    .toList();
+
+            employeeComboBox.getItems().setAll(available);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Failed to load employees: " + e.getMessage());
+        }
     }
 
     private void setupEmployeeComboBoxListener() {

@@ -6,6 +6,8 @@ import javafx.collections.ObservableList;
 import oopsystem.util.Database;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserRepository {
 
@@ -105,6 +107,24 @@ public class UserRepository {
         return users;
     }
 
+
+    /**
+     * READ: Returns list of employee IDs that already have a user account
+     */
+    public List<Integer> findEmployeeIdsWithExistingUsers() throws SQLException {
+        List<Integer> ids = new ArrayList<>();
+        String sql = "SELECT employee_id FROM users";
+
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                ids.add(rs.getInt("employee_id"));
+            }
+        }
+        return ids;
+    }
     /**
      * UPDATE: Modifies the user credentials and baseline metadata
      */
