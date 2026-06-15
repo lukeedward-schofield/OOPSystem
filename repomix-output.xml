@@ -51,6 +51,7 @@ src/main/java/oopsystem/app/EmployeeApplication.java
 src/main/java/oopsystem/app/EmployeeConsole.java
 src/main/java/oopsystem/controller/.gitkeep
 src/main/java/oopsystem/controller/AddEmployeeController.java
+src/main/java/oopsystem/controller/AddUserController.java
 src/main/java/oopsystem/controller/DashboardController.java
 src/main/java/oopsystem/controller/EmployeeDirectoryController.java
 src/main/java/oopsystem/controller/LoginController.java
@@ -77,6 +78,7 @@ src/main/java/oopsystem/repository/PassSlipRepository.java
 src/main/java/oopsystem/repository/ReportsAnalyticsRepository.java
 src/main/java/oopsystem/repository/UserRepository.java
 src/main/java/oopsystem/util/.gitkeep
+src/main/java/oopsystem/util/AppConfig.java
 src/main/java/oopsystem/util/DashboardController.java
 src/main/java/oopsystem/util/Database.java
 src/main/java/oopsystem/util/DB_TEST.java
@@ -91,6 +93,7 @@ src/main/resources/oopsystem/hello-view.fxml
 src/main/resources/oopsystem/login/LoginView.fxml
 src/main/resources/oopsystem/movementLogs/MovementLogsView.fxml
 src/main/resources/oopsystem/passSlipIssuance/PassSlipIssuanceView.fxml
+src/main/resources/oopsystem/profile/createUser.fxml
 src/main/resources/oopsystem/profile/ProfileView.fxml
 src/main/resources/oopsystem/reports/ReportsView.fxml
 src/main/resources/oopsystem/styling/dashboard.css
@@ -674,6 +677,13 @@ public class EmployeeConsole {
 
 <file path="src/main/java/oopsystem/controller/.gitkeep">
 
+</file>
+
+<file path="src/main/java/oopsystem/controller/AddUserController.java">
+package oopsystem.controller;
+
+public class AddUserController {
+}
 </file>
 
 <file path="src/main/java/oopsystem/controller/DashboardController.java">
@@ -2008,60 +2018,6 @@ public class PassSlip {
 }
 </file>
 
-<file path="src/main/java/oopsystem/model/User.java">
-package oopsystem.model;
-
-import java.sql.Timestamp;
-
-public class User {
-    private int userId;
-    private String username;
-    private String userPassword;
-    private String firstName;
-    private String lastName;
-    private boolean activeStatus;
-    private Timestamp createdAt;
-    private int employeeId; // Your foreign key link!
-
-    // Extra fields fetched via JOIN for your TableView
-    private String department;
-    private String role;
-
-    // Full constructor for loading data
-    public User(int userId, String username, String userPassword, String firstName, String lastName,
-                boolean activeStatus, Timestamp createdAt, int employeeId, String department, String role) {
-        this.userId = userId;
-        this.username = username;
-        this.userPassword = userPassword;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.activeStatus = activeStatus;
-        this.createdAt = createdAt;
-        this.employeeId = employeeId;
-        this.department = department;
-        this.role = role;
-    }
-
-    // Getters
-    public int getUserId() { return userId; }
-    public String getUsername() { return username; }
-    public String getUserPassword() { return userPassword; }
-    public String getFirstName() { return firstName; }
-    public String getLastName() { return lastName; }
-    public boolean isActiveStatus() { return activeStatus; }
-    public Timestamp getCreatedAt() { return createdAt; }
-    public int getEmployeeId() { return employeeId; }
-    public String getDepartment() { return department; }
-    public String getRole() { return role; }
-
-    // Setters (For fields you want to update inside your app)
-    public void setUsername(String username) { this.username = username; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
-    public void setActiveStatus(boolean activeStatus) { this.activeStatus = activeStatus; }
-}
-</file>
-
 <file path="src/main/java/oopsystem/repository/PassSlipRepository.java">
 package oopsystem.repository;
 
@@ -2694,138 +2650,15 @@ public class ReportsAnalyticsRepository {
 }
 </file>
 
-<file path="src/main/java/oopsystem/repository/UserRepository.java">
-package oopsystem.repository;
+<file path="src/main/java/oopsystem/util/AppConfig.java">
+package oopsystem.util;
 
-import oopsystem.model.User;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import oopsystem.util.Database;
+public class AppConfig {
 
-import java.sql.*;
+    private AppConfig(){}
 
-public class UserRepository {
+    public static final boolean DEV_MODE = false;
 
-    /**
-     * READ: Fetches all users joined with their employee details for the TableView
-     */
-    public ObservableList<User> findAllUsersWithEmployeeDetails() throws SQLException {
-
-        ObservableList<User> users = FXCollections.observableArrayList();
-
-        // SQL query with INNER JOIN to pull department and role from your employee schema
-        String sql = "SELECT u.user_id, u.username, u.user_password, u.first_name, u.last_name, " +
-                "u.active_status, u.created_at, u.employee_id, e.department, e.role " +
-                "FROM users u " +
-                "INNER JOIN employee e ON u.employee_id = e.employee_id";
-
-        try (Connection conn = Database.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            while (rs.next()) {
-                users.add(new User(
-                        rs.getInt("user_id"),
-                        rs.getString("username"),
-                        rs.getString("user_password"),
-                        rs.getString("first_name"),
-                        rs.getString("last_name"),
-                        rs.getBoolean("active_status"),
-                        rs.getTimestamp("created_at"),
-                        rs.getInt("employee_id"),
-                        rs.getString("department"),
-                        rs.getString("role")
-                ));
-            }
-        }
-        return users;
-    }
-
-    /**
-     * UPDATE: Modifies the user credentials and baseline metadata
-     */
-    public void updateUser(int userId, String newUsername, String newFirstName, String newLastName) throws SQLException {
-        String query = "UPDATE users SET username = ?, first_name = ?, last_name = ? WHERE user_id = ?";
-
-        try (Connection conn = Database.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setString(1, newUsername);
-            pstmt.setString(2, newFirstName);
-            pstmt.setString(3, newLastName);
-            pstmt.setInt(4, userId);
-
-            pstmt.executeUpdate();
-        }
-    }
-
-    /**
-     * DELETE: Permanently drops a user account row
-     */
-    public void deleteUser(int userId) throws SQLException {
-        String query = "DELETE FROM users WHERE user_id = ?";
-
-        try (Connection conn = Database.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-
-            pstmt.setInt(1, userId);
-            pstmt.executeUpdate();
-        }
-    }
-
-    /**
-     * CREATE: Handles creating a brand-new Employee and linking a User account to it in one Transaction
-     */
-    public void createEmployeeAndUser(String empName, String dept, String role,
-                                      String username, String rawPassword, String firstName, String lastName) throws SQLException {
-
-        String insertEmpSql = "INSERT INTO employee (name, department, role) VALUES (?, ?, ?)";
-        String insertUserSql = "INSERT INTO users (username, user_password, first_name, last_name, active_status, employee_id) VALUES (?, ?, ?, ?, true, ?)";
-
-        Connection conn = null;
-        try {
-            conn = Database.getConnection();
-            conn.setAutoCommit(false); // Start a database Transaction
-
-            int generatedEmployeeId = 0;
-
-            // 1. Insert Employee and fetch the new primary key ID
-            try (PreparedStatement empStmt = conn.prepareStatement(insertEmpSql, Statement.RETURN_GENERATED_KEYS)) {
-                empStmt.setString(1, empName);
-                empStmt.setString(2, dept);
-                empStmt.setString(3, role);
-                empStmt.executeUpdate();
-
-                try (ResultSet rs = empStmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        generatedEmployeeId = rs.getInt(1); // This is your newly created employee_id
-                    }
-                }
-            }
-
-            // 2. Insert User and pass that generated employee_id as the foreign key pointer
-            try (PreparedStatement userStmt = conn.prepareStatement(insertUserSql)) {
-                userStmt.setString(1, username);
-                userStmt.setString(2, rawPassword); // Tip: Hash this password before inserting in production!
-                userStmt.setString(3, firstName);
-                userStmt.setString(4, lastName);
-                userStmt.setInt(5, generatedEmployeeId);
-                userStmt.executeUpdate();
-            }
-
-            conn.commit(); // Save both operations to the database permanently [1]
-
-        } catch (SQLException e) {
-            if (conn != null) {
-                conn.rollback(); // Cancel everything if either the employee or user query crashes [1]
-            }
-            throw e;
-        } finally {
-            if (conn != null) {
-                conn.close();
-            }
-        }
-    }
 }
 </file>
 
@@ -3039,64 +2872,80 @@ public class SceneNavigator {
 </BorderPane>
 </file>
 
-<file path="src/main/resources/oopsystem/login/LoginView.fxml">
+<file path="src/main/resources/oopsystem/profile/createUser.fxml">
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity"
-            maxWidth="-Infinity"
-            minHeight="-Infinity"
-            minWidth="-Infinity"
-            prefHeight="500.0"
-            prefWidth="700.0"
-            xmlns="http://javafx.com/javafx/26"
-            fx:controller="oopsystem.controller.LoginController" xmlns:fx="http://javafx.com/fxml/1">
-   <left>
-      <AnchorPane prefHeight="200.0" prefWidth="350.0" style="-fx-background-color: #800000;" BorderPane.alignment="CENTER">
+<?import javafx.scene.control.PasswordField?>
+<BorderPane prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CONTROLLER_NAME">
+
+    <left>
+        <fx:include fx:id="navBar" source="../components/Nav.fxml" />
+    </left>
+   <center>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
-            <Label layoutX="23.0" layoutY="218.0" prefHeight="102.0" prefWidth="303.0" text="PUP Permission slip" textFill="WHITE">
-               <font>
-                  <Font size="32.0" />
-               </font>
-            </Label>
-            <FontAwesomeIconView fill="WHITE" glyphName="BOOK" layoutX="123.0" layoutY="188.0" selectionFill="#f4f1f1" size="100" wrappingWidth="103.94288349151611" />
-            <Label contentDisplay="CENTER" layoutX="75.0" layoutY="260.0" prefHeight="102.0" prefWidth="200.0" text="By: Schofield and Co." textAlignment="CENTER" textFill="WHITE">
-               <font>
-                  <Font size="20.0" />
-               </font>
-            </Label>
+            <HBox prefHeight="100.0" prefWidth="200.0" />
+            <VBox alignment="CENTER" fillWidth="false" prefHeight="753.0" prefWidth="1017.0">
+               <children>
+                  <VBox alignment="CENTER" fillWidth="false" prefHeight="594.0" prefWidth="847.0">
+                     <children>
+                        <VBox prefHeight="135.0" prefWidth="778.0" style="-fx-border-color: red;">
+                           <children>
+                              <Label text="Employee" />
+                              <ComboBox fx:id="employeeComboBox" prefWidth="150.0" />
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="187.0" prefWidth="782.0">
+                           <children>
+                              <Label fx:id="departmentLabel" text="Department: -" />
+                              <Label fx:id="roleLabel" text="Role: -" />
+                              <Label fx:id="emailLabel" text="Email: -" />
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="124.0" prefWidth="796.0" style="-fx-border-color: red;">
+                           <children>
+                              <Label text="Username" />
+                              <TextField fx:id="usernameField" />
+                           </children>
+                        </VBox>
+                        <HBox fillHeight="false" prefHeight="100.0" prefWidth="776.0" style="-fx-border-color: red;">
+                           <children>
+                              <VBox prefHeight="63.0" prefWidth="386.0" style="-fx-border-color: green;">
+                                 <children>
+                                    <Label text="Password" />
+                                    <PasswordField fx:id="passwordField" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="63.0" prefWidth="388.0" style="-fx-border-color: green;">
+                                 <children>
+                                    <Label text="Confirm Password" />
+                                    <PasswordField fx:id="confirmPasswordField" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_RIGHT" fillHeight="false" prefHeight="100.0" prefWidth="776.0" style="-fx-border-color: red;">
+                           <children>
+                              <Button fx:id="cancelButton" onAction="#handleCreateUser" mnemonicParsing="false" text="Cancel" />
+                              <Button fx:id="createUserButton" onAction="#handleCancel" mnemonicParsing="false" text="Create User" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
          </children>
-      </AnchorPane>
-   </left>
-   <right>
-      <AnchorPane prefHeight="500.0" prefWidth="350.0" BorderPane.alignment="CENTER">
-         <children>
-            <TextField fx:id="username" layoutX="100.0" layoutY="211.0" promptText="Username" />
-            <PasswordField fx:id="password" layoutX="100.0" layoutY="249.0" promptText="Password" />
-            <Button layoutX="125.0" layoutY="291.0" mnemonicParsing="false" prefHeight="22.0" prefWidth="98.0" text="Sign in" onAction="#login"/>
-            <Hyperlink layoutX="123.0" layoutY="328.0" text="Forgot password?" />
-            <FontAwesomeIconView fill="#d5ea18" glyphName="KEY" layoutX="74.0" layoutY="269.0" size="20" wrappingWidth="15.20001220703125" />
-            <FontAwesomeIconView fill="MAROON" glyphName="USER" layoutX="76.0" layoutY="228.0" size="20" />
-            <Button layoutX="324.0" layoutY="1.0" mnemonicParsing="false" text="X" textFill="MAROON" />
-            <ImageView fitHeight="91.0" fitWidth="95.0" layoutX="129.0" layoutY="103.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../../../../I.S.Y/Polytechnic_University_of_the_Philippines_Santa_Rosa_Logo.svg.png" />
-               </image>
-            </ImageView>
-         </children>
-      </AnchorPane>
-   </right>
+      </VBox>
+   </center>
+
 </BorderPane>
 </file>
 
@@ -3743,6 +3592,67 @@ public class MovementLog {
 }
 </file>
 
+<file path="src/main/resources/oopsystem/login/LoginView.fxml">
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity"
+            maxWidth="-Infinity"
+            minHeight="-Infinity"
+            minWidth="-Infinity"
+            prefHeight="500.0"
+            prefWidth="700.0"
+            xmlns="http://javafx.com/javafx/26"
+            fx:controller="oopsystem.controller.LoginController" xmlns:fx="http://javafx.com/fxml/1">
+   <left>
+      <AnchorPane prefHeight="200.0" prefWidth="350.0" style="-fx-background-color: #800000;" BorderPane.alignment="CENTER">
+         <children>
+            <Label layoutX="23.0" layoutY="218.0" prefHeight="102.0" prefWidth="303.0" text="PUP Permission slip" textFill="WHITE">
+               <font>
+                  <Font size="32.0" />
+               </font>
+            </Label>
+            <FontAwesomeIconView fill="WHITE" glyphName="BOOK" layoutX="123.0" layoutY="188.0" selectionFill="#f4f1f1" size="100" wrappingWidth="103.94288349151611" />
+            <Label contentDisplay="CENTER" layoutX="75.0" layoutY="260.0" prefHeight="102.0" prefWidth="200.0" text="By: Schofield and Co." textAlignment="CENTER" textFill="WHITE">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+   </left>
+   <right>
+      <AnchorPane prefHeight="500.0" prefWidth="350.0" BorderPane.alignment="CENTER">
+         <children>
+            <TextField fx:id="usernameField" layoutX="100.0" layoutY="211.0" promptText="Username" />
+            <PasswordField fx:id="passwordField" layoutX="100.0" layoutY="249.0" promptText="Password" />
+            <Button fx:id="loginButton" layoutX="125.0" layoutY="291.0" mnemonicParsing="false" prefHeight="22.0" prefWidth="98.0" text="Sign in" onAction="#login"/>
+            <Hyperlink layoutX="123.0" layoutY="328.0" text="Forgot password?" />
+            <FontAwesomeIconView fill="#d5ea18" glyphName="KEY" layoutX="74.0" layoutY="269.0" size="20" wrappingWidth="15.20001220703125" />
+            <FontAwesomeIconView fill="MAROON" glyphName="USER" layoutX="76.0" layoutY="228.0" size="20" />
+            <Button layoutX="324.0" layoutY="1.0" mnemonicParsing="false" text="X" textFill="MAROON" />
+            <ImageView fitHeight="91.0" fitWidth="95.0" layoutX="129.0" layoutY="103.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../../../../I.S.Y/Polytechnic_University_of_the_Philippines_Santa_Rosa_Logo.svg.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+   </right>
+</BorderPane>
+</file>
+
 <file path="src/main/resources/oopsystem/movementLogs/MovementLogsView.fxml">
 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -3907,6 +3817,239 @@ module oopsystem {
 
 //    Export entry point
     exports oopsystem.app;
+}
+</file>
+
+<file path="src/main/java/oopsystem/model/User.java">
+package oopsystem.model;
+
+import java.sql.Timestamp;
+
+public class User {
+    private int userId;
+    private String username;
+    private String userPassword;
+    private String firstName;
+    private String lastName;
+    private boolean activeStatus;
+    private Timestamp createdAt;
+    private int employeeId; // Your foreign key link!
+
+    // Extra fields fetched via JOIN for your TableView
+    private String department;
+    private String role;
+
+    // Full constructor for loading data
+    public User(){
+
+    }
+
+    public User(int userId, String username, String userPassword, String firstName, String lastName,
+                boolean activeStatus, Timestamp createdAt, int employeeId) {
+        this.userId = userId;
+        this.username = username;
+        this.userPassword = userPassword;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.activeStatus = activeStatus;
+        this.createdAt = createdAt;
+        this.employeeId = employeeId;
+        this.department = department;
+        this.role = role;
+    }
+
+    // Getters
+    public int getUserId() { return userId; }
+    public String getUsername() { return username; }
+    public String getUserPassword() { return userPassword; }
+    public String getFirstName() { return firstName; }
+    public String getLastName() { return lastName; }
+    public boolean isActiveStatus() { return activeStatus; }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public int getEmployeeId() { return employeeId; }
+    public String getDepartment() { return department; }
+    public String getRole() { return role; }
+
+    // Setters (For fields you want to update inside your app)
+    public void setUserId(int userId){this.userId = userId;}
+    public void setUserPassword(String userPassword){this.userPassword = userPassword;}
+    public void setUsername(String username){ this.username = username; }
+    public void setFirstName(String firstName){ this.firstName = firstName; }
+    public void setLastName(String lastName){ this.lastName = lastName; }
+    public void setActiveStatus(boolean activeStatus) { this.activeStatus = activeStatus; }
+    public void setCreatedAt(Timestamp createdAt){this.createdAt = createdAt;}
+    public void setEmployeeId(int employeeId) {this.employeeId = employeeId;}
+    public void setDepartment(String department){ this.department = department; }
+    public void setRole(String role) { this.role = role; }
+
+}
+</file>
+
+<file path="src/main/java/oopsystem/repository/UserRepository.java">
+package oopsystem.repository;
+
+import oopsystem.model.User;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import oopsystem.util.Database;
+
+import java.sql.*;
+
+public class UserRepository {
+
+    public User authenticate(String username, String password) throws SQLException {
+
+        String sql = """
+        SELECT *
+        FROM users
+        WHERE username = ?
+        AND user_password = ?
+        AND active_status = true
+        """;
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return new User(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("user_password"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getBoolean("active_status"),
+                        rs.getTimestamp("created_at"),
+                        rs.getInt("employee_id")
+                );
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * READ: Fetches all users joined with their employee details for the TableView
+     */
+    public ObservableList<User> findAllUsersWithEmployeeDetails() throws SQLException {
+
+        ObservableList<User> users = FXCollections.observableArrayList();
+
+        // SQL query with INNER JOIN to pull department and role from your employee schema
+        String sql = "SELECT u.user_id, u.username, u.user_password, u.first_name, u.last_name, " +
+                "u.active_status, u.created_at, u.employee_id, e.department, e.role " +
+                "FROM users u " +
+                "INNER JOIN employee e ON u.employee_id = e.employee_id";
+
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                users.add(new User(
+                        rs.getInt("user_id"),
+                        rs.getString("username"),
+                        rs.getString("user_password"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getBoolean("active_status"),
+                        rs.getTimestamp("created_at"),
+                        rs.getInt("employee_id")
+                ));
+            }
+        }
+        return users;
+    }
+
+    /**
+     * UPDATE: Modifies the user credentials and baseline metadata
+     */
+    public void updateUser(int userId, String newUsername, String newFirstName, String newLastName) throws SQLException {
+        String query = "UPDATE users SET username = ?, first_name = ?, last_name = ? WHERE user_id = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, newUsername);
+            pstmt.setString(2, newFirstName);
+            pstmt.setString(3, newLastName);
+            pstmt.setInt(4, userId);
+
+            pstmt.executeUpdate();
+        }
+    }
+
+    /**
+     * DELETE: Permanently drops a user account row
+     */
+    public void deleteUser(int userId) throws SQLException {
+        String query = "DELETE FROM users WHERE user_id = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setInt(1, userId);
+            pstmt.executeUpdate();
+        }
+    }
+
+    /**
+     * CREATE: Handles creating a brand-new Employee and linking a User account to it in one Transaction
+     */
+    public void createEmployeeAndUser(String empName, String dept, String role,
+                                      String username, String rawPassword, String firstName, String lastName) throws SQLException {
+
+        String insertEmpSql = "INSERT INTO employee (name, department, role) VALUES (?, ?, ?)";
+        String insertUserSql = "INSERT INTO users (username, user_password, first_name, last_name, active_status, employee_id) VALUES (?, ?, ?, ?, true, ?)";
+
+        Connection conn = null;
+        try {
+            conn = Database.getConnection();
+            conn.setAutoCommit(false); // Start a database Transaction
+
+            int generatedEmployeeId = 0;
+
+            // 1. Insert Employee and fetch the new primary key ID
+            try (PreparedStatement empStmt = conn.prepareStatement(insertEmpSql, Statement.RETURN_GENERATED_KEYS)) {
+                empStmt.setString(1, empName);
+                empStmt.setString(2, dept);
+                empStmt.setString(3, role);
+                empStmt.executeUpdate();
+
+                try (ResultSet rs = empStmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedEmployeeId = rs.getInt(1); // This is your newly created employee_id
+                    }
+                }
+            }
+
+            // 2. Insert User and pass that generated employee_id as the foreign key pointer
+            try (PreparedStatement userStmt = conn.prepareStatement(insertUserSql)) {
+                userStmt.setString(1, username);
+                userStmt.setString(2, rawPassword); // Tip: Hash this password before inserting in production!
+                userStmt.setString(3, firstName);
+                userStmt.setString(4, lastName);
+                userStmt.setInt(5, generatedEmployeeId);
+                userStmt.executeUpdate();
+            }
+
+            conn.commit(); // Save both operations to the database permanently [1]
+
+        } catch (SQLException e) {
+            if (conn != null) {
+                conn.rollback(); // Cancel everything if either the employee or user query crashes [1]
+            }
+            throw e;
+        } finally {
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
 }
 </file>
 
@@ -4465,6 +4608,156 @@ public class Launcher {
     }
 
 }
+</file>
+
+<file path="src/main/resources/oopsystem/employeeDirectory/EmployeeDirectoryView.fxml">
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Pagination?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="700.0" prefWidth="1209.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.EmployeeDirectoryController">
+
+   <!-- HEADER -->
+   <left>
+      <fx:include fx:id="navBar" source="../components/Nav.fxml" />
+   </left>
+
+   <center>
+      <VBox spacing="15">
+
+         <padding>
+            <Insets bottom="20" left="20" right="20" top="15" />
+         </padding>
+
+         <!-- HEADER BAR -->
+
+         <HBox alignment="CENTER_LEFT">
+
+            <Label styleClass="header-title" text="Pass Slip Management" />
+
+            <Pane HBox.hgrow="ALWAYS" />
+
+         </HBox>
+         <HBox prefHeight="53.0" prefWidth="1036.0">
+            <children>
+               <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="461.0">
+                  <children>
+                     <Label text="Employee Directory" />
+                     <Label prefHeight="17.0" prefWidth="301.0" text="Manage institution staff profiles and official records." />
+                  </children>
+               </VBox>
+               <HBox alignment="CENTER_RIGHT" fillHeight="false" prefHeight="53.0" prefWidth="708.0">
+                  <children>
+                     <Button fx:id="addEmployeeBtn" focusTraversable="false" mnemonicParsing="false" onAction="#addEmployee" prefHeight="25.0" prefWidth="217.0" style="-fx-background-color: red;" text="+ Add Employee" textFill="WHITE">
+                        <font>
+                           <Font name="System Bold" size="15.0" />
+                        </font>
+                     </Button>
+                  </children>
+               </HBox>
+            </children>
+         </HBox>
+
+         <!-- STATS -->
+
+         <HBox spacing="12">
+
+            <!-- CARD 1 -->
+
+            <HBox prefWidth="250" spacing="10" styleClass="stat-card">
+               <StackPane prefHeight="45" prefWidth="45" styleClass="stat-icon">
+                  <Label text="👥" />
+               </StackPane>
+               <VBox>
+                  <Label text="TOTAL STAFF" />
+                  <Label fx:id="employeeCount" styleClass="stat-number" text="1,248" />
+               </VBox>
+            </HBox>
+
+            <!-- CARD 2 -->
+
+            <HBox prefWidth="250" styleClass="stat-card">
+               <StackPane prefHeight="45" prefWidth="45" styleClass="stat-icon">
+                  <Label text="✓" />
+               </StackPane>
+               <VBox>
+                  <Label text="ACTIVE TODAY" />
+                  <Label fx:id="activeEmployeeCount" styleClass="stat-number" />
+               </VBox>
+            </HBox>
+
+         </HBox>
+
+         <!-- TABLE CONTAINER -->
+
+         <VBox spacing="10" styleClass="table-card" VBox.vgrow="ALWAYS">
+
+            <padding>
+               <Insets bottom="15" left="15" right="15" top="15" />
+            </padding>
+
+            <!-- TOOLBAR -->
+
+            <HBox spacing="10">
+
+               <TextField fx:id="searchField" promptText="Search by name, ID, or department..." HBox.hgrow="ALWAYS" />
+
+               <Button text="Filters" />
+
+               <Pane HBox.hgrow="ALWAYS" />
+
+            </HBox>
+
+            <!-- TABLE -->
+
+            <TableView fx:id="employeeTable">
+
+               <columns>
+
+                  <TableColumn fx:id="nameColumn" prefWidth="189.0" text="Employee Name" />
+
+                  <TableColumn fx:id="idColumn" minWidth="0.0" prefWidth="115.0" text="Employee ID" />
+
+                  <TableColumn fx:id="departmentColumn" prefWidth="142.0" text="Department" />
+
+                  <TableColumn fx:id="positionColumn" prefWidth="157.0" text="Position" />
+
+                  <TableColumn fx:id="contactColumn" prefWidth="152.0" text="Contact Info" />
+                  <TableColumn fx:id="actionColumn" prefWidth="120.0" text="Actions" />
+
+               </columns>
+
+            </TableView>
+
+            <!-- FOOTER -->
+
+            <HBox alignment="CENTER_LEFT">
+
+               <Label text="Showing 1 to 5 of 1,248 entries" />
+
+               <Pane HBox.hgrow="ALWAYS" />
+
+               <Pagination fx:id="pagination" maxPageIndicatorCount="10"/>
+            </HBox>
+
+         </VBox>
+
+      </VBox>
+   </center>
+
+</BorderPane>
 </file>
 
 <file path="src/main/resources/oopsystem/styling/MovementlogView.css">
@@ -5428,156 +5721,6 @@ public class MovementLogRepository {
 }
 </file>
 
-<file path="src/main/resources/oopsystem/employeeDirectory/EmployeeDirectoryView.fxml">
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Pagination?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<BorderPane prefHeight="700.0" prefWidth="1209.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.EmployeeDirectoryController">
-
-   <!-- HEADER -->
-   <left>
-      <fx:include fx:id="navBar" source="../components/Nav.fxml" />
-   </left>
-
-   <center>
-      <VBox spacing="15">
-
-         <padding>
-            <Insets bottom="20" left="20" right="20" top="15" />
-         </padding>
-
-         <!-- HEADER BAR -->
-
-         <HBox alignment="CENTER_LEFT">
-
-            <Label styleClass="header-title" text="Pass Slip Management" />
-
-            <Pane HBox.hgrow="ALWAYS" />
-
-         </HBox>
-         <HBox prefHeight="53.0" prefWidth="1036.0">
-            <children>
-               <VBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="461.0">
-                  <children>
-                     <Label text="Employee Directory" />
-                     <Label prefHeight="17.0" prefWidth="301.0" text="Manage institution staff profiles and official records." />
-                  </children>
-               </VBox>
-               <HBox alignment="CENTER_RIGHT" fillHeight="false" prefHeight="53.0" prefWidth="708.0">
-                  <children>
-                     <Button fx:id="addEmployeeBtn" focusTraversable="false" mnemonicParsing="false" onAction="#addEmployee" prefHeight="25.0" prefWidth="217.0" style="-fx-background-color: red;" text="+ Add Employee" textFill="WHITE">
-                        <font>
-                           <Font name="System Bold" size="15.0" />
-                        </font>
-                     </Button>
-                  </children>
-               </HBox>
-            </children>
-         </HBox>
-
-         <!-- STATS -->
-
-         <HBox spacing="12">
-
-            <!-- CARD 1 -->
-
-            <HBox prefWidth="250" spacing="10" styleClass="stat-card">
-               <StackPane prefHeight="45" prefWidth="45" styleClass="stat-icon">
-                  <Label text="👥" />
-               </StackPane>
-               <VBox>
-                  <Label text="TOTAL STAFF" />
-                  <Label fx:id="employeeCount" styleClass="stat-number" text="1,248" />
-               </VBox>
-            </HBox>
-
-            <!-- CARD 2 -->
-
-            <HBox prefWidth="250" styleClass="stat-card">
-               <StackPane prefHeight="45" prefWidth="45" styleClass="stat-icon">
-                  <Label text="✓" />
-               </StackPane>
-               <VBox>
-                  <Label text="ACTIVE TODAY" />
-                  <Label fx:id="activeEmployeeCount" styleClass="stat-number" />
-               </VBox>
-            </HBox>
-
-         </HBox>
-
-         <!-- TABLE CONTAINER -->
-
-         <VBox spacing="10" styleClass="table-card" VBox.vgrow="ALWAYS">
-
-            <padding>
-               <Insets bottom="15" left="15" right="15" top="15" />
-            </padding>
-
-            <!-- TOOLBAR -->
-
-            <HBox spacing="10">
-
-               <TextField fx:id="searchField" promptText="Search by name, ID, or department..." HBox.hgrow="ALWAYS" />
-
-               <Button text="Filters" />
-
-               <Pane HBox.hgrow="ALWAYS" />
-
-            </HBox>
-
-            <!-- TABLE -->
-
-            <TableView fx:id="employeeTable">
-
-               <columns>
-
-                  <TableColumn fx:id="nameColumn" prefWidth="189.0" text="Employee Name" />
-
-                  <TableColumn fx:id="idColumn" minWidth="0.0" prefWidth="115.0" text="Employee ID" />
-
-                  <TableColumn fx:id="departmentColumn" prefWidth="142.0" text="Department" />
-
-                  <TableColumn fx:id="positionColumn" prefWidth="157.0" text="Position" />
-
-                  <TableColumn fx:id="contactColumn" prefWidth="152.0" text="Contact Info" />
-                  <TableColumn fx:id="actionColumn" prefWidth="120.0" text="Actions" />
-
-               </columns>
-
-            </TableView>
-
-            <!-- FOOTER -->
-
-            <HBox alignment="CENTER_LEFT">
-
-               <Label fx:id="entriesInfoLabel" text="Showing 0 to 0 of 0 entries" style="-fx-text-fill: #555555;" />
-
-               <Pane HBox.hgrow="ALWAYS" />
-
-               <Pagination fx:id="pagination" maxPageIndicatorCount="10"/>
-            </HBox>
-
-         </VBox>
-
-      </VBox>
-   </center>
-
-</BorderPane>
-</file>
-
 <file path="src/main/java/oopsystem/app/EmployeeApplication.java">
 package oopsystem.app;
 
@@ -5602,35 +5745,6 @@ public class EmployeeApplication extends Application {
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
-    }
-}
-</file>
-
-<file path="src/main/java/oopsystem/controller/LoginController.java">
-package oopsystem.controller;
-
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import oopsystem.util.SceneNavigator;
-
-public class LoginController {
-
-    @FXML
-    TextField  username;
-    @FXML
-    PasswordField password;
-    @FXML
-    Button login;
-
-
-    @FXML
-    public void login(){
-
-        //authenticate first
-        
-        SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
     }
 }
 </file>
@@ -6044,7 +6158,6 @@ public class MovementLogController {
         });
     }
 
-//    GENERATE FILE
     private void handleExportPdf() {
         showScopeDialog("PDF", (data, label) -> {
             new Alert(Alert.AlertType.INFORMATION,
@@ -6052,7 +6165,6 @@ public class MovementLogController {
         });
     }
 
-    //    GENERATE FILE
     private void handleExportExcel() {
         showScopeDialog("Excel", (data, label) -> {
             new Alert(Alert.AlertType.INFORMATION,
@@ -6079,6 +6191,65 @@ public class MovementLogController {
                 onConfirm.accept(new java.util.ArrayList<>(masterData), "All Records");
             }
         });
+    }
+}
+</file>
+
+<file path="src/main/java/oopsystem/controller/LoginController.java">
+package oopsystem.controller;
+
+import oopsystem.model.User;
+import oopsystem.repository.UserRepository;
+import oopsystem.util.AppConfig;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import oopsystem.util.SceneNavigator;
+
+import java.sql.SQLException;
+
+public class LoginController {
+
+    @FXML
+    TextField  usernameField;
+    @FXML
+    PasswordField passwordField;
+    @FXML
+    Button loginButton;
+
+
+    @FXML
+    public void login() {
+
+        if (AppConfig.DEV_MODE) {
+            SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
+            return;
+        }
+
+        try {
+            UserRepository repo = new UserRepository();
+
+            System.out.println("Username: " + usernameField.getText());
+            System.out.println("Password: " + passwordField.getText());
+
+            User user = repo.authenticate(
+                    usernameField.getText(),
+                    passwordField.getText()
+            );
+
+            if (user != null) {
+                SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
+            } else {
+                System.out.println("Invalid username or password");
+            }
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+        }
     }
 }
 </file>
@@ -6124,7 +6295,6 @@ public class EmployeeDirectoryController implements Initializable {
     @FXML private TableColumn<Employee, String> contactColumn;
     @FXML private TableColumn<Employee, Void> actionColumn;
 
-    @FXML private Label entriesInfoLabel;
     @FXML private Pagination pagination;
 
 
@@ -6198,7 +6368,8 @@ public class EmployeeDirectoryController implements Initializable {
         contactColumn.setCellValueFactory(new PropertyValueFactory<>("emailAddress"));
     }
 
-    private void setupActionButtonsColumn(){
+    private void setupActionButtonsColumn()
+    {
         actionColumn.setCellFactory( param -> new TableCell<Employee, Void>()
         {
                 private final HBox layoutContainer = new HBox();
@@ -6289,25 +6460,6 @@ public class EmployeeDirectoryController implements Initializable {
             visibleEmployeesPageList.setAll(filteredEmployees.subList(fromIndex, toIndex));
         } else {
             visibleEmployeesPageList.clear();
-        }
-
-        updateEntriesInfoText(fromIndex, toIndex, filteredEmployees.size());
-    }
-
-    private void updateEntriesInfoText(int fromIndex, int toIndex, int totalEntries) {
-        if (totalEntries == 0) {
-            entriesInfoLabel.setText("Showing 0 to 0 of 0 entries");
-        } else {
-            // fromIndex is 0-based, so add 1 for user readability (e.g., row 0 becomes entry 1)
-            int startEntryNumber = fromIndex + 1;
-            int endEntryNumber = toIndex;
-
-            // String.format with %,d automatically adds commas to large numbers (e.g., 1,248)
-            entriesInfoLabel.setText(String.format("Showing %d to %d of %,d entries",
-                    startEntryNumber,
-                    endEntryNumber,
-                    totalEntries
-            ));
         }
     }
 

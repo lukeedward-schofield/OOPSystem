@@ -44,6 +44,34 @@ public class UserRepository {
         }
     }
 
+    public boolean createUser(String username, String password, int employeeId, String firstName, String lastName) throws SQLException {
+        String sql = "INSERT INTO users (username, user_password, first_name, last_name, active_status, employee_id) " +
+                "VALUES (?, ?, ?, ?, true, ?)";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            pstmt.setString(3, firstName);
+            pstmt.setString(4, lastName);
+            pstmt.setInt(5, employeeId);
+
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean existsByUsername(String username) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+        }
+        return false;
+    }
+
     /**
      * READ: Fetches all users joined with their employee details for the TableView
      */
