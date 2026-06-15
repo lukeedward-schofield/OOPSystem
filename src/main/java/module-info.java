@@ -14,6 +14,14 @@ module oopsystem {
     requires org.postgresql.jdbc;
     requires jbcrypt;
 
+    // =========================================================================
+    // ADD THESE TWO LINES FOR THE FXML SNAPSHOT PDF FEATURE
+    // =========================================================================
+    requires javafx.swing;  // Grants permission to utilize SwingFXUtils
+    requires java.desktop;  // Grants permission to utilize java.awt.Desktop (Auto-Open feature)
+    // =========================================================================
+
+
 //    Open packages to JavaFX for reflection
     opens oopsystem.app to javafx.graphics;
     opens oopsystem.controller to javafx.fxml;
