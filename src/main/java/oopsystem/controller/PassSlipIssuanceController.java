@@ -59,6 +59,16 @@ public class PassSlipIssuanceController implements Initializable {
     @FXML private Button    downloadPdfButton;
     @FXML private Label     feedbackLabel;
 
+    @FXML private Label previewEmployee;
+    @FXML private Label previewDepartment;
+    @FXML private Label previewRole;
+    @FXML private Label previewReason;
+    @FXML private Label previewDestination;
+    @FXML private Label previewTimeOut;
+    @FXML private Label previewDuration;
+    @FXML private Label previewEstReturn;
+    @FXML private Label previewIssuedBy;
+
     // =========================================================================
     // STATE
     // =========================================================================
@@ -86,6 +96,9 @@ public class PassSlipIssuanceController implements Initializable {
         clearFeedback();
         setupLiveSearch();
         setupDurationField();
+        reasonField.textProperty().addListener((obs, oldVal, newVal) -> updatePreview());
+        destinationField.textProperty().addListener((obs, oldVal, newVal) -> updatePreview());
+        updatePreview();
     }
 
     // =========================================================================
@@ -101,6 +114,7 @@ public class PassSlipIssuanceController implements Initializable {
 
             selectedEmployee = null;
             dropdown.hide();
+            updatePreview();
 
             String query = newVal == null ? "" : newVal.trim();
             if (query.length() < 2) return;
@@ -139,6 +153,8 @@ public class PassSlipIssuanceController implements Initializable {
                                 isSelectingFromDropdown = false; // Lower the flag
                                 dropdown.hide();
                                 clearFeedback();
+
+                                updatePreview();
                             });
 
                             dropdown.getItems().add(item);
@@ -155,6 +171,56 @@ public class PassSlipIssuanceController implements Initializable {
             searchThread.setDaemon(true);
             searchThread.start();
         });
+    }
+
+    private void updatePreview() {
+        // Employee info — only if selected from dropdown
+        if (selectedEmployee != null) {
+            previewEmployee.setText(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName());
+            previewDepartment.setText(selectedEmployee.getDepartment());
+            previewRole.setText(selectedEmployee.getRole());
+        } else {
+            previewEmployee.setText("—");
+            previewDepartment.setText("—");
+            previewRole.setText("—");
+        }
+
+        // Reason
+        String reason = reasonField.getText().trim();
+        previewReason.setText(reason.isBlank() ? "—" : reason);
+
+        // Destination
+        String dest = destinationField.getText().trim();
+        previewDestination.setText(dest.isBlank() ? "—" : dest);
+
+        // Time out
+        previewTimeOut.setText(capturedTimeOut.format(DISPLAY_FMT));
+
+        // Duration + estimated return
+        String durationText = durationField.getText().trim();
+        if (!durationText.isBlank()) {
+            try {
+                int minutes = Integer.parseInt(durationText);
+                if (minutes > 0 && minutes <= 480) {
+                    previewDuration.setText(minutes + " min");
+                    LocalDateTime estReturn = capturedTimeOut.plusMinutes(minutes);
+                    previewEstReturn.setText(estReturn.format(DISPLAY_FMT));
+                } else {
+                    previewDuration.setText("—");
+                    previewEstReturn.setText("—");
+                }
+            } catch (NumberFormatException e) {
+                previewDuration.setText("—");
+                previewEstReturn.setText("—");
+            }
+        } else {
+            previewDuration.setText("—");
+            previewEstReturn.setText("—");
+        }
+
+        // Issued by — from session
+        String issuedBy = SessionManager.getLoggedInFullName();
+        previewIssuedBy.setText(issuedBy != null ? issuedBy : "—");
     }
 
     // =========================================================================
@@ -176,6 +242,8 @@ public class PassSlipIssuanceController implements Initializable {
                 return;
             }
 
+            updatePreview();
+
             if (newVal == null || newVal.isBlank()) {
                 clearFeedback();
                 return;
@@ -195,6 +263,8 @@ public class PassSlipIssuanceController implements Initializable {
                 clearFeedback();
             }
         });
+
+        updatePreview();
     }
 
     // =========================================================================

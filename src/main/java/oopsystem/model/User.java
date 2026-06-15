@@ -35,6 +35,20 @@ public class User {
         this.role = role;
     }
 
+    public User(int userId, String username, String userPassword, String firstName, String lastName,
+                boolean activeStatus, Timestamp createdAt, int employeeId, String department, String role) {
+        this.userId = userId;
+        this.username = username;
+        this.userPassword = userPassword;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.activeStatus = activeStatus;
+        this.createdAt = createdAt;
+        this.employeeId = employeeId;
+        this.department = department;
+        this.role = role;
+    }
+
     // Getters
     public int getUserId() { return userId; }
     public String getUsername() { return username; }

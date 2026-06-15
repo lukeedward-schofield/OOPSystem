@@ -1,5 +1,6 @@
 package oopsystem.controller;
 
+import oopsystem.repository.ActivityLogRepository;
 import oopsystem.util.SessionManager;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -72,7 +73,19 @@ public class ProfileController implements Initializable {
         };
 
         // When the database fetching completes, push the final results into your live UI list tracking wrapper
-        fetchTask.setOnSucceeded(event -> userList.setAll(fetchTask.getValue()));
+        fetchTask.setOnSucceeded(event -> {
+            userList.setAll(fetchTask.getValue());
+
+            for (User user : userList) {
+                System.out.println(
+                        user.getUsername()
+                                + " | "
+                                + user.getDepartment()
+                                + " | "
+                                + user.getRole()
+                );
+            }
+        });
         fetchTask.setOnFailed(event -> fetchTask.getException().printStackTrace());
 
         Thread thread = new Thread(fetchTask);
@@ -157,6 +170,16 @@ public class ProfileController implements Initializable {
             );
 
             if (success) {
+                ActivityLogRepository logRepo = new ActivityLogRepository();
+
+                logRepo.log(
+                        "UPDATE_USER",
+                        String.format(
+                                "User account updated: %s",
+                                newUsername
+                        )
+                );
+
                 // Update the session so the navbar/other screens reflect changes immediately
                 currentUser.setFirstName(newFirstName);
                 currentUser.setLastName(newLastName);
@@ -191,6 +214,19 @@ public class ProfileController implements Initializable {
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
+                    String username = currentUser.getUsername();
+                    ActivityLogRepository logRepo = new ActivityLogRepository();
+
+                    logRepo.log(
+                            "DELETE_OWN_ACCOUNT",
+                            "User deleted their own account: " + username
+                    );
+
+                    userRepository.deleteUser(currentUser.getUserId());
+
+                    SessionManager.clearSession();
+
+
                     userRepository.deleteUser(currentUser.getUserId());
                     SessionManager.clearSession();
                     SceneNavigator.switchTo("login/LoginView");

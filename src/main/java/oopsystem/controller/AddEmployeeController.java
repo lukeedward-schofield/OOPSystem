@@ -5,6 +5,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 
 import oopsystem.model.Employee;
+import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.EmployeeRepository;
 import oopsystem.util.SceneNavigator;
 
@@ -19,6 +20,8 @@ public class AddEmployeeController {
 
     private final EmployeeRepository repo =
             new EmployeeRepository();
+
+    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
 
 
     @FXML
@@ -66,6 +69,17 @@ public class AddEmployeeController {
         boolean success = repo.addEmployee(employee);
 
         if (success) {
+
+            activityLogRepository.log(
+                    "CREATE_EMPLOYEE",
+                    String.format(
+                            "Employee created: %s %s (%s)",
+                            employee.getFirstName(),
+                            employee.getLastName(),
+                            employee.getDepartment()
+                    )
+            );
+
             SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
             System.out.println("Employee added");
             clearForm();

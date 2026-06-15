@@ -50,10 +50,10 @@ public class PassSlipRepository {
                     reason,
                     destination,
                     time_out,
-                    duration,
+                    estimated_duration,
                     status
                 )
-                VALUES (?, ?, ?, ?, NOW(), ?,FALSE)
+                VALUES (?, ?, ?, ?, NOW(), ?,'OUT')
                 """;
 
         String logSql = """

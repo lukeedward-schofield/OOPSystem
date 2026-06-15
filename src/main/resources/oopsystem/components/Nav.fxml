@@ -28,7 +28,7 @@
                  </VBox.margin>
              </Button>
              <Button fx:id="profileMenu" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Settings"/>
-             <Button maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Logout"/>
+             <Button fx:id="logoutBtn" maxWidth="Infinity" prefHeight="60.0" prefWidth="230.0" text="Logout"/>
          </children>
       </VBox>
 
