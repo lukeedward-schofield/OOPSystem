@@ -313,7 +313,7 @@ public class MovementLogController {
 
         // still out and overdue
         if ("OVERDUE".equals(log.getPassStatus()) && log.getTimeOut() != null) {
-            long allowedMinutes = log.getEstimatedDuration() + 3;
+            long allowedMinutes = log.getEstimatedDuration() ;
             long minutesOverdue = java.time.Duration.between(
                     log.getTimeOut().plusMinutes(allowedMinutes),
                     java.time.LocalDateTime.now()
@@ -325,7 +325,7 @@ public class MovementLogController {
         // returned late — use is_late from DB
         if ("RETURNED".equals(log.getPassStatus()) && log.isLate()
                 && log.getTimeOut() != null && log.getTimeIn() != null) {
-            long allowedMinutes = log.getEstimatedDuration() + 3;
+            long allowedMinutes = log.getEstimatedDuration() ;
             long actualMinutes  = java.time.Duration.between(
                     log.getTimeOut(), log.getTimeIn()).toMinutes();
             long lateBy = actualMinutes - allowedMinutes;
