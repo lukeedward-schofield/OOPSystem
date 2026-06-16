@@ -60,7 +60,7 @@
                         <Button fx:id="btnNewEntry" text="+ NEW ENTRY" styleClass="btn-primary" onAction="#handleNewEntry"/>
                     </HBox>
                     <Separator/>
-                    <TableView fx:id="movementTable" prefHeight="420"
+                    <TableView fx:id="movementTable" prefHeight="515"
                                style="-fx-border-color:transparent; -fx-padding:0;">
                         <columns>
                             <TableColumn fx:id="colEmpName" text="EMPLOYEE NAME" minWidth="100"/>
