@@ -31,7 +31,7 @@ public class PassSlipRepository {
         String checkSql = """
             SELECT 1 FROM pass_slip
             WHERE employee_id = ?
-              AND status = 'OUT'
+              AND status IN = ('OUT', 'OVERDUE')
             LIMIT 1
             FOR UPDATE
             """;
@@ -150,8 +150,9 @@ public class PassSlipRepository {
         String sql = """
                 SELECT 1 FROM pass_slip
                 WHERE employee_id = ?
-                  AND status = 'OUT'
+                  AND status IN = ('OUT', 'OVERDUE')
                 LIMIT 1
+                FOR UPDATE
                 """;
 
         try (
