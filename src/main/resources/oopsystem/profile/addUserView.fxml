@@ -1,74 +1,137 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<?import javafx.scene.control.PasswordField?>
-<BorderPane prefHeight="850.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.AddUserController">
+<BorderPane prefHeight="850.0" prefWidth="1280.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.AddUserController">
 
-    <left>
-        <fx:include fx:id="navBar" source="../components/Nav.fxml" />
-    </left>
+   <left>
+      <fx:include fx:id="navBar" source="../components/Nav.fxml" />
+   </left>
+
    <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <StackPane BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+         </padding>
          <children>
-            <HBox prefHeight="100.0" prefWidth="200.0" />
-            <VBox alignment="CENTER" fillWidth="false" prefHeight="753.0" prefWidth="1017.0">
+
+            <VBox maxWidth="700.0" spacing="30.0">
                <children>
-                  <VBox alignment="CENTER" fillWidth="false" prefHeight="594.0" prefWidth="847.0">
+
+                  <VBox spacing="5.0">
                      <children>
-                        <VBox prefHeight="135.0" prefWidth="778.0" style="-fx-border-color: red;">
+                        <Label text="Create System User Account" style="-fx-text-fill: #212529;">
+                           <font>
+                              <Font name="System Bold" size="26.0" />
+                           </font>
+                        </Label>
+                        <Label text="Link an existing employee directory record to a secure login credential profile." style="-fx-text-fill: #6c757d;">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </VBox>
+
+                  <VBox spacing="25.0" style="-fx-background-color: #ffffff; -fx-background-radius: 8px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 10, 0, 0, 4);">
+                     <padding>
+                        <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                     </padding>
+                     <children>
+
+                        <VBox spacing="8.0">
                            <children>
-                              <Label text="Employee" />
-                              <ComboBox fx:id="employeeComboBox" prefWidth="150.0" />
+                              <Label text="Select Employee" style="-fx-text-fill: #495057;">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <ComboBox fx:id="employeeComboBox" maxWidth="Infinity" prefHeight="38.0" promptText="Choose employee record..." style="-fx-background-radius: 5px; -fx-border-radius: 5px;" />
                            </children>
                         </VBox>
-                        <VBox prefHeight="187.0" prefWidth="782.0">
+
+                        <VBox spacing="12.0" style="-fx-background-color: #f1f3f5; -fx-background-radius: 6px; -fx-border-color: #dee2e6; -fx-border-radius: 6px;">
+                           <padding>
+                              <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+                           </padding>
                            <children>
-                              <Label fx:id="departmentLabel" text="Department: -" />
-                              <Label fx:id="roleLabel" text="Role: -" />
-                              <Label fx:id="emailLabel" text="Email: -" />
-                           </children>
-                        </VBox>
-                        <VBox prefHeight="124.0" prefWidth="796.0" style="-fx-border-color: red;">
-                           <children>
-                              <Label text="Username" />
-                              <TextField fx:id="usernameField" />
-                           </children>
-                        </VBox>
-                        <HBox fillHeight="false" prefHeight="100.0" prefWidth="776.0" style="-fx-border-color: red;">
-                           <children>
-                              <VBox prefHeight="63.0" prefWidth="386.0" style="-fx-border-color: green;">
+                              <Label text="Directory Information Profile" style="-fx-text-fill: #495057;">
+                                 <font>
+                                    <Font name="System Italic" size="12.0" />
+                                 </font>
+                              </Label>
+                              <HBox spacing="40.0">
                                  <children>
-                                    <Label text="Password" />
-                                    <PasswordField fx:id="passwordField" />
+                                    <Label fx:id="departmentLabel" text="Department: -" style="-fx-text-fill: #343a40; -fx-font-weight: bold;" />
+                                    <Label fx:id="roleLabel" text="Role: -" style="-fx-text-fill: #343a40; -fx-font-weight: bold;" />
+                                    <Label fx:id="emailLabel" text="Email: -" style="-fx-text-fill: #343a40; -fx-font-weight: bold;" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+
+                        <VBox spacing="8.0">
+                           <children>
+                              <Label text="Username" style="-fx-text-fill: #495057;">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="usernameField" prefHeight="38.0" promptText="Enter system login identifier" style="-fx-background-radius: 5px; -fx-border-radius: 5px;" />
+                           </children>
+                        </VBox>
+
+                        <HBox spacing="20.0">
+                           <children>
+                              <VBox HBox.hgrow="ALWAYS" spacing="8.0">
+                                 <children>
+                                    <Label text="Account Password" style="-fx-text-fill: #495057;">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <PasswordField fx:id="passwordField" prefHeight="38.0" promptText="••••••••" style="-fx-background-radius: 5px; -fx-border-radius: 5px;" />
                                  </children>
                               </VBox>
-                              <VBox prefHeight="63.0" prefWidth="388.0" style="-fx-border-color: green;">
+                              <VBox HBox.hgrow="ALWAYS" spacing="8.0">
                                  <children>
-                                    <Label text="Confirm Password" />
-                                    <PasswordField fx:id="confirmPasswordField" />
+                                    <Label text="Confirm Password" style="-fx-text-fill: #495057;">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <PasswordField fx:id="confirmPasswordField" prefHeight="38.0" promptText="••••••••" style="-fx-background-radius: 5px; -fx-border-radius: 5px;" />
                                  </children>
                               </VBox>
                            </children>
                         </HBox>
-                        <HBox alignment="CENTER_RIGHT" fillHeight="false" prefHeight="100.0" prefWidth="776.0" style="-fx-border-color: red;">
+
+                        <HBox alignment="CENTER_RIGHT" spacing="15.0">
+                           <padding>
+                              <Insets top="15.0" />
+                           </padding>
                            <children>
-                              <Button fx:id="cancelButton" onAction="#handleCancel" mnemonicParsing="false" text="Cancel" />
-                              <Button fx:id="createUserButton" onAction="#handleCreateUser" mnemonicParsing="false" text="Create User" />
+                              <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancel" prefHeight="38.0" prefWidth="100.0" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-background-radius: 5px; -fx-font-weight: bold; -fx-cursor: hand;" text="Cancel" />
+                              <Button fx:id="createUserButton" mnemonicParsing="false" onAction="#handleCreateUser" prefHeight="38.0" prefWidth="150.0" style="-fx-background-color: #0d6efd; -fx-text-fill: #ffffff; -fx-background-radius: 5px; -fx-font-weight: bold; -fx-cursor: hand;" text="Create User" />
                            </children>
                         </HBox>
+
                      </children>
                   </VBox>
                </children>
             </VBox>
          </children>
-      </VBox>
+      </StackPane>
    </center>
 
 </BorderPane>

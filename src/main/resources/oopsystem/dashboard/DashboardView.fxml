@@ -24,7 +24,7 @@
                         <Label fx:id="statOutNote" text="-" styleClass="stat-note"/>
                     </VBox>
                     <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
-                        <Label text="PENDING RETURNS" styleClass="stat-label"/>
+                        <Label text="OVERDUE" styleClass="stat-label"/>
                         <Label fx:id="statPending" text="0" styleClass="stat-value-warn"/>
                         <Label fx:id="statPendingNote" text="-" styleClass="stat-note-warn"/>
                     </VBox>

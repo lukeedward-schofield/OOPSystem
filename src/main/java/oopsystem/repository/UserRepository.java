@@ -45,6 +45,7 @@ public class UserRepository {
             return null;
         }
     }
+
     public boolean createUser(String username, String password, int employeeId, String firstName, String lastName) throws SQLException {
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
