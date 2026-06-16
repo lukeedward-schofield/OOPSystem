@@ -3,120 +3,102 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="672.0" prefWidth="1070.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.AddEmployeeController">
-   <left>
-      <fx:include fx:id="navBar" source="../components/Nav.fxml" />
-   </left>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="oopsystem.controller.AddEmployeeController"
+            minWidth="1050" minHeight="650"
+            styleClass="employee-root"
+            stylesheets="@../styling/employeeDirectory.css">
 
-   <center>
+    <left>
+        <fx:include fx:id="navBar" source="../components/Nav.fxml" />
+    </left>
 
-      <VBox alignment="CENTER" fillWidth="false" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-
-         <!--INPUT FIELDS CONTAINER-->
-         <VBox alignment="CENTER" prefHeight="461.0" prefWidth="643.0" style="-fx-border-color: red;">
-
-            <HBox alignment="CENTER_LEFT" prefHeight="125.0" prefWidth="641.0">
-               <VBox alignment="CENTER_LEFT" fillWidth="false" prefHeight="89.0" prefWidth="300.0">
-                  <Label text="First Name">
-                     <VBox.margin>
-                        <Insets left="45.0" />
-                     </VBox.margin>
-                  </Label>
-                  <TextField fx:id="firstNameField" prefHeight="25.0" prefWidth="250.0">
-                     <VBox.margin>
-                        <Insets left="45.0" />
-                     </VBox.margin>
-                  </TextField>
-               </VBox>
-               <VBox alignment="CENTER_LEFT" fillWidth="false" prefHeight="89.0" prefWidth="339.0">
-                  <Label text="Last Name">
-                     <VBox.margin>
-                        <Insets left="40.0" />
-                     </VBox.margin>
-                  </Label>
-                  <TextField fx:id="lastNameField" prefWidth="250.0">
-                     <VBox.margin>
-                        <Insets left="40.0" />
-                     </VBox.margin>
-                  </TextField>
-               </VBox>
+    <center>
+        <VBox styleClass="employee-main-area">
+            <HBox alignment="CENTER_LEFT" spacing="12" styleClass="employee-top-bar">
+                <Label text="Pass Slip Management" styleClass="employee-top-title" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="🔔" styleClass="employee-top-icon" />
+                <Label text="?" styleClass="employee-top-icon" />
+                <StackPane styleClass="employee-avatar">
+                    <Label text="A" styleClass="employee-avatar-text" />
+                </StackPane>
             </HBox>
 
-            <VBox alignment="CENTER_LEFT" fillWidth="false" prefHeight="125.0" prefWidth="641.0">
-               <Label text="Contact Number">
-                  <VBox.margin>
-                     <Insets left="45.0" />
-                  </VBox.margin>
-               </Label>
-               <TextField fx:id="contactNumberField" prefWidth="250.0">
-                  <VBox.margin>
-                     <Insets left="45.0" />
-                  </VBox.margin>
-               </TextField>
-            </VBox>
+            <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" styleClass="employee-page-scroll" VBox.vgrow="ALWAYS">
+                <VBox alignment="TOP_CENTER" spacing="18" styleClass="employee-content-wrapper employee-add-wrapper">
+                    <padding>
+                        <Insets top="28" right="28" bottom="28" left="28" />
+                    </padding>
 
-            <VBox alignment="CENTER_LEFT" fillWidth="false" prefHeight="125.0" prefWidth="641.0">
-               <Label text="Email Address">
-                  <VBox.margin>
-                     <Insets left="45.0" />
-                  </VBox.margin>
-               </Label>
-               <TextField fx:id="emailField" prefWidth="250.0">
-                  <VBox.margin>
-                     <Insets left="45.0" />
-                  </VBox.margin>
-               </TextField>
-            </VBox>
+                    <HBox alignment="CENTER_LEFT" spacing="16" maxWidth="1050" styleClass="employee-page-header-row">
+                        <VBox spacing="5">
+                            <Label text="Add Employee" styleClass="employee-page-title" />
+                            <Label text="Create a new institution staff profile and official record." styleClass="employee-page-subtitle" />
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                    </HBox>
 
-            <VBox alignment="CENTER_LEFT" fillWidth="false" prefHeight="125.0" prefWidth="641.0">
-               <Label text="Department">
-                  <VBox.margin>
-                     <Insets left="45.0" />
-                  </VBox.margin>
-               </Label>
-               <TextField fx:id="departmentField" prefWidth="250.0">
-                  <VBox.margin>
-                     <Insets left="45.0" />
-                  </VBox.margin>
-               </TextField>
-            </VBox>
+                    <VBox spacing="20" maxWidth="1050" styleClass="employee-form-card">
+                        <VBox spacing="5">
+                            <Label text="Employee Information" styleClass="employee-section-label" />
+                            <Label text="Fill out the required employee details before saving the record." styleClass="employee-section-subtitle" />
+                        </VBox>
 
-            <VBox alignment="CENTER_LEFT" fillWidth="false" prefHeight="125.0" prefWidth="641.0">
-               <Label text="Role">
-                  <VBox.margin>
-                     <Insets left="45.0" />
-                  </VBox.margin>
-               </Label>
-               <TextField fx:id="positionField" prefWidth="250.0">
-                  <VBox.margin>
-                     <Insets left="45.0" />
-                  </VBox.margin>
-               </TextField>
-            </VBox>
-         </VBox>
+                        <GridPane hgap="20" vgap="18" styleClass="employee-form-grid">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50" />
+                                <ColumnConstraints percentWidth="50" />
+                            </columnConstraints>
 
-         <!--CANCEL/ADD BUTTON-->
-         <HBox alignment="CENTER_RIGHT" fillHeight="false" prefHeight="100.0" prefWidth="642.0">
-            <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#handleCancel" prefHeight="43.0" prefWidth="149.0" text="Cancel" textFill="RED">
-               <font>
-                  <Font name="System Bold" size="17.0" />
-               </font>
-               <HBox.margin>
-                  <Insets left="18.0" right="15.0" />
-               </HBox.margin>
-            </Button>
-            <Button fx:id="addEmployeeBtn" mnemonicParsing="false" onAction="#handleAddEmployee" prefHeight="43.0" prefWidth="149.0" style="-fx-background-color: red;" text="Add Employee" textFill="WHITE">
-               <font>
-                  <Font name="System Bold" size="17.0" />
-               </font>
-            </Button>
-         </HBox>
-      </VBox>
-   </center>
+                            <VBox spacing="7" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label text="First Name" styleClass="employee-field-label" />
+                                <TextField fx:id="firstNameField" promptText="Enter first name" maxWidth="Infinity" styleClass="employee-input-field" />
+                            </VBox>
+
+                            <VBox spacing="7" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label text="Last Name" styleClass="employee-field-label" />
+                                <TextField fx:id="lastNameField" promptText="Enter last name" maxWidth="Infinity" styleClass="employee-input-field" />
+                            </VBox>
+
+                            <VBox spacing="7" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label text="Email Address" styleClass="employee-field-label" />
+                                <TextField fx:id="emailField" promptText="employee@university.edu.ph" maxWidth="Infinity" styleClass="employee-input-field" />
+                            </VBox>
+
+                            <VBox spacing="7" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <Label text="Contact Number" styleClass="employee-field-label" />
+                                <TextField fx:id="contactNumberField" promptText="+63 912 345 6789" maxWidth="Infinity" styleClass="employee-input-field" />
+                            </VBox>
+
+                            <VBox spacing="7" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                <Label text="Department" styleClass="employee-field-label" />
+                                <TextField fx:id="departmentField" promptText="Department or office" maxWidth="Infinity" styleClass="employee-input-field" />
+                            </VBox>
+
+                            <VBox spacing="7" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                <Label text="Position" styleClass="employee-field-label" />
+                                <TextField fx:id="positionField" promptText="Employee position" maxWidth="Infinity" styleClass="employee-input-field" />
+                            </VBox>
+                        </GridPane>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="12" styleClass="employee-form-actions">
+                            <Button fx:id="cancelBtn" onAction="#handleCancel" text="Cancel" styleClass="employee-secondary-button" />
+                            <Button fx:id="addEmployeeBtn" onAction="#handleAddEmployee" text="Add Employee" styleClass="employee-primary-button" />
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
 </BorderPane>

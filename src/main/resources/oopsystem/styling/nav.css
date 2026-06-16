@@ -1,0 +1,81 @@
+/* Shared professional sidebar navigation.
+   FXML ids are unchanged, so existing navigation logic remains untouched. */
+.shared-sidebar {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent #E8D6D2 transparent transparent;
+    -fx-border-width: 0 1 0 0;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.shared-nav-brand {
+    -fx-padding: 0 0 36px 0;
+}
+
+.shared-nav-title {
+    -fx-text-fill: #2A2523;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+}
+
+.shared-nav-subtitle {
+    -fx-text-fill: #4E4643;
+    -fx-font-size: 14px;
+}
+
+.shared-nav-menu-list {
+    -fx-padding: 4px 0 0 0;
+}
+
+.shared-nav-footer-list {
+    -fx-padding: 24px 0 0 0;
+    -fx-border-color: #E8D6D2 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* Remove JavaFX default gray button design. */
+.shared-sidebar .button,
+.shared-sidebar .button:focused,
+.shared-sidebar .button:hover,
+.shared-sidebar .button:armed,
+.shared-sidebar .button:pressed,
+.shared-sidebar .button:default,
+.shared-sidebar .button:cancel {
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-effect: null;
+}
+
+.shared-nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #3A302D;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 15px 16px 15px 24px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 3px 0 0;
+    -fx-cursor: hand;
+}
+
+.shared-nav-button:hover {
+    -fx-background-color: #FBF4F3;
+    -fx-text-fill: #7B0000;
+}
+
+.shared-nav-button:pressed {
+    -fx-background-color: #F1E6E2;
+}
+
+.shared-nav-button.active-menu {
+    -fx-background-color: #FBF4F3;
+    -fx-text-fill: #7B0000;
+    -fx-font-weight: 800;
+    -fx-border-color: transparent #9B7B00 transparent transparent;
+    -fx-border-width: 0 3px 0 0;
+}
+
+.shared-nav-button.active-menu:hover {
+    -fx-background-color: #FBF4F3;
+    -fx-text-fill: #7B0000;
+}
