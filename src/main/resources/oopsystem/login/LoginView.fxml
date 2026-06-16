@@ -6,11 +6,13 @@
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -43,52 +45,69 @@
          </children>
       </VBox>
 
-      <VBox alignment="CENTER" spacing="15.0" style="-fx-background-color: #FFFFFF;" GridPane.columnIndex="1">
-         <padding>
-            <Insets bottom="40.0" left="50.0" right="50.0" top="40.0" />
-         </padding>
-         <children>
+      <!-- ADDED: Wrapped right VBox in StackPane to support loading overlay -->
+      <StackPane GridPane.columnIndex="1">
 
-            <VBox spacing="15.0" maxWidth="300.0" alignment="CENTER" VBox.vgrow="NEVER">
-               <children>
+         <VBox alignment="CENTER" spacing="15.0" style="-fx-background-color: #FFFFFF;">
+            <padding>
+               <Insets bottom="40.0" left="50.0" right="50.0" top="40.0" />
+            </padding>
+            <children>
 
-                  <Label text="Sign In" textFill="MAROON">
-                     <font>
-                        <Font name="System Bold" size="24.0" />
-                     </font>
-                     <VBox.margin>
-                        <Insets bottom="10.0" />
-                     </VBox.margin>
-                  </Label>
+               <VBox spacing="15.0" maxWidth="300.0" alignment="CENTER" VBox.vgrow="NEVER">
+                  <children>
 
-                  <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-border-color: #CCCCCC; -fx-border-width: 0 0 1 0; -fx-padding: 5;">
-                     <children>
-                        <FontAwesomeIconView fill="MAROON" glyphName="USER" size="18" wrappingWidth="20" />
-                        <TextField fx:id="usernameField" promptText="Username" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS" />
-                     </children>
-                  </HBox>
+                     <Label text="Sign In" textFill="MAROON">
+                        <font>
+                           <Font name="System Bold" size="24.0" />
+                        </font>
+                        <VBox.margin>
+                           <Insets bottom="10.0" />
+                        </VBox.margin>
+                     </Label>
 
-                  <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-border-color: #CCCCCC; -fx-border-width: 0 0 1 0; -fx-padding: 5;">
-                     <children>
-                        <FontAwesomeIconView fill="MAROON" glyphName="KEY" size="18" wrappingWidth="20" />
-                        <PasswordField fx:id="passwordField" promptText="Password" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS" />
-                     </children>
-                  </HBox>
+                     <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-border-color: #CCCCCC; -fx-border-width: 0 0 1 0; -fx-padding: 5;">
+                        <children>
+                           <FontAwesomeIconView fill="MAROON" glyphName="USER" size="18" wrappingWidth="20" />
+                           <TextField fx:id="usernameField" promptText="Username" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS" />
+                        </children>
+                     </HBox>
 
-                  <Button fx:id="loginButton" mnemonicParsing="false" onAction="#login"
-                          prefHeight="35.0" maxWidth="Infinity"
-                          text="Sign in"
-                          style="-fx-background-color: #800000; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;">
-                     <VBox.margin>
-                        <Insets top="10.0" />
-                     </VBox.margin>
-                  </Button>
+                     <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-border-color: #CCCCCC; -fx-border-width: 0 0 1 0; -fx-padding: 5;">
+                        <children>
+                           <FontAwesomeIconView fill="MAROON" glyphName="KEY" size="18" wrappingWidth="20" />
+                           <PasswordField fx:id="passwordField" promptText="Password" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS" />
+                        </children>
+                     </HBox>
 
-                  <Hyperlink text="Forgot password?" textFill="MAROON" />
-               </children>
-            </VBox>
+                     <Button fx:id="loginButton" mnemonicParsing="false" onAction="#login"
+                             prefHeight="35.0" maxWidth="Infinity"
+                             text="Sign in"
+                             style="-fx-background-color: #800000; -fx-text-fill: white; -fx-cursor: hand; -fx-font-weight: bold;">
+                        <VBox.margin>
+                           <Insets top="10.0" />
+                        </VBox.margin>
+                     </Button>
 
-         </children>
-      </VBox>
+                     <Hyperlink text="Forgot password?" textFill="MAROON" />
+
+                  </children>
+               </VBox>
+
+            </children>
+         </VBox>
+
+         <!-- ADDED: Loading overlay shown during authentication -->
+         <VBox fx:id="loadingOverlay" alignment="CENTER" spacing="10.0"
+               visible="false" managed="false"
+               style="-fx-background-color: rgba(255,255,255,0.88);">
+            <ProgressIndicator fx:id="loadingSpinner" prefWidth="38.0" prefHeight="38.0"/>
+            <Label fx:id="loadingLabel" text="Signing in..."
+                   style="-fx-text-fill: #800000; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+         </VBox>
+
+      </StackPane>
+      <!-- END ADDED -->
+
    </children>
 </GridPane>

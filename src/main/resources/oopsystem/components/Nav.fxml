@@ -3,36 +3,51 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefWidth="264.0" minWidth="264.0" fillWidth="true" styleClass="shared-sidebar"
-      stylesheets="@../styling/nav.css"
-      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="oopsystem.controller.NavbarController">
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="oopsystem.controller.NavbarController">
 
-    <padding>
-        <Insets top="36" right="20" bottom="28" left="22" />
-    </padding>
+    <!-- SIDEBAR CONTENT -->
+    <VBox fx:id="sidebarContent" prefWidth="264.0" minWidth="264.0" fillWidth="true"
+          styleClass="shared-sidebar" stylesheets="@../styling/nav.css">
 
-    <VBox spacing="4" styleClass="shared-nav-brand">
-        <Label text="E-Pass Portal" styleClass="shared-nav-title" />
-        <Label text="Pass Slip Monitoring System" styleClass="shared-nav-subtitle" wrapText="true" />
+        <padding>
+            <Insets top="36" right="20" bottom="28" left="22"/>
+        </padding>
+
+        <VBox spacing="4" styleClass="shared-nav-brand">
+            <Label text="E-Pass Portal" styleClass="shared-nav-title"/>
+            <Label text="Pass Slip Monitoring System" styleClass="shared-nav-subtitle" wrapText="true"/>
+        </VBox>
+
+        <VBox spacing="12" styleClass="shared-nav-menu-list">
+            <Button fx:id="dashboardMenu"         maxWidth="Infinity" text="Dashboard"          styleClass="shared-nav-button"/>
+            <Button fx:id="passSlipMenu"           maxWidth="Infinity" text="Issue Pass Slip"    styleClass="shared-nav-button"/>
+            <Button fx:id="movementLogsMenu"       maxWidth="Infinity" text="Movement Logs"      styleClass="shared-nav-button"/>
+            <Button fx:id="employeeDirectoryMenu"  maxWidth="Infinity" text="Employee Directory" styleClass="shared-nav-button"/>
+            <Button fx:id="reportsMenu"            maxWidth="Infinity" text="Reports"            styleClass="shared-nav-button"/>
+        </VBox>
+
+        <Pane VBox.vgrow="ALWAYS"/>
+
+        <VBox spacing="10" styleClass="shared-nav-footer-list">
+            <Button fx:id="profileMenu" maxWidth="Infinity" text="Settings" styleClass="shared-nav-button"/>
+            <Button fx:id="logoutBtn"   maxWidth="Infinity" text="Logout"   styleClass="shared-nav-button"/>
+        </VBox>
+
     </VBox>
 
-    <VBox spacing="12" styleClass="shared-nav-menu-list">
-        <Button fx:id="dashboardMenu" maxWidth="Infinity" text="Dashboard" styleClass="shared-nav-button" />
-        <Button fx:id="passSlipMenu" maxWidth="Infinity" text="Issue Pass Slip" styleClass="shared-nav-button" />
-        <Button fx:id="movementLogsMenu" maxWidth="Infinity" text="Movement Logs" styleClass="shared-nav-button" />
-        <Button fx:id="employeeDirectoryMenu" maxWidth="Infinity" text="Employee Directory" styleClass="shared-nav-button" />
-        <Button fx:id="reportsMenu" maxWidth="Infinity" text="Reports" styleClass="shared-nav-button" />
+    <!-- LOADING OVERLAY -->
+    <VBox fx:id="navLoadingOverlay" alignment="CENTER" spacing="8.0"
+          visible="false" managed="false"
+          style="-fx-background-color: rgba(255,255,255,0.88);">
+        <ProgressIndicator fx:id="navSpinner" prefWidth="36.0" prefHeight="36.0"/>
+        <Label fx:id="navLoadingLabel" text="Loading..."
+               style="-fx-text-fill: #800000; -fx-font-size: 12px; -fx-font-weight: bold;"/>
     </VBox>
 
-    <Pane VBox.vgrow="ALWAYS" />
-
-    <VBox spacing="10" styleClass="shared-nav-footer-list">
-        <Button fx:id="profileMenu" maxWidth="Infinity" text="Settings" styleClass="shared-nav-button" />
-        <Button fx:id="logoutBtn" maxWidth="Infinity" text="Logout" styleClass="shared-nav-button" />
-    </VBox>
-
-</VBox>
+</StackPane>
