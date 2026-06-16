@@ -62,7 +62,7 @@
 
                         <Region HBox.hgrow="ALWAYS" />
 
-                        <Button fx:id="exportExcelButton" text="⇩  Export Excel" onAction="#handleExportExcel" styleClass="outline-button" />
+                        <Button fx:id="exportExcelButton" text="⇩  Export Excel" onAction="#handleExportExcel" styleClass="maroon-button" />
                         <Button fx:id="exportPdfButton" text="▣  Export PDF" onAction="#handleExportPdf" styleClass="maroon-button" />
                     </HBox>
 
@@ -141,7 +141,7 @@
                             <Region HBox.hgrow="ALWAYS" />
                             <Button fx:id="dailyTabButton" text="Daily" onAction="#handleShowDaily" styleClass="tab-button-active" />
                             <Button fx:id="weeklyTabButton" text="Weekly" onAction="#handleShowWeekly" styleClass="tab-button" />
-                            <Button fx:id="generateReportButton" text="⇩ Generate Report" onAction="#handleGenerateReport" styleClass="generate-report-button" />
+                            <Button fx:id="generateReportButton" text="⇩ Generate Report" onAction="#handleGenerateReport" styleClass="maroon-button" />
                         </HBox>
 
                         <TableView fx:id="dailyReportTable" prefHeight="150" VBox.vgrow="ALWAYS" styleClass="report-table">

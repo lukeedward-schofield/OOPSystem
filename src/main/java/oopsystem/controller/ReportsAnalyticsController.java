@@ -31,6 +31,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * JavaFX controller for the Reports and Analytics screen.
@@ -107,8 +109,24 @@ public class ReportsAnalyticsController {
         setupDailyReportTable();
         setupDepartmentUsageTable();
         setupResponsiveLayout();
+        styleExportButtons();
         updateTabStyles();
         loadReports(false);
+    }
+
+    /**
+     * Makes both export buttons use the same maroon style for a consistent UI.
+     * This keeps the change design-only and avoids editing the FXML structure.
+     */
+    private void styleExportButtons() {
+        if (exportExcelButton != null) {
+            exportExcelButton.getStyleClass().removeAll("outline-button", "maroon-button");
+            exportExcelButton.getStyleClass().add("maroon-button");
+        }
+
+        if (exportPdfButton != null && !exportPdfButton.getStyleClass().contains("maroon-button")) {
+            exportPdfButton.getStyleClass().add("maroon-button");
+        }
     }
 
     /**
@@ -154,17 +172,18 @@ public class ReportsAnalyticsController {
     }
 
     /**
-     * Exports the current report screen as a CSV file.
+     * Exports the current report screen as an Excel-readable workbook file.
      *
-     * CSV is used because it opens directly in Microsoft Excel without adding
-     * extra project dependencies like Apache POI.
+     * This uses Excel XML Spreadsheet format with a .xls extension instead of
+     * a hand-built .xlsx ZIP package. It opens reliably in Microsoft Excel and
+     * still gives the user proper worksheet-style tables instead of a CSV file.
      */
     @FXML
     private void handleExportExcel() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Export Reports and Analytics as Excel CSV");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv"));
-        fileChooser.setInitialFileName(defaultExportName("reports-analytics", "csv"));
+        fileChooser.setTitle("Export Reports and Analytics as Excel Workbook");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Workbook (*.xls)", "*.xls"));
+        fileChooser.setInitialFileName(defaultExportName("reports-analytics", "xls"));
 
         File file = fileChooser.showSaveDialog(exportExcelButton.getScene().getWindow());
         if (file == null) {
@@ -173,18 +192,18 @@ public class ReportsAnalyticsController {
         }
 
         try {
-            Files.writeString(file.toPath(), buildCsvExport(), StandardCharsets.UTF_8);
-            showInfo("Export successful", "Excel-compatible CSV file was exported successfully.");
+            writeExcelSpreadsheetXml(ensureExtension(file, "xls"));
+            showInfo("Export successful", "Excel workbook was exported successfully.");
         } catch (IOException e) {
             showError("Export failed", e.getMessage());
         }
     }
 
     /**
-     * Exports the current report screen as a simple PDF file.
+     * Exports the current report screen as a styled PDF file.
      *
-     * The PDF writer below is intentionally dependency-free so the group does not
-     * need to edit pom.xml or install extra libraries just for this export.
+     * The exported PDF uses real table borders and section headers instead of
+     * plain text separated by pipe characters.
      */
     @FXML
     private void handleExportPdf() {
@@ -200,7 +219,7 @@ public class ReportsAnalyticsController {
         }
 
         try {
-            writeSimplePdf(file, buildPdfLines());
+            writeStyledPdf(ensureExtension(file, "pdf"), "Reports and Analytics", false);
             showInfo("Export successful", "PDF file was exported successfully.");
         } catch (IOException e) {
             showError("Export failed", e.getMessage());
@@ -235,7 +254,7 @@ public class ReportsAnalyticsController {
         }
 
         try {
-            writeSimplePdf(file, buildComplianceReportLines());
+            writeStyledPdf(ensureExtension(file, "pdf"), selectedReportModeText() + " Compliance and Overdue Report", true);
             showInfo(
                     "Report generated",
                     selectedReportModeText() + " report was generated and downloaded successfully."
@@ -594,6 +613,561 @@ public class ReportsAnalyticsController {
     }
 
     /**
+     * Writes a clean Excel-readable .xls file using SpreadsheetML.
+     * This avoids CSV formatting issues and avoids the repair problem caused by
+     * the previous dependency-free .xlsx ZIP writer.
+     */
+    private void writeExcelSpreadsheetXml(File file) throws IOException {
+        StringBuilder workbook = new StringBuilder();
+        workbook.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        workbook.append("<?mso-application progid=\"Excel.Sheet\"?>\n");
+        workbook.append("<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\" ")
+                .append("xmlns:o=\"urn:schemas-microsoft-com:office:office\" ")
+                .append("xmlns:x=\"urn:schemas-microsoft-com:office:excel\" ")
+                .append("xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\">\n");
+
+        workbook.append("<Styles>")
+                .append("<Style ss:ID=\"Title\"><Font ss:Bold=\"1\" ss:Size=\"16\" ss:Color=\"#7A0000\"/></Style>")
+                .append("<Style ss:ID=\"Section\"><Font ss:Bold=\"1\" ss:Color=\"#7A0000\"/></Style>")
+                .append("<Style ss:ID=\"Header\"><Font ss:Bold=\"1\" ss:Color=\"#FFFFFF\"/>")
+                .append("<Interior ss:Color=\"#7A0000\" ss:Pattern=\"Solid\"/>")
+                .append("<Borders><Border ss:Position=\"Bottom\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/>")
+                .append("<Border ss:Position=\"Left\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/>")
+                .append("<Border ss:Position=\"Right\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/>")
+                .append("<Border ss:Position=\"Top\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/></Borders></Style>")
+                .append("<Style ss:ID=\"Cell\"><Borders><Border ss:Position=\"Bottom\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#E0CCCC\"/>")
+                .append("<Border ss:Position=\"Left\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#E0CCCC\"/>")
+                .append("<Border ss:Position=\"Right\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#E0CCCC\"/>")
+                .append("<Border ss:Position=\"Top\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#E0CCCC\"/></Borders></Style>")
+                .append("</Styles>\n");
+
+        appendExcelWorksheet(workbook, "Summary", buildExcelSummaryRows(), new int[]{190, 120, 120});
+        appendExcelWorksheet(workbook, "Department Usage", buildExcelDepartmentRows(), new int[]{190, 90, 90});
+        appendExcelWorksheet(workbook, "Compliance", buildExcelComplianceRows(), new int[]{120, 100, 130, 90, 120, 110});
+
+        workbook.append("</Workbook>");
+        Files.writeString(file.toPath(), workbook.toString(), StandardCharsets.UTF_8);
+    }
+
+    private List<List<String>> buildExcelSummaryRows() {
+        List<List<String>> rows = new ArrayList<>();
+        rows.add(List.of("Reports and Analytics"));
+        rows.add(List.of("Date Range", String.valueOf(startDatePicker.getValue()), "to " + endDatePicker.getValue()));
+        rows.add(List.of(""));
+        rows.add(List.of("Metric", "Value", "Change"));
+        rows.add(List.of("Total Pass Slips", String.valueOf(currentSummary == null ? 0 : currentSummary.getTotalPassSlips()), safeLabelText(totalPassSlipsChangeLabel)));
+        rows.add(List.of("Compliance Rate", currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate()), safeLabelText(complianceRateChangeLabel)));
+        rows.add(List.of("Average Duration", currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes()), safeLabelText(averageDurationChangeLabel)));
+        rows.add(List.of("Overdue Passes", String.valueOf(currentSummary == null ? 0 : currentSummary.getOverduePasses()), safeLabelText(overduePassesChangeLabel)));
+        return rows;
+    }
+
+    private List<List<String>> buildExcelDepartmentRows() {
+        List<List<String>> rows = new ArrayList<>();
+        rows.add(List.of("Departmental Usage"));
+        rows.add(List.of("Date Range", String.valueOf(startDatePicker.getValue()), "to " + endDatePicker.getValue()));
+        rows.add(List.of(""));
+        rows.add(List.of("Department", "Slips", "Usage"));
+        for (DepartmentUsage department : currentDepartments) {
+            rows.add(List.of(
+                    department.getDepartment(),
+                    String.valueOf(department.getTotalSlips()),
+                    String.format("%.1f%%", department.getPercentage())
+            ));
+        }
+        return rows;
+    }
+
+    private List<List<String>> buildExcelComplianceRows() {
+        List<List<String>> rows = new ArrayList<>();
+        rows.add(List.of(selectedReportModeText() + " Compliance and Overdue Monitoring"));
+        rows.add(List.of("Date Range", String.valueOf(startDatePicker.getValue()), "to " + endDatePicker.getValue()));
+        rows.add(List.of(""));
+        rows.add(List.of(weeklyMode ? "Week Start" : "Date", "Total Issued", "Returned On Time", "Overdue", "Average Duration", "Compliance Rate"));
+        for (DailyReport report : currentReportRows) {
+            rows.add(List.of(
+                    String.valueOf(report.getReportDate()),
+                    String.valueOf(report.getTotalIssued()),
+                    String.valueOf(report.getReturnedOnTime()),
+                    String.valueOf(report.getOverdue()),
+                    formatDuration(report.getAverageDurationMinutes()),
+                    String.format("%.1f%%", report.getComplianceRate())
+            ));
+        }
+        return rows;
+    }
+
+    private void appendExcelWorksheet(StringBuilder workbook, String sheetName, List<List<String>> rows, int[] columnWidths) {
+        workbook.append("<Worksheet ss:Name=\"").append(xmlEscape(sheetName)).append("\">")
+                .append("<Table>");
+
+        for (int width : columnWidths) {
+            workbook.append("<Column ss:Width=\"").append(width).append("\"/>");
+        }
+
+        for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+            List<String> row = rows.get(rowIndex);
+            String style = rowIndex == 0 ? "Title" : rowIndex == 3 ? "Header" : rowIndex > 3 ? "Cell" : "";
+
+            workbook.append("<Row>");
+            for (String value : row) {
+                workbook.append("<Cell");
+                if (!style.isEmpty()) {
+                    workbook.append(" ss:StyleID=\"").append(style).append("\"");
+                }
+                workbook.append("><Data ss:Type=\"String\">")
+                        .append(xmlEscape(value == null ? "" : value))
+                        .append("</Data></Cell>");
+            }
+            workbook.append("</Row>");
+        }
+
+        workbook.append("</Table></Worksheet>\n");
+    }
+
+    /**
+     * Writes a real .xlsx workbook using standard Java ZIP/XML classes.
+     * This avoids CSV formatting issues when the file is opened in Excel.
+     */
+    private void writeExcelWorkbook(File file) throws IOException {
+        try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(file.toPath()))) {
+            addZipEntry(zip, "[Content_Types].xml", buildExcelContentTypes());
+            addZipEntry(zip, "_rels/.rels", buildExcelRootRelationships());
+            addZipEntry(zip, "xl/workbook.xml", buildExcelWorkbookXml());
+            addZipEntry(zip, "xl/_rels/workbook.xml.rels", buildExcelWorkbookRelationships());
+            addZipEntry(zip, "xl/styles.xml", buildExcelStyles());
+            addZipEntry(zip, "xl/worksheets/sheet1.xml", buildSummarySheetXml());
+            addZipEntry(zip, "xl/worksheets/sheet2.xml", buildDepartmentSheetXml());
+            addZipEntry(zip, "xl/worksheets/sheet3.xml", buildComplianceSheetXml());
+        }
+    }
+
+    private void addZipEntry(ZipOutputStream zip, String entryName, String content) throws IOException {
+        zip.putNextEntry(new ZipEntry(entryName));
+        zip.write(content.getBytes(StandardCharsets.UTF_8));
+        zip.closeEntry();
+    }
+
+    private String buildExcelContentTypes() {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">"
+                + "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>"
+                + "<Default Extension=\"xml\" ContentType=\"application/xml\"/>"
+                + "<Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>"
+                + "<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>"
+                + "<Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>"
+                + "<Override PartName=\"/xl/worksheets/sheet2.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>"
+                + "<Override PartName=\"/xl/worksheets/sheet3.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>"
+                + "</Types>";
+    }
+
+    private String buildExcelRootRelationships() {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
+                + "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/>"
+                + "</Relationships>";
+    }
+
+    private String buildExcelWorkbookXml() {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" "
+                + "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"
+                + "<sheets>"
+                + "<sheet name=\"Summary\" sheetId=\"1\" r:id=\"rId1\"/>"
+                + "<sheet name=\"Department Usage\" sheetId=\"2\" r:id=\"rId2\"/>"
+                + "<sheet name=\"Compliance\" sheetId=\"3\" r:id=\"rId3\"/>"
+                + "</sheets></workbook>";
+    }
+
+    private String buildExcelWorkbookRelationships() {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
+                + "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/>"
+                + "<Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet2.xml\"/>"
+                + "<Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet3.xml\"/>"
+                + "<Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>"
+                + "</Relationships>";
+    }
+
+    private String buildExcelStyles() {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">"
+                + "<fonts count=\"3\"><font><sz val=\"11\"/><name val=\"Calibri\"/></font>"
+                + "<font><b/><sz val=\"11\"/><color rgb=\"FFFFFFFF\"/><name val=\"Calibri\"/></font>"
+                + "<font><b/><sz val=\"16\"/><color rgb=\"FF7A0000\"/><name val=\"Calibri\"/></font></fonts>"
+                + "<fills count=\"3\"><fill><patternFill patternType=\"none\"/></fill><fill><patternFill patternType=\"gray125\"/></fill>"
+                + "<fill><patternFill patternType=\"solid\"><fgColor rgb=\"FF7A0000\"/><bgColor indexed=\"64\"/></patternFill></fill></fills>"
+                + "<borders count=\"2\"><border><left/><right/><top/><bottom/><diagonal/></border>"
+                + "<border><left style=\"thin\"><color rgb=\"FFD8C0C0\"/></left><right style=\"thin\"><color rgb=\"FFD8C0C0\"/></right>"
+                + "<top style=\"thin\"><color rgb=\"FFD8C0C0\"/></top><bottom style=\"thin\"><color rgb=\"FFD8C0C0\"/></bottom><diagonal/></border></borders>"
+                + "<cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs>"
+                + "<cellXfs count=\"4\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\"/>"
+                + "<xf numFmtId=\"0\" fontId=\"1\" fillId=\"2\" borderId=\"1\" xfId=\"0\" applyFont=\"1\" applyFill=\"1\" applyBorder=\"1\"/>"
+                + "<xf numFmtId=\"0\" fontId=\"2\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyFont=\"1\"/>"
+                + "<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"1\" xfId=\"0\" applyBorder=\"1\"/></cellXfs>"
+                + "<cellStyles count=\"1\"><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/></cellStyles></styleSheet>";
+    }
+
+    private String buildSummarySheetXml() {
+        List<List<String>> rows = new ArrayList<>();
+        rows.add(List.of("Reports and Analytics"));
+        rows.add(List.of("Date Range", String.valueOf(startDatePicker.getValue()), "to", String.valueOf(endDatePicker.getValue())));
+        rows.add(List.of(""));
+        rows.add(List.of("Metric", "Value", "Change"));
+        rows.add(List.of("Total Pass Slips", String.valueOf(currentSummary == null ? 0 : currentSummary.getTotalPassSlips()), safeLabelText(totalPassSlipsChangeLabel)));
+        rows.add(List.of("Compliance Rate", currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate()), safeLabelText(complianceRateChangeLabel)));
+        rows.add(List.of("Average Duration", currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes()), safeLabelText(averageDurationChangeLabel)));
+        rows.add(List.of("Overdue Passes", String.valueOf(currentSummary == null ? 0 : currentSummary.getOverduePasses()), safeLabelText(overduePassesChangeLabel)));
+        return buildWorksheetXml(rows, new double[]{28, 20, 18, 14}, true);
+    }
+
+    private String buildDepartmentSheetXml() {
+        List<List<String>> rows = new ArrayList<>();
+        rows.add(List.of("Departmental Usage"));
+        rows.add(List.of("Date Range", String.valueOf(startDatePicker.getValue()), "to", String.valueOf(endDatePicker.getValue())));
+        rows.add(List.of(""));
+        rows.add(List.of("Department", "Slips", "Usage"));
+        for (DepartmentUsage department : currentDepartments) {
+            rows.add(List.of(
+                    department.getDepartment(),
+                    String.valueOf(department.getTotalSlips()),
+                    String.format("%.1f%%", department.getPercentage())
+            ));
+        }
+        return buildWorksheetXml(rows, new double[]{32, 14, 14}, true);
+    }
+
+    private String buildComplianceSheetXml() {
+        List<List<String>> rows = new ArrayList<>();
+        rows.add(List.of(selectedReportModeText() + " Compliance and Overdue Monitoring"));
+        rows.add(List.of("Date Range", String.valueOf(startDatePicker.getValue()), "to", String.valueOf(endDatePicker.getValue())));
+        rows.add(List.of(""));
+        rows.add(List.of(weeklyMode ? "Week Start" : "Date", "Total Issued", "Returned On Time", "Overdue", "Average Duration", "Compliance Rate"));
+        for (DailyReport report : currentReportRows) {
+            rows.add(List.of(
+                    String.valueOf(report.getReportDate()),
+                    String.valueOf(report.getTotalIssued()),
+                    String.valueOf(report.getReturnedOnTime()),
+                    String.valueOf(report.getOverdue()),
+                    formatDuration(report.getAverageDurationMinutes()),
+                    String.format("%.1f%%", report.getComplianceRate())
+            ));
+        }
+        return buildWorksheetXml(rows, new double[]{18, 16, 20, 14, 18, 18}, true);
+    }
+
+    private String buildWorksheetXml(List<List<String>> rows, double[] columnWidths, boolean freezeHeader) {
+        StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        xml.append("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
+        xml.append("<cols>");
+        for (int i = 0; i < columnWidths.length; i++) {
+            xml.append("<col min=\"").append(i + 1).append("\" max=\"").append(i + 1)
+                    .append("\" width=\"").append(columnWidths[i]).append("\" customWidth=\"1\"/>");
+        }
+        xml.append("</cols>");
+        if (freezeHeader) {
+            xml.append("<sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"4\" topLeftCell=\"A5\" activePane=\"bottomLeft\" state=\"frozen\"/></sheetView></sheetViews>");
+        }
+        xml.append("<sheetData>");
+        for (int r = 0; r < rows.size(); r++) {
+            int rowNumber = r + 1;
+            xml.append("<row r=\"").append(rowNumber).append("\">");
+            List<String> row = rows.get(r);
+            for (int c = 0; c < row.size(); c++) {
+                int style = rowNumber == 1 ? 2 : rowNumber == 4 ? 1 : rowNumber > 4 ? 3 : 0;
+                xml.append(excelTextCell(c + 1, rowNumber, row.get(c), style));
+            }
+            xml.append("</row>");
+        }
+        xml.append("</sheetData></worksheet>");
+        return xml.toString();
+    }
+
+    private String excelTextCell(int columnNumber, int rowNumber, String value, int style) {
+        return "<c r=\"" + excelCellReference(columnNumber, rowNumber) + "\" t=\"inlineStr\" s=\"" + style + "\">"
+                + "<is><t>" + xmlEscape(value == null ? "" : value) + "</t></is></c>";
+    }
+
+    private String excelCellReference(int columnNumber, int rowNumber) {
+        StringBuilder column = new StringBuilder();
+        int current = columnNumber;
+        while (current > 0) {
+            current--;
+            column.insert(0, (char) ('A' + (current % 26)));
+            current /= 26;
+        }
+        return column + String.valueOf(rowNumber);
+    }
+
+    /**
+     * Writes a styled PDF export with drawn table borders and section spacing.
+     */
+    private void writeStyledPdf(File file, String title, boolean complianceOnly) throws IOException {
+        StyledPdfBuilder pdf = new StyledPdfBuilder();
+        pdf.addTitle(title);
+        pdf.addSubtitle("Date Range: " + startDatePicker.getValue() + " to " + endDatePicker.getValue());
+        pdf.addSubtitle("Generated From: Reports & Analytics Module");
+        pdf.addGap(10);
+
+        pdf.addSectionTitle("Summary");
+        pdf.addTable(
+                new String[]{"Metric", "Value", "Change"},
+                new double[]{250, 160, 140},
+                List.of(
+                        new String[]{"Total Pass Slips", String.valueOf(currentSummary == null ? 0 : currentSummary.getTotalPassSlips()), safeLabelText(totalPassSlipsChangeLabel)},
+                        new String[]{"Compliance Rate", currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate()), safeLabelText(complianceRateChangeLabel)},
+                        new String[]{"Average Duration", currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes()), safeLabelText(averageDurationChangeLabel)},
+                        new String[]{"Overdue Passes", String.valueOf(currentSummary == null ? 0 : currentSummary.getOverduePasses()), safeLabelText(overduePassesChangeLabel)}
+                )
+        );
+
+        if (!complianceOnly) {
+            pdf.addSectionTitle("Departmental Usage");
+            List<String[]> departmentRows = new ArrayList<>();
+            for (DepartmentUsage department : currentDepartments) {
+                departmentRows.add(new String[]{
+                        department.getDepartment(),
+                        String.valueOf(department.getTotalSlips()),
+                        String.format("%.1f%%", department.getPercentage())
+                });
+            }
+            pdf.addTable(new String[]{"Department", "Slips", "Usage"}, new double[]{310, 100, 120}, departmentRows);
+        }
+
+        pdf.addSectionTitle(selectedReportModeText() + " Compliance and Overdue Monitoring");
+        List<String[]> complianceRows = new ArrayList<>();
+        for (DailyReport report : currentReportRows) {
+            complianceRows.add(new String[]{
+                    String.valueOf(report.getReportDate()),
+                    String.valueOf(report.getTotalIssued()),
+                    String.valueOf(report.getReturnedOnTime()),
+                    String.valueOf(report.getOverdue()),
+                    formatDuration(report.getAverageDurationMinutes()),
+                    String.format("%.1f%%", report.getComplianceRate())
+            });
+        }
+        pdf.addTable(
+                new String[]{weeklyMode ? "Week Start" : "Date", "Total Issued", "Returned On Time", "Overdue", "Avg Duration", "Compliance"},
+                new double[]{105, 105, 130, 85, 110, 110},
+                complianceRows
+        );
+
+        pdf.write(file);
+    }
+
+    private String safeLabelText(Label label) {
+        return label == null || label.getText() == null ? "" : label.getText();
+    }
+
+    private File ensureExtension(File file, String extension) {
+        String expectedSuffix = "." + extension.toLowerCase();
+        if (file.getName().toLowerCase().endsWith(expectedSuffix)) {
+            return file;
+        }
+        return new File(file.getParentFile(), file.getName() + expectedSuffix);
+    }
+
+    private String xmlEscape(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
+    }
+
+    /**
+     * Tiny PDF builder for styled tables without adding external dependencies.
+     */
+    private final class StyledPdfBuilder {
+        private static final double PAGE_WIDTH = 842;
+        private static final double PAGE_HEIGHT = 595;
+        private static final double MARGIN = 40;
+        private static final double ROW_HEIGHT = 24;
+
+        private final List<StringBuilder> pages = new ArrayList<>();
+        private double y;
+
+        private StyledPdfBuilder() {
+            newPage();
+        }
+
+        private void newPage() {
+            StringBuilder page = new StringBuilder();
+            page.append("0.98 0.96 0.95 rg 0 0 ").append(PAGE_WIDTH).append(' ').append(PAGE_HEIGHT).append(" re f\n");
+            page.append("0.45 0 0 RG 0.45 0 0 rg\n");
+            pages.add(page);
+            y = PAGE_HEIGHT - MARGIN;
+        }
+
+        private void ensureSpace(double height) {
+            if (y - height < MARGIN) {
+                newPage();
+            }
+        }
+
+        private void addTitle(String text) {
+            ensureSpace(34);
+            drawText(MARGIN, y, 18, true, text);
+            y -= 24;
+        }
+
+        private void addSubtitle(String text) {
+            ensureSpace(18);
+            drawText(MARGIN, y, 10, false, text);
+            y -= 15;
+        }
+
+        private void addSectionTitle(String text) {
+            addGap(8);
+            ensureSpace(24);
+            drawText(MARGIN, y, 12, true, text);
+            y -= 18;
+        }
+
+        private void addGap(double gap) {
+            y -= gap;
+        }
+
+        private void addTable(String[] headers, double[] widths, List<String[]> rows) {
+            ensureSpace(ROW_HEIGHT * 2);
+            double x = MARGIN;
+            double tableWidth = 0;
+            for (double width : widths) {
+                tableWidth += width;
+            }
+
+            drawHeaderBackground(x, y - ROW_HEIGHT + 5, tableWidth, ROW_HEIGHT);
+            drawTableRow(headers, widths, y, true);
+            y -= ROW_HEIGHT;
+
+            if (rows == null || rows.isEmpty()) {
+                ensureSpace(ROW_HEIGHT);
+                drawTableRow(new String[]{"No records available"}, new double[]{tableWidth}, y, false);
+                y -= ROW_HEIGHT;
+            } else {
+                for (String[] row : rows) {
+                    ensureSpace(ROW_HEIGHT + 2);
+                    drawTableRow(row, widths, y, false);
+                    y -= ROW_HEIGHT;
+                }
+            }
+
+            addGap(8);
+        }
+
+        private void drawTableRow(String[] values, double[] widths, double rowY, boolean header) {
+            double x = MARGIN;
+            for (int i = 0; i < widths.length; i++) {
+                String value = i < values.length ? values[i] : "";
+                drawRectangle(x, rowY - ROW_HEIGHT + 5, widths[i], ROW_HEIGHT);
+                drawText(x + 6, rowY - 10, header ? 9 : 8, header, truncate(value, widths[i]));
+                x += widths[i];
+            }
+        }
+
+        private void drawHeaderBackground(double x, double y, double width, double height) {
+            currentPage().append("0.45 0 0 rg ")
+                    .append(formatNumber(x)).append(' ')
+                    .append(formatNumber(y)).append(' ')
+                    .append(formatNumber(width)).append(' ')
+                    .append(formatNumber(height)).append(" re f\n");
+        }
+
+        private void drawRectangle(double x, double y, double width, double height) {
+            currentPage().append("0.82 0.70 0.70 RG ")
+                    .append(formatNumber(x)).append(' ')
+                    .append(formatNumber(y)).append(' ')
+                    .append(formatNumber(width)).append(' ')
+                    .append(formatNumber(height)).append(" re S\n");
+        }
+
+        private void drawText(double x, double y, int fontSize, boolean bold, String text) {
+            currentPage().append("BT\n")
+                    .append(bold ? "/F2 " : "/F1 ").append(fontSize).append(" Tf\n")
+                    .append(bold ? "0.45 0 0 rg\n" : "0.10 0.08 0.08 rg\n")
+                    .append(formatNumber(x)).append(' ').append(formatNumber(y)).append(" Td\n")
+                    .append('(').append(escapePdfText(text)).append(") Tj\n")
+                    .append("ET\n");
+        }
+
+        private StringBuilder currentPage() {
+            return pages.get(pages.size() - 1);
+        }
+
+        private String truncate(String value, double width) {
+            if (value == null) {
+                return "";
+            }
+            int maxChars = Math.max(8, (int) (width / 5.2));
+            return value.length() <= maxChars ? value : value.substring(0, maxChars - 3) + "...";
+        }
+
+        private String formatNumber(double value) {
+            return String.format(java.util.Locale.US, "%.2f", value);
+        }
+
+        private void write(File file) throws IOException {
+            List<byte[]> objects = new ArrayList<>();
+            objects.add(pdfObject("<< /Type /Catalog /Pages 2 0 R >>"));
+
+            StringBuilder kids = new StringBuilder();
+            for (int i = 0; i < pages.size(); i++) {
+                kids.append(5 + (i * 2)).append(" 0 R ");
+            }
+            objects.add(pdfObject("<< /Type /Pages /Kids [" + kids + "] /Count " + pages.size() + " >>"));
+            objects.add(pdfObject("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"));
+            objects.add(pdfObject("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>"));
+
+            for (int i = 0; i < pages.size(); i++) {
+                int pageObjectNumber = 5 + (i * 2);
+                int contentObjectNumber = pageObjectNumber + 1;
+                objects.add(pdfObject("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + PAGE_WIDTH + " " + PAGE_HEIGHT + "] "
+                        + "/Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> "
+                        + "/Contents " + contentObjectNumber + " 0 R >>"));
+
+                byte[] content = pages.get(i).toString().getBytes(StandardCharsets.US_ASCII);
+                String streamHeader = "<< /Length " + content.length + " >>\nstream\n";
+                String streamFooter = "\nendstream";
+                ByteArrayOutputStream streamObject = new ByteArrayOutputStream();
+                streamObject.write(streamHeader.getBytes(StandardCharsets.US_ASCII));
+                streamObject.write(content);
+                streamObject.write(streamFooter.getBytes(StandardCharsets.US_ASCII));
+                objects.add(pdfObject(streamObject.toString(StandardCharsets.US_ASCII)));
+            }
+
+            writePdfObjects(file, objects);
+        }
+    }
+
+    private void writePdfObjects(File file, List<byte[]> objects) throws IOException {
+        ByteArrayOutputStream pdf = new ByteArrayOutputStream();
+        pdf.write("%PDF-1.4\n".getBytes(StandardCharsets.US_ASCII));
+
+        List<Integer> offsets = new ArrayList<>();
+        offsets.add(0);
+        for (int i = 0; i < objects.size(); i++) {
+            offsets.add(pdf.size());
+            pdf.write((i + 1 + " 0 obj\n").getBytes(StandardCharsets.US_ASCII));
+            pdf.write(objects.get(i));
+            pdf.write("\nendobj\n".getBytes(StandardCharsets.US_ASCII));
+        }
+
+        int xrefStart = pdf.size();
+        pdf.write(("xref\n0 " + (objects.size() + 1) + "\n").getBytes(StandardCharsets.US_ASCII));
+        pdf.write("0000000000 65535 f \n".getBytes(StandardCharsets.US_ASCII));
+        for (int i = 1; i < offsets.size(); i++) {
+            pdf.write(String.format("%010d 00000 n \n", offsets.get(i)).getBytes(StandardCharsets.US_ASCII));
+        }
+        pdf.write(("trailer\n<< /Size " + (objects.size() + 1) + " /Root 1 0 R >>\nstartxref\n" + xrefStart + "\n%%EOF")
+                .getBytes(StandardCharsets.US_ASCII));
+
+        Files.write(file.toPath(), pdf.toByteArray());
+    }
+
+    /**
      * Builds the CSV content used by the Excel export button.
      */
     private String buildCsvExport() {
@@ -844,34 +1418,45 @@ public class ReportsAnalyticsController {
     }
 
     /**
-     * Formats percent changes with a sign and arrow.
+     * Formats percent changes in plain language for easier presentation.
      */
     private String formatSignedPercent(double value) {
-        String arrow = value >= 0 ? "↗" : "↘";
-        return String.format("%+.1f%%%s", value, arrow);
-    }
-
-    /**
-     * Formats duration changes using hours when possible.
-     */
-    private String formatSignedDuration(double minutes) {
-        double hours = minutes / 60.0;
-
-        if (Math.abs(hours) >= 1) {
-            String arrow = hours >= 0 ? "↗" : "↘";
-            return String.format("%+.1fh%s", hours, arrow);
+        if (Math.abs(value) < 0.05) {
+            return "No change";
         }
 
-        String arrow = minutes >= 0 ? "↗" : "↘";
-        return String.format("%+.0fm%s", minutes, arrow);
+        String direction = value > 0 ? "Increased by" : "Decreased by";
+        return String.format("%s %.1f%%", direction, Math.abs(value));
     }
 
     /**
-     * Formats whole-number count changes.
+     * Formats duration changes in plain language using hours when possible.
+     */
+    private String formatSignedDuration(double minutes) {
+        if (Math.abs(minutes) < 0.5) {
+            return "No change";
+        }
+
+        String direction = minutes > 0 ? "Increased by" : "Decreased by";
+        double absMinutes = Math.abs(minutes);
+
+        if (absMinutes >= 60) {
+            return String.format("%s %.1fh", direction, absMinutes / 60.0);
+        }
+
+        return String.format("%s %.0fm", direction, absMinutes);
+    }
+
+    /**
+     * Formats whole-number count changes in plain language.
      */
     private String formatSignedWholeNumber(int value) {
-        String arrow = value >= 0 ? "△" : "▽";
-        return String.format("%+d%s", value, arrow);
+        if (value == 0) {
+            return "No change";
+        }
+
+        String direction = value > 0 ? "Increased by" : "Decreased by";
+        return direction + " " + Math.abs(value);
     }
 
     /**
