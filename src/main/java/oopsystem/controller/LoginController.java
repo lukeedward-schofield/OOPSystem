@@ -38,7 +38,7 @@ public class LoginController {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            SceneNavigator.switchToMaximized("employeeDirectory/EmployeeDirectoryView");
+            SceneNavigator.switchToMaximized("dashboard/DashboardView");
             return;
         }
 

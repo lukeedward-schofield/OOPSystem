@@ -14,7 +14,7 @@ import javafx.stage.Stage;
  * current window size, maximized state, and full-screen state while navigating.
  */
 public class SceneNavigator {
-
+    private static String currentPage;
     private static Stage stage;
 
     public static void setStage(Stage primaryStage) {
@@ -66,7 +66,7 @@ public class SceneNavigator {
             if (loader == null) {
                 throw new RuntimeException("FXML NOT FOUND: " + fxmlName);
             }
-
+            currentPage = fxmlName;
             Parent root = loader.load();
 
             // Save the current window state before changing pages.
@@ -105,5 +105,8 @@ public class SceneNavigator {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public static String getCurrentPage() {
+        return currentPage;
     }
 }

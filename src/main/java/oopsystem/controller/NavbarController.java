@@ -27,13 +27,33 @@ public class NavbarController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         dashboardMenu.setOnAction(e -> SceneNavigator.switchTo("dashboard/DashboardView"));
-        passSlipMenu.setOnAction(e -> SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView"));
-        movementLogsMenu.setOnAction(e -> SceneNavigator.switchTo("movementLogs/MovementLogsView"));
-        employeeDirectoryMenu.setOnAction(e -> SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView"));
-        reportsMenu.setOnAction(e -> SceneNavigator.switchTo("reports/ReportsView"));
-        profileMenu.setOnAction(e -> SceneNavigator.switchTo("profile/ProfileView"));
+        refreshActiveMenu();
+        passSlipMenu.setOnAction(e -> SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView"));    refreshActiveMenu();
+        movementLogsMenu.setOnAction(e -> SceneNavigator.switchTo("movementLogs/MovementLogsView"));    refreshActiveMenu();
+        employeeDirectoryMenu.setOnAction(e -> SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView"));    refreshActiveMenu();
+        reportsMenu.setOnAction(e -> SceneNavigator.switchTo("reports/ReportsView"));    refreshActiveMenu();
+        profileMenu.setOnAction(e -> SceneNavigator.switchTo("profile/ProfileView"));    refreshActiveMenu();
 
         logoutBtn.setOnAction(e -> handleLogout());
+    }
+
+    public void refreshActiveMenu() {
+
+        dashboardMenu.getStyleClass().remove("active-menu");
+        passSlipMenu.getStyleClass().remove("active-menu");
+        movementLogsMenu.getStyleClass().remove("active-menu");
+        employeeDirectoryMenu.getStyleClass().remove("active-menu");
+        reportsMenu.getStyleClass().remove("active-menu");
+        profileMenu.getStyleClass().remove("active-menu");
+
+        String page = SceneNavigator.getCurrentPage();
+
+        if ("dashboard/DashboardView".equals(page)) dashboardMenu.getStyleClass().add("active-menu");
+        else if ("passSlipIssuance/PassSlipIssuanceView".equals(page)) passSlipMenu.getStyleClass().add("active-menu");
+        else if ("movementLogs/MovementLogsView".equals(page)) movementLogsMenu.getStyleClass().add("active-menu");
+        else if ("employeeDirectory/EmployeeDirectoryView".equals(page)) employeeDirectoryMenu.getStyleClass().add("active-menu");
+        else if ("reports/ReportsView".equals(page)) reportsMenu.getStyleClass().add("active-menu");
+        else if ("profile/ProfileView".equals(page)) profileMenu.getStyleClass().add("active-menu");
     }
 
     private void handleLogout() {

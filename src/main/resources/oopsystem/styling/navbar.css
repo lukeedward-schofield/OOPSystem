@@ -1,0 +1,100 @@
+/* =========================================================================
+   1. MAIN ROOT CONTROLLING SIDEBAR OUTER FRAME
+   ========================================================================= */
+
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e6e6e6;
+    /* Overrides the raw inline "-fx-border-color: red;" with the exact hex parameter */
+    -fx-border-width: 0 1 0 0 !important;
+    -fx-font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* =========================================================================
+   2. TOP PANEL TEXT BLOCKS (BRAND PORTAL HEADER BOX)
+   ========================================================================= */
+
+/* Targets the top header area VBox container spacing layout */
+.sidebar > .vbox:first-of-type {
+    -fx-padding: 15 15 10 20;
+}
+
+/* Primary Header Label: "E-Pass Portal" */
+.sidebar > .vbox:first-of-type > .label:first-of-type {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
+}
+
+/* Secondary Header Label: "Pass Slip Monitoring System" */
+.sidebar > .vbox:first-of-type > .label:last-of-type {
+    -fx-font-size: 12px;
+    -fx-text-fill: #444444;
+}
+
+/* =========================================================================
+   3. MIDDLE PANEL LINK LIST (NAVIGATION MENU BUTTONS)
+   ========================================================================= */
+
+/* Targets the main nested navigation elements control block vbox */
+.sidebar > .vbox:last-of-type {
+    -fx-padding: 10 0 0 0;
+}
+
+/* Style Blueprint for Every Unselected/Standard Link Button */
+.sidebar .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2b2b2b;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+
+    /* Extra left-side buffer space allocates room for the active pointer line */
+    -fx-padding: 10 15 10 21;
+
+    /* Configures zero-width layout line to eliminate text-flicker on status changes */
+    -fx-border-width: 0 0 0 4;
+    -fx-border-color: transparent;
+}
+
+/* Cursor Hover Response */
+.sidebar .button:hover {
+    -fx-background-color: #f2f2f2;
+    -fx-text-fill: #000000;
+}
+
+/* =========================================================================
+   4. ACTIVE STATE LINK HOOK
+   Matches explicitly with: styleClass="active-menu" on Employee Directory
+   ========================================================================= */
+
+.sidebar .active-menu {
+    -fx-background-color: #f9f9f9;
+    -fx-text-fill: #800000;
+    -fx-font-weight: bold;
+
+    /* Left Indicator Accent Strip */
+    -fx-border-color: #800000;
+    -fx-border-width: 0 0 0 4;
+}
+
+/* =========================================================================
+   TOP PANEL TEXT BLOCKS (BRAND PORTAL HEADER BOX)
+   ========================================================================= */
+
+/* Targets the VBox wrapper holding your two header labels */
+.sidebar .vbox .vbox {
+    -fx-padding: 15 15 10 20;
+}
+
+/* Targets the "E-Pass Portal" text specifically */
+.sidebar .vbox .vbox .label:first-of-type {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000; /* Change this hex if you want it maroon (#800000) instead! */
+}
+
+/* Targets the "Pass Slip Monitoring System" text specifically */
+.sidebar .vbox .vbox .label:last-of-type {
+    -fx-font-size: 12px;
+    -fx-text-fill: #444444;

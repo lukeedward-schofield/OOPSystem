@@ -8,23 +8,8 @@
             fx:controller="oopsystem.controller.DashboardController">
 
     <left>
-        <VBox prefWidth="230" styleClass="sidebar" stylesheets="@../styling/dashboard.css">
-            <padding>
-                <Insets bottom="20" left="15" right="15" top="20"/>
-            </padding>
-            <VBox spacing="2">
-                <Label styleClass="logo-title" text="Admin Portal"/>
-                <Label styleClass="logo-subtitle" text="Pass Slip System"/>
-            </VBox>
-            <Region minHeight="30" VBox.vgrow="NEVER"/>
-            <Button maxWidth="Infinity" styleClass="active-menu" text="Dashboard"/>
-            <Button maxWidth="Infinity" text="Issue Pass Slip" onAction="#goToIssuePassSlip"/>
-            <Button maxWidth="Infinity" text="Movement Logs" onAction="#goToMovementLogs"/>
-            <Button maxWidth="Infinity" text="Employee Directory" onAction="#goToEmployeeDirectory"/>
-            <Button maxWidth="Infinity" text="Reports" onAction="#goToReports"/>
-            <Pane VBox.vgrow="ALWAYS"/>
-            <Button maxWidth="Infinity" text="Settings" onAction="#goToSettings"/>
-            <Button maxWidth="Infinity" text="Logout" onAction="#goToLogout"/>
+        <VBox prefWidth="230"  stylesheets="@../styling/dashboard.css">
+            <fx:include source="../components/Nav.fxml"/>
         </VBox>
     </left>
 
