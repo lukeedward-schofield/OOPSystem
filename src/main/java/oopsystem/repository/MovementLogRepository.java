@@ -37,7 +37,7 @@ public class MovementLogRepository {
             SET time_in         = NOW(),
                 actual_duration = EXTRACT(EPOCH FROM (NOW() - time_out))::INT / 60,
                 status          = 'RETURNED',
-                is_late         = (EXTRACT(EPOCH FROM (NOW() - time_out))::INT / 60) > (estimated_duration + 3)
+                is_late         = (EXTRACT(EPOCH FROM (NOW() - time_out))::INT / 60) > (estimated_duration)
             WHERE pass_slip_id = ?
               AND status IN ('OUT', 'OVERDUE')
             """;
@@ -48,7 +48,7 @@ public class MovementLogRepository {
             WHERE status = 'OUT'
               AND time_out IS NOT NULL
               AND estimated_duration > 0
-              AND time_out + ((estimated_duration + 3) * INTERVAL '1 minute') < NOW()
+              AND time_out + ((estimated_duration) * INTERVAL '1 minute') < NOW()
             """;
 
     public List<MovementLog> getAllMovementLogs() {
