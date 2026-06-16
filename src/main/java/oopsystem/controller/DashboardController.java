@@ -164,6 +164,7 @@ public class DashboardController implements Initializable {
 
     private void loadLatestPassSlip() {
         PassSlip slip = passSlipRepository.getLatestTodayPassSlip();
+
         if (slip != null) {
             slipSeries.setText("SERIES NO: " + slip.getPassSlipId());
             slipEmp.setText(slip.getEmployeeName() != null ? slip.getEmployeeName() : "-");
@@ -171,7 +172,18 @@ public class DashboardController implements Initializable {
                     slip.getTimeOut().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")) : "-");
             slipTime.setText(slip.getTimeOut() != null ?
                     slip.getTimeOut().format(DateTimeFormatter.ofPattern("hh:mm a")) : "-");
-            slipDest.setText(slip.getDestination() != null ? slip.getDestination() : "-");
+
+            String dest = slip.getDestination();
+            String reason = slip.getReason();
+
+            if (dest != null && !dest.isBlank()) {
+                slipDest.setText(dest);
+            } else if (reason != null && !reason.isBlank()) {
+                slipDest.setText(reason);
+            } else {
+                slipDest.setText("-");
+            }
+
         } else {
             slipSeries.setText("-");
             slipEmp.setText("-");
