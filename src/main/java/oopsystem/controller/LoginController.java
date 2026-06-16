@@ -28,7 +28,7 @@ public class LoginController {
     @FXML
     public void login() {
 
-        // ADDED: show loading overlay and disable button to prevent double-clicks
+
         loadingOverlay.setVisible(true);
         loadingOverlay.setManaged(true);
         loginButton.setDisable(true);
@@ -45,7 +45,7 @@ public class LoginController {
                         activityLogRepository.log("LOGIN", "User " + devUser.getUsername() + " logged in");
                     }
                     Platform.runLater(() ->
-                            SceneNavigator.switchToMaximized("employeeDirectory/EmployeeDirectoryView")
+                            SceneNavigator.switchToMaximized("dashboard/DashboardView")
                     );
                     return;
                 }
@@ -75,7 +75,7 @@ public class LoginController {
 
             } catch (SQLException e) {
                 e.printStackTrace();
-                // ADDED: hide loading on error too so user isn't stuck
+
                 Platform.runLater(() -> {
                     loadingOverlay.setVisible(false);
                     loadingOverlay.setManaged(false);

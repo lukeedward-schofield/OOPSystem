@@ -12,14 +12,15 @@
 }
 
 .shared-nav-title {
-    -fx-text-fill: #2A2523;
-    -fx-font-size: 16px;
-    -fx-font-weight: 500;
+    -fx-text-fill: #800000;
+    -fx-font-size: 25px;
+    -fx-font-weight: bold;
 }
 
 .shared-nav-subtitle {
-    -fx-text-fill: #4E4643;
-    -fx-font-size: 14px;
+    -fx-text-fill: #800000;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
 }
 
 .shared-nav-menu-list {
@@ -71,7 +72,7 @@
     -fx-background-color: #FBF4F3;
     -fx-text-fill: #7B0000;
     -fx-font-weight: 800;
-    -fx-border-color: transparent #9B7B00 transparent transparent;
+    -fx-border-color: transparent #800000 transparent transparent;
     -fx-border-width: 0 3px 0 0;
 }
 
