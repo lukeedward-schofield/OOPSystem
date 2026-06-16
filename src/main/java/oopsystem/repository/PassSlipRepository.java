@@ -282,14 +282,21 @@ public class PassSlipRepository {
 
     public PassSlip getLatestTodayPassSlip() {
         String sql = """
-                SELECT ps.*,
-                       e.first_name || ' ' || e.last_name AS employee_name
-                FROM pass_slip ps
-                INNER JOIN employee e ON ps.employee_id = e.employee_id
-                WHERE DATE(ps.time_out) = CURRENT_DATE
-                ORDER BY ps.time_out DESC
-                LIMIT 1
-                """;
+            SELECT ps.pass_slip_ID,
+                   ps.employee_id,
+                   ps.issued_by,
+                   ps.reason,
+                   ps.destination,
+                   ps.file_path,
+                   ps.time_in,
+                   ps.time_out,
+                   ps.status,
+                   e.first_name || ' ' || e.last_name AS employee_name
+            FROM pass_slip ps
+            INNER JOIN employee e ON ps.employee_id = e.employee_id
+            ORDER BY ps.time_out DESC
+            LIMIT 1
+            """;
 
         try (
                 Connection conn = Database.getConnection();
@@ -297,7 +304,23 @@ public class PassSlipRepository {
                 ResultSet rs = stmt.executeQuery()
         ) {
             if (rs.next()) {
-                PassSlip slip = mapPassSlip(rs);
+                Timestamp timeInTs  = rs.getTimestamp("time_in");
+                Timestamp timeOutTs = rs.getTimestamp("time_out");
+                String statusStr = rs.getString("status");
+                Boolean status   = statusStr != null ? !statusStr.equals("RETURNED") : null;
+
+                PassSlip slip = new PassSlip(
+                        rs.getInt("pass_slip_ID"),
+                        rs.getInt("employee_id"),
+                        rs.getInt("issued_by"),
+                        rs.getString("reason"),
+                        rs.getString("destination"),
+                        rs.getString("file_path"),
+                        timeInTs  != null ? timeInTs.toLocalDateTime()  : null,
+                        timeOutTs != null ? timeOutTs.toLocalDateTime() : null,
+                        null,
+                        status
+                );
                 slip.setEmployeeName(rs.getString("employee_name"));
                 return slip;
             }
