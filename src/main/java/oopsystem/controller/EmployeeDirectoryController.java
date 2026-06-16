@@ -260,6 +260,7 @@ public class EmployeeDirectoryController implements Initializable {
         if (totalPagesCount == 0) totalPagesCount = 1;
 
         pagination.setPageCount(totalPagesCount);
+        pagination.setMaxPageIndicatorCount(Math.min(7, totalPagesCount));
 
         // Safely jump back to the first page frame
         pagination.setCurrentPageIndex(0);
