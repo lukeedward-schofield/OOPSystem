@@ -543,24 +543,20 @@ public class ReportsAnalyticsController {
     }
 
     /**
-     * Loads the monthly bar chart using Official and Personal data from the repository.
+     * Loads the monthly bar chart using total pass slips issued per month.
      */
     private void loadMonthlyTrendChart(LocalDate startDate, LocalDate endDate) throws SQLException {
         monthlyTrendChart.getData().clear();
 
-        XYChart.Series<String, Number> officialSeries = new XYChart.Series<>();
-        officialSeries.setName("Official");
-
-        XYChart.Series<String, Number> personalSeries = new XYChart.Series<>();
-        personalSeries.setName("Personal");
+        XYChart.Series<String, Number> issuedSeries = new XYChart.Series<>();
+        issuedSeries.setName("Issued Pass Slips");
 
         // Convert each MonthlyTrend object into chart data points.
         for (MonthlyTrend trend : repository.getMonthlyTrends(startDate, endDate)) {
-            officialSeries.getData().add(new XYChart.Data<>(trend.getPeriod(), trend.getOfficialCount()));
-            personalSeries.getData().add(new XYChart.Data<>(trend.getPeriod(), trend.getPersonalCount()));
+            issuedSeries.getData().add(new XYChart.Data<>(trend.getPeriod(), trend.getIssuedCount()));
         }
 
-        monthlyTrendChart.getData().addAll(officialSeries, personalSeries);
+        monthlyTrendChart.getData().add(issuedSeries);
     }
 
     /**

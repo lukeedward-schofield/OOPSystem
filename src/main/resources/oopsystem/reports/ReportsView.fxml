@@ -106,10 +106,9 @@
                     <HBox spacing="16" VBox.vgrow="ALWAYS">
                         <VBox spacing="8" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" minWidth="430" styleClass="panel trend-panel">
                             <HBox alignment="CENTER_LEFT">
-                                <Label text="Monthly Movement Trends" styleClass="section-title" />
+                                <Label text="Monthly Pass Slip Issuance" styleClass="section-title" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label text="● Official" styleClass="legend-maroon" />
-                                <Label text="● Personal" styleClass="legend-olive" />
+                                <Label text="● Issued Pass Slips" styleClass="legend-maroon" />
                             </HBox>
 
                             <BarChart fx:id="monthlyTrendChart" legendVisible="false" animated="false" prefHeight="220" VBox.vgrow="ALWAYS">
