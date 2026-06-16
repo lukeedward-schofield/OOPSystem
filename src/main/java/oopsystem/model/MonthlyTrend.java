@@ -1,35 +1,27 @@
 package oopsystem.model;
 
 /**
- * Model class for the monthly movement trend chart.
+ * Model class for the monthly pass slip issuance chart.
  *
- * The Figma/PDF report chart compares Official and Personal movement counts,
- * so each object stores one week label and the number of pass slips that fall
- * under each movement type.
+ * Each object stores one month label and the number of pass slips issued
+ * during that month.
  */
 public class MonthlyTrend {
     private final String period;
-    private final int officialCount;
-    private final int personalCount;
+    private final int issuedCount;
 
-    public MonthlyTrend(String period, int officialCount, int personalCount) {
+    public MonthlyTrend(String period, int issuedCount) {
         this.period = period;
-        this.officialCount = officialCount;
-        this.personalCount = personalCount;
+        this.issuedCount = issuedCount;
     }
 
-    // Week label displayed on the chart, for example: WK1.
+    // Month label displayed on the chart, for example: Jan, Feb, Mar.
     public String getPeriod() {
         return period;
     }
 
-    // Pass slips whose reason is official or not marked as personal.
-    public int getOfficialCount() {
-        return officialCount;
-    }
-
-    // Pass slips whose reason contains "personal".
-    public int getPersonalCount() {
-        return personalCount;
+    // Total number of pass slips issued during the month.
+    public int getIssuedCount() {
+        return issuedCount;
     }
 }

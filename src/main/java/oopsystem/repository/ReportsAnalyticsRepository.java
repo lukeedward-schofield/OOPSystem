@@ -321,45 +321,51 @@ public class ReportsAnalyticsRepository {
     }
 
     /**
-     * Gets trend data for the bar chart.
+     * Gets monthly pass slip issuance data for the bar chart.
      *
-     * The submitted design shows Official vs Personal movement trends by week,
-     * so this query groups records into WK1-WK5 and categorizes each reason.
+     * The chart shows January to December for the selected year. This avoids
+     * guessing Official/Personal values from the free-text reason field and
+     * instead uses the existing pass_slip records directly.
      */
     public List<MonthlyTrend> getMonthlyTrends(LocalDate startDate, LocalDate endDate) throws SQLException {
         String sql = """
-                WITH filtered AS (
+                WITH months AS (
                     SELECT
-                        COALESCE(p.time_out, p.created_at) AS movement_time,
-                        p.reason
+                        generate_series(1, 12) AS month_number
+                ),
+                monthly_counts AS (
+                    SELECT
+                        EXTRACT(MONTH FROM COALESCE(p.time_out, p.created_at))::INT AS month_number,
+                        COUNT(*) AS issued_count
                     FROM pass_slip p
                     WHERE COALESCE(p.time_out, p.created_at) >= ?
                       AND COALESCE(p.time_out, p.created_at) < ?
+                    GROUP BY EXTRACT(MONTH FROM COALESCE(p.time_out, p.created_at))::INT
                 )
                 SELECT
-                    CEIL(EXTRACT(DAY FROM movement_time) / 7.0)::INT AS week_number,
-                    'WK' || CEIL(EXTRACT(DAY FROM movement_time) / 7.0)::INT AS period,
-                    SUM(CASE WHEN reason ILIKE '%personal%' THEN 0 ELSE 1 END) AS official_count,
-                    SUM(CASE WHEN reason ILIKE '%personal%' THEN 1 ELSE 0 END) AS personal_count
-                FROM filtered
-                GROUP BY week_number, period
-                ORDER BY week_number
+                    months.month_number,
+                    TO_CHAR(TO_DATE(months.month_number::TEXT, 'MM'), 'FMMon') AS period,
+                    COALESCE(monthly_counts.issued_count, 0) AS issued_count
+                FROM months
+                LEFT JOIN monthly_counts ON monthly_counts.month_number = months.month_number
+                ORDER BY months.month_number
                 """;
 
         List<MonthlyTrend> trends = new ArrayList<>();
+        LocalDate yearStart = LocalDate.of(startDate.getYear(), 1, 1);
+        LocalDate nextYearStart = yearStart.plusYears(1);
 
         try (Connection connection = Database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setTimestamp(1, startTimestamp(startDate));
-            statement.setTimestamp(2, endTimestampExclusive(endDate));
+            statement.setTimestamp(1, startTimestamp(yearStart));
+            statement.setTimestamp(2, startTimestamp(nextYearStart));
 
             try (ResultSet rs = statement.executeQuery()) {
                 while (rs.next()) {
                     trends.add(new MonthlyTrend(
                             rs.getString("period"),
-                            rs.getInt("official_count"),
-                            rs.getInt("personal_count")
+                            rs.getInt("issued_count")
                     ));
                 }
             }
