@@ -451,7 +451,7 @@ public class PassSlipIssuanceController implements Initializable {
         // -2 means the DB check found an existing open slip (returned from inside transaction)
         if (generatedId == -2) {
             showError(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName()
-                    + " already has an active pass slip. Record their return first.");
+                    + " has an unresolved pass slip (OUT or OVERDUE). Record their return before issuing a new one.");
             generateButton.setDisable(false); // allow selecting a different employee
             return;
         }
