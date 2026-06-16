@@ -1,12 +1,22 @@
 package oopsystem.controller;
 
-import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.WritableImage;
+import javafx.stage.FileChooser;
+import java.awt.Desktop;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
 import oopsystem.model.Employee;
 import oopsystem.model.PassSlip;
@@ -14,16 +24,9 @@ import oopsystem.repository.PassSlipRepository;
 import oopsystem.util.SceneNavigator;
 import oopsystem.util.SessionManager;
 
-import javax.imageio.ImageIO;
-import java.awt.Desktop;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -354,82 +357,86 @@ public class PassSlipIssuanceController implements Initializable {
     @FXML
     private void handleGeneratePassSlip() {
 
+        // Disable immediately to prevent double-clicks reaching the DB
+        generateButton.setDisable(true);
         clearFeedback();
 
-        // --- Guard: employee must be selected from dropdown ---
+        // 1. Employee must be selected from dropdown
         if (selectedEmployee == null) {
             showError("Please search and select an employee from the list.");
             searchEmployeeField.requestFocus();
+            generateButton.setDisable(false);
             return;
         }
 
-        // --- Guard: reason is required (varchar 50, NOT NULL in schema) ---
+        // 2. Reason — required, max 50 chars (varchar(50) NOT NULL in schema)
         String reason = reasonField.getText().trim();
         if (reason.isBlank()) {
             showError("Reason for leaving is required.");
             reasonField.requestFocus();
+            generateButton.setDisable(false);
             return;
         }
         if (reason.length() > 50) {
             showError("Reason must be 50 characters or fewer.");
             reasonField.requestFocus();
+            generateButton.setDisable(false);
             return;
         }
 
+        // 3. Destination — optional, max 255 chars
         String destination = destinationField.getText().trim();
         if (destination.length() > 255) {
             showError("Destination is too long (max 255 characters).");
             destinationField.requestFocus();
+            generateButton.setDisable(false);
             return;
         }
-        // destination is nullable — store null if blank
-        String destValue   = destination.isBlank() ? null : destination;
+        String destValue = destination.isBlank() ? null : destination;
 
+        // 4. Duration — required, digits only, 1–480 minutes
         String durationText = durationField.getText().trim();
         if (durationText.isBlank()) {
             showError("Duration is required. Enter the number of minutes.");
             durationField.requestFocus();
+            generateButton.setDisable(false);
             return;
         }
 
-        // Duration — required, digits only, 1–480 minutes
         int durationMinutes;
         try {
             durationMinutes = Integer.parseInt(durationText);
         } catch (NumberFormatException e) {
             showError("Duration must be a whole number.");
             durationField.requestFocus();
+            generateButton.setDisable(false);
             return;
         }
 
         if (durationMinutes <= 0) {
             showError("Duration must be at least 1 minute.");
             durationField.requestFocus();
+            generateButton.setDisable(false);
             return;
         }
         if (durationMinutes > 480) {
             showError("Duration cannot exceed 480 minutes (8 hours).");
             durationField.requestFocus();
+            generateButton.setDisable(false);
             return;
         }
-        // --- Guard: session must be active (issued_by FK to users) ---
-//        int issuedBy = SessionManager.getLoggedInUserId();
-//        if (issuedBy == -1) {
-//            showError("Session expired. Please log in again.");
-//            SceneNavigator.switchTo("login/Login");
-//            return;
-//        }
 
-        // --- Guard: session must be active (issued_by FK to users) ---
+        // 5. Session — Option A bypass while LoginController is unfinished
         int issuedBy = SessionManager.getLoggedInUserId();
         if (issuedBy == -1) {
-            issuedBy = 1; // TODO: remove this when LoginController is fully wired
+            issuedBy = 1; // TODO: remove when LoginController is fully wired
         }
 
-        // Calculate estimated return for display (not stored separately)
         LocalDateTime estimatedReturn = capturedTimeOut.plusMinutes(durationMinutes);
 
-        // Build model and insert (activity log written inside repository)
+        // 6. Build model and insert
+        //    hasOpenPassSlip() check + insert happen atomically inside the repository
+        //    using FOR UPDATE lock — no separate pre-check needed here
         PassSlip slip = new PassSlip(
                 selectedEmployee.getEmployeeId(),
                 issuedBy,
@@ -441,13 +448,31 @@ public class PassSlipIssuanceController implements Initializable {
 
         int generatedId = passSlipRepo.issuePassSlip(slip, issuedBy);
 
-        if (generatedId == -1) {
-            showError("Failed to issue pass slip. Check your database connection.");
+        // -2 means the DB check found an existing open slip (returned from inside transaction)
+        if (generatedId == -2) {
+            showError(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName()
+                    + " already has an active pass slip. Record their return first.");
+            generateButton.setDisable(false); // allow selecting a different employee
             return;
         }
 
+        if (generatedId == -1) {
+            showError("Failed to issue pass slip. Check your database connection.");
+            generateButton.setDisable(false); // allow retry on genuine DB error
+            return;
+        }
+
+        // Success — button stays disabled until page is reloaded or nav occurs
         lastIssuedPassSlipId = generatedId;
         downloadPdfButton.setDisable(false);
+        updatePreview();
+
+        // Show popup alert with Download PDF option
+        showSuccessAlert(
+                generatedId,
+                selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName(),
+                estimatedReturn.format(DISPLAY_FMT)
+        );
 
         showSuccess(String.format(
                 "Pass slip #%d issued for %s %s. Estimated return by %s.",
@@ -517,45 +542,168 @@ public class PassSlipIssuanceController implements Initializable {
             return;
         }
 
+        // Build the default filename: EmployeeName-D(YYYY-MM-DD)-PassSlip#
+        String dateStr    = capturedTimeOut.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String empName    = selectedEmployee.getFirstName() + selectedEmployee.getLastName();
+        String safeName   = empName.replaceAll("[^a-zA-Z0-9]", ""); // strip spaces/special chars
+        String defaultFileName = safeName + "-" + dateStr + "-PassSlip" + lastIssuedPassSlipId;
+
+        // File save dialog — same pattern as ReportsAnalyticsController
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Pass Slip");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf")
+        );
+        fileChooser.setInitialFileName(defaultFileName + ".pdf");
+
+        File file = fileChooser.showSaveDialog(downloadPdfButton.getScene().getWindow());
+        if (file == null) return; // user cancelled
+
         try {
-            // Ensure output directory exists
-            Files.createDirectories(Paths.get(OUTPUT_DIR));
+            // --- Render previewPanel off-screen at fixed A4 dimensions ---
+            // A4 at 96 DPI = 794 x 1123 px
+            final double A4_WIDTH  = 794;
+            final double A4_HEIGHT = 1123;
 
-            String fileName = "pass_slip_" + lastIssuedPassSlipId + ".png";
-            String fullPath = OUTPUT_DIR + File.separator + fileName;
+            // Force layout pass at A4 width before snapshotting
+            previewPanel.setMinWidth(A4_WIDTH);
+            previewPanel.setMaxWidth(A4_WIDTH);
+            previewPanel.setPrefWidth(A4_WIDTH);
+            previewPanel.applyCss();
+            previewPanel.layout();
 
-            // Temporarily hide the Download button before snapshot so it
-            // doesn't appear in the saved image
-            downloadPdfButton.setVisible(false);
-
-            // Snapshot the preview panel at its current rendered size
+            // Snapshot at the fixed size
             WritableImage fxImage = previewPanel.snapshot(null, null);
 
-            // Restore button visibility
-            downloadPdfButton.setVisible(true);
+            // Restore responsive sizing
+            previewPanel.setMinWidth(-1);
+            previewPanel.setMaxWidth(-1);
+            previewPanel.setPrefWidth(-1);
 
-            // Convert JavaFX image to AWT BufferedImage
+            // Convert to AWT BufferedImage
             BufferedImage awtImage = SwingFXUtils.fromFXImage(fxImage, null);
 
-            // Save to disk as PNG
-            File outputFile = new File(fullPath);
-            ImageIO.write(awtImage, "PNG", outputFile);
+// Place snapshot on a white A4 canvas — natural height, not stretched
+            int snapW = awtImage.getWidth();
+            int snapH = awtImage.getHeight();
+            int canvasH = Math.max(snapH, (int) A4_HEIGHT);
+
+            BufferedImage a4Image = new BufferedImage((int) A4_WIDTH, canvasH,
+                    BufferedImage.TYPE_INT_RGB);
+            java.awt.Graphics2D g2d = a4Image.createGraphics();
+            g2d.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
+                    java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2d.setColor(java.awt.Color.WHITE);
+            g2d.fillRect(0, 0, (int) A4_WIDTH, canvasH);
+            g2d.drawImage(awtImage, 0, 0, (int) A4_WIDTH, snapH, null);
+            g2d.dispose();
+            // Write as PDF with the image embedded on an A4 page
+            writeImageAsPdf(a4Image, file);
 
             // Store file path in DB
-            passSlipRepo.updateFilePath(lastIssuedPassSlipId, fullPath);
+            passSlipRepo.updateFilePath(lastIssuedPassSlipId, file.getAbsolutePath());
 
-            // Auto-open with system default viewer
-            if (Desktop.isDesktopSupported() && outputFile.exists()) {
-                Desktop.getDesktop().open(outputFile);
+            // Auto-open
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(file);
             }
 
-            showSuccess("Saved to: " + fullPath);
+            showSuccess("Saved: " + file.getName());
 
         } catch (Exception e) {
-            downloadPdfButton.setVisible(true); // ensure button returns if error
-            showError("Failed to save pass slip image: " + e.getMessage());
+            showError("Failed to save: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Embeds a BufferedImage into a minimal valid PDF file at A4 page size.
+     * Uses raw PDF syntax — no external library needed.
+     * The image is encoded as raw RGB bytes inside a PDF XObject stream.
+     */
+    private void writeImageAsPdf(BufferedImage image, File outputFile) throws IOException {
+
+        int imgW = image.getWidth();
+        int imgH = image.getHeight();
+
+        // Extract raw RGB bytes from the image
+        ByteArrayOutputStream rgbStream = new ByteArrayOutputStream();
+        for (int y = 0; y < imgH; y++) {
+            for (int x = 0; x < imgW; x++) {
+                int rgb = image.getRGB(x, y);
+                rgbStream.write((rgb >> 16) & 0xFF); // R
+                rgbStream.write((rgb >> 8)  & 0xFF); // G
+                rgbStream.write(rgb         & 0xFF); // B
+            }
+        }
+        byte[] imgBytes = rgbStream.toByteArray();
+
+        // A4 in PDF points: 595 x 842 pt (72 pt/inch)
+        String mediaBox = "0 0 595 842";
+
+        // Image XObject stream header
+        String imgDict = "<< /Type /XObject /Subtype /Image"
+                + " /Width " + imgW
+                + " /Height " + imgH
+                + " /ColorSpace /DeviceRGB"
+                + " /BitsPerComponent 8"
+                + " /Length " + imgBytes.length
+                + " >>";
+
+        // Page content: draw the image scaled to fill the A4 page
+        // PDF coordinate origin is bottom-left; cm operator: x y w h
+        String pageContent = "q 595 0 0 842 0 0 cm /Im1 Do Q";
+        byte[] contentBytes = pageContent.getBytes(StandardCharsets.US_ASCII);
+
+        // Build PDF object list
+        // 1: Catalog, 2: Pages, 3: Page, 4: Content stream, 5: Font, 6: Image XObject
+        ByteArrayOutputStream pdf = new ByteArrayOutputStream();
+        pdf.write("%PDF-1.4\n".getBytes(StandardCharsets.US_ASCII));
+
+        List<Integer> offsets = new ArrayList<>();
+
+        // Object 1 — Catalog
+        offsets.add(pdf.size());
+        pdf.write("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n"
+                .getBytes(StandardCharsets.US_ASCII));
+
+        // Object 2 — Pages
+        offsets.add(pdf.size());
+        pdf.write("2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n"
+                .getBytes(StandardCharsets.US_ASCII));
+
+        // Object 3 — Page
+        offsets.add(pdf.size());
+        pdf.write(("3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [" + mediaBox + "]"
+                + " /Contents 4 0 R /Resources << /XObject << /Im1 5 0 R >> >> >>\nendobj\n")
+                .getBytes(StandardCharsets.US_ASCII));
+
+        // Object 4 — Page content stream
+        offsets.add(pdf.size());
+        String contentHeader = "4 0 obj\n<< /Length " + contentBytes.length + " >>\nstream\n";
+        pdf.write(contentHeader.getBytes(StandardCharsets.US_ASCII));
+        pdf.write(contentBytes);
+        pdf.write("\nendstream\nendobj\n".getBytes(StandardCharsets.US_ASCII));
+
+        // Object 5 — Image XObject (raw RGB)
+        offsets.add(pdf.size());
+        pdf.write(("5 0 obj\n" + imgDict + "\nstream\n").getBytes(StandardCharsets.US_ASCII));
+        pdf.write(imgBytes);
+        pdf.write("\nendstream\nendobj\n".getBytes(StandardCharsets.US_ASCII));
+
+        // Cross-reference table
+        int xrefStart = pdf.size();
+        pdf.write(("xref\n0 " + (offsets.size() + 1) + "\n").getBytes(StandardCharsets.US_ASCII));
+        pdf.write("0000000000 65535 f \n".getBytes(StandardCharsets.US_ASCII));
+        for (int offset : offsets) {
+            pdf.write(String.format("%010d 00000 n \n", offset)
+                    .getBytes(StandardCharsets.US_ASCII));
+        }
+        pdf.write(("trailer\n<< /Size " + (offsets.size() + 1) + " /Root 1 0 R >>\n"
+                + "startxref\n" + xrefStart + "\n%%EOF")
+                .getBytes(StandardCharsets.US_ASCII));
+
+        Files.write(outputFile.toPath(), pdf.toByteArray());
     }
 
 
