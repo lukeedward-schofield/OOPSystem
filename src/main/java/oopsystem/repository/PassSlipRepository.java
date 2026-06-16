@@ -29,27 +29,25 @@ public class PassSlipRepository {
     public int issuePassSlip(PassSlip slip, int issuedByUserId) {
 
         String slipSql = """
-                INSERT INTO pass_slip (
-                    employee_id,
-                    issued_by,
-                    reason,
-                    destination,
-                    time_out,
-                    estimated_duration,
-                    status
-                )
-                VALUES (?, ?, ?, ?, NOW(), ?, 'OUT')
-                """;
+            INSERT INTO pass_slip (
+                employee_id,
+                issued_by,
+                reason,
+                destination,
+                time_out,
+                estimated_duration,
+                status
+            )
+            VALUES (?, ?, ?, ?, NOW(), ?, 'OUT')
+            """;
 
         String logSql = """
-                INSERT INTO activity_logs (user_id, action, log_in_details)
-                VALUES (?, ?, ?)
-                """;
+            INSERT INTO activity_logs (user_id, action, log_in_details)
+            VALUES (?, ?, ?)
+            """;
 
-        Connection conn = null;
-
-        try {
-            conn = Database.getConnection();
+        // Wrapping Connection in try-with-resources guarantees it closes cleanly under all paths
+        try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
 
             // 1. Insert pass slip
@@ -61,7 +59,7 @@ public class PassSlipRepository {
                 stmt.setString(3, slip.getReason());
 
                 if (slip.getDestination() == null || slip.getDestination().isBlank()) {
-                    stmt.setNull(4, Types.VARCHAR);
+                    stmt.setNull(4, java.sql.Types.VARCHAR);
                 } else {
                     stmt.setString(4, slip.getDestination());
                 }
@@ -99,18 +97,14 @@ public class PassSlipRepository {
         } catch (SQLException e) {
             System.err.println("Error issuing pass slip: " + e.getMessage());
             e.printStackTrace();
-            if (conn != null) {
-                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            }
-        } finally {
-            if (conn != null) {
-                try { conn.setAutoCommit(true); conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
-            }
+
+            // Note: The outer try-with-resources automatically closes the connection here.
+            // If you want a driver level workaround to stop named statements entirely,
+            // add '?prepareThreshold=0' to your DB connection string url.
         }
 
         return -1;
     }
-
     // =========================================================================
     // CHECK FOR OPEN PASS SLIP
     // =========================================================================
