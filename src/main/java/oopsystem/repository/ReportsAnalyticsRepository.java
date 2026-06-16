@@ -36,7 +36,7 @@ public class ReportsAnalyticsRepository {
      * plus three grace minutes. Reports use the same rule so every module shows
      * the same overdue/compliance result.
      */
-    private static final int GRACE_PERIOD_MINUTES = 3;
+    private static final int GRACE_PERIOD_MINUTES = 0;
 
     /**
      * Gets the earliest and latest available pass slip dates from the database.
