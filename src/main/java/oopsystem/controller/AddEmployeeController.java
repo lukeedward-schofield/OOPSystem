@@ -80,6 +80,17 @@ public class AddEmployeeController {
                     )
             );
 
+            showAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Employee Added",
+                    "Employee Successfully Added",
+                    String.format(
+                            "Employee %s %s has been added successfully.",
+                            employee.getFirstName(),
+                            employee.getLastName()
+                    )
+            );
+
             SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
             System.out.println("Employee added");
             clearForm();
