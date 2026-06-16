@@ -22,7 +22,7 @@ public class PassSlipRepository {
      *   estimated_duration  — minutes entered by staff at issuance
      *   status              — pass_slip_status enum, starts as 'OUT'
      *   time_out            — set to NOW() by the DB server
-     *   time_in / duration  — NULL until the employee returns
+     *   time_in / actual_duration  — NULL until the employee returns
      *
      * Returns the generated pass_slip_ID, or -1 on failure.
      */
@@ -134,6 +134,7 @@ public class PassSlipRepository {
 
         return -1;
     }
+
     // =========================================================================
     // CHECK FOR OPEN PASS SLIP
     // =========================================================================
@@ -183,9 +184,9 @@ public class PassSlipRepository {
         String sql = """
                 UPDATE pass_slip
                 SET
-                    time_in  = ?,
-                    duration = CAST(EXTRACT(EPOCH FROM (? - time_out)) / 60 AS INT),
-                    status   = 'IN'
+                    time_in         = ?,
+                    actual_duration = CAST(EXTRACT(EPOCH FROM (? - time_out)) / 60 AS INT),
+                    status          = 'IN'
                 WHERE pass_slip_ID = ?
                   AND time_in IS NULL
                 """;
@@ -303,6 +304,11 @@ public class PassSlipRepository {
     // DASHBOARD QUERIES
     // =========================================================================
 
+    /**
+     * Returns the most recently issued pass slip, regardless of date.
+     * Used by the Dashboard "Recent Pass Slip" card so it always shows
+     * something as long as at least one pass slip exists in the table.
+     */
     public PassSlip getLatestTodayPassSlip() {
         String sql = """
         SELECT ps.pass_slip_ID,
@@ -314,12 +320,11 @@ public class PassSlipRepository {
                ps.time_in,
                ps.time_out,
                ps.estimated_duration,
-               ps.duration,
+               ps.actual_duration,
                ps.status,
                e.first_name || ' ' || e.last_name AS employee_name
         FROM pass_slip ps
         INNER JOIN employee e ON ps.employee_id = e.employee_id
-        WHERE DATE(ps.time_out) = CURRENT_DATE
         ORDER BY ps.time_out DESC
         LIMIT 1
         """;
@@ -337,10 +342,10 @@ public class PassSlipRepository {
                 int rawEstDuration  = rs.getInt("estimated_duration");
                 Integer estDuration = rs.wasNull() ? null : rawEstDuration;
 
-                int rawDuration     = rs.getInt("duration");
-                Integer duration    = rs.wasNull() ? null : rawDuration;
+                int rawDuration  = rs.getInt("actual_duration");
+                Integer duration = rs.wasNull() ? null : rawDuration;
 
-                String statusStr    = rs.getString("status");
+                String statusStr = rs.getString("status");
 
                 // Calls the matching 11-argument database constructor perfectly
                 PassSlip slip = new PassSlip(
@@ -409,7 +414,7 @@ public class PassSlipRepository {
         int rawEstDuration  = rs.getInt("estimated_duration");
         Integer estDuration = rs.wasNull() ? null : rawEstDuration;
 
-        int rawDuration  = rs.getInt("duration");
+        int rawDuration  = rs.getInt("actual_duration");
         Integer duration = rs.wasNull() ? null : rawDuration;
 
         // status is a PostgreSQL enum — read as String, never as boolean
