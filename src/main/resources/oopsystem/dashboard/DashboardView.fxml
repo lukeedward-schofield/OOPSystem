@@ -28,8 +28,8 @@
                         <Label fx:id="statPending" text="0" styleClass="stat-value-warn"/>
                         <Label fx:id="statPendingNote" text="-" styleClass="stat-note-warn"/>
                     </VBox>
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
-                        <Label text="TOTAL PASS SLIPS TODAY" styleClass="stat-label"/>
+                    <VBox styleClass="third-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <Label text="TOTAL PASS SLIPS TODAY" styleClass="stat-lebel"/>
                         <Label fx:id="statTotal" text="0" styleClass="stat-value"/>
                         <Label fx:id="statTotalNote" text="-" styleClass="stat-note"/>
                     </VBox>
