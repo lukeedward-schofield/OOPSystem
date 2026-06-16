@@ -1,26 +1,43 @@
 package oopsystem.controller;
 
-import oopsystem.repository.ActivityLogRepository;
-import oopsystem.util.SessionManager;
-import org.mindrot.jbcrypt.BCrypt;
-
-import oopsystem.model.User;
-import oopsystem.repository.UserRepository;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.Pagination;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import oopsystem.model.ActivityLog;
+import oopsystem.model.User;
+import oopsystem.repository.ActivityLogRepository;
+import oopsystem.repository.UserRepository;
 import oopsystem.util.SceneNavigator;
+import oopsystem.util.SessionManager;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class ProfileController implements Initializable {
+
+    private static final int USERS_PER_PAGE = 8;
+    private static final int ACTIVITY_LOGS_PER_PAGE = 10;
+    private static final DateTimeFormatter LOG_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH);
 
     @FXML private TextField firstName;
     @FXML private TextField lastName;
@@ -28,71 +45,230 @@ public class ProfileController implements Initializable {
     @FXML private PasswordField currentPassword;
     @FXML private PasswordField newPassword;
     @FXML private PasswordField confirmNewPassword;
+    @FXML private Label profileStatusLabel;
+    @FXML private TabPane profileTabPane;
 
-    // --- YOUR TABLES AND COLUMNS INJECTIONS FROM FXML ---
+    @FXML private TextField userSearchField;
+    @FXML private Button clearUserFilterBtn;
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, String> usernameColumn;
     @FXML private TableColumn<User, String> departmentColumn;
-    @FXML private TableColumn<User, String> roleColumn;// Void because it holds custom buttons, not data text
+    @FXML private TableColumn<User, String> roleColumn;
+    @FXML private Pagination usersPagination;
+    @FXML private Label usersPageInfoLabel;
 
-    // The data container linked directly to your UI table view
-    private final ObservableList<User> userList = FXCollections.observableArrayList();
+    @FXML private TextField activitySearchField;
+    @FXML private Button clearActivityFilterBtn;
+    @FXML private TableView<ActivityLog> activityLogsTable;
+    @FXML private TableColumn<ActivityLog, Number> activityLogIdColumn;
+    @FXML private TableColumn<ActivityLog, String> activityUsernameColumn;
+    @FXML private TableColumn<ActivityLog, String> activityActionColumn;
+    @FXML private TableColumn<ActivityLog, String> activityDetailsColumn;
+    @FXML private TableColumn<ActivityLog, String> activityCreatedAtColumn;
+    @FXML private Pagination activityLogsPagination;
+    @FXML private Label activityPageInfoLabel;
+
+    private final ObservableList<User> allUsers = FXCollections.observableArrayList();
+    private final ObservableList<User> filteredUsers = FXCollections.observableArrayList();
+    private final ObservableList<ActivityLog> allActivityLogs = FXCollections.observableArrayList();
+    private final ObservableList<ActivityLog> filteredActivityLogs = FXCollections.observableArrayList();
+
     private final UserRepository userRepository = new UserRepository();
+    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        setupUsersTable();
+        setupActivityLogsTable();
+        setupFiltering();
+        setupPagination();
 
-        // 1. LINK TEXT DATA: Match table text columns to your User class property names
+        populateProfileFields();
+        loadUsersFromDatabase();
+        loadActivityLogsFromDatabase();
+    }
+
+    private void setupUsersTable() {
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         departmentColumn.setCellValueFactory(new PropertyValueFactory<>("department"));
         roleColumn.setCellValueFactory(new PropertyValueFactory<>("role"));
-
-        // 2. CONNECT DATA CONTAINER: Point your table view to your live list wrapper
-        usersTable.setItems(userList);
-
-        // 3. ADD BUTTONS DYNAMICALLY: Build the edit/delete layout rows
-
-        // 4. POPULATE DATA: Run database retrieval to fill rows
-        loadUsersFromDatabase();
-
-        populateProfileFields();
+        usersTable.setItems(FXCollections.observableArrayList());
     }
-    /**
-     * =========================================================================
-     * BACKGROUND PROCESS: POPULATING THE DATA FROM THE REPOSITORY LAYER
-     * =========================================================================
-     */
+
+    private void setupActivityLogsTable() {
+        activityLogIdColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getLogId()));
+        activityUsernameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(nullToDash(cellData.getValue().getUsername())));
+        activityActionColumn.setCellValueFactory(cellData -> new SimpleStringProperty(nullToDash(cellData.getValue().getAction())));
+        activityDetailsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(nullToDash(cellData.getValue().getLogInDetails())));
+        activityCreatedAtColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
+                cellData.getValue().getCreatedAt() == null
+                        ? "-"
+                        : cellData.getValue().getCreatedAt().format(LOG_DATE_FORMATTER)
+        ));
+        activityLogsTable.setItems(FXCollections.observableArrayList());
+    }
+
+    private void setupFiltering() {
+        userSearchField.textProperty().addListener((observable, oldValue, newValue) -> applyUserFilter());
+        activitySearchField.textProperty().addListener((observable, oldValue, newValue) -> applyActivityFilter());
+    }
+
+    private void setupPagination() {
+        usersPagination.setPageFactory(pageIndex -> {
+            updateUsersTablePage(pageIndex);
+            return emptyPaginationContent();
+        });
+
+        activityLogsPagination.setPageFactory(pageIndex -> {
+            updateActivityLogsTablePage(pageIndex);
+            return emptyPaginationContent();
+        });
+    }
+
+    private Pane emptyPaginationContent() {
+        Pane pane = new Pane();
+        pane.setMinHeight(0);
+        pane.setPrefHeight(0);
+        pane.setMaxHeight(0);
+        return pane;
+    }
+
     private void loadUsersFromDatabase() {
-        // Run database calls in a background Task thread so your user interface stays responsive
         Task<ObservableList<User>> fetchTask = new Task<>() {
             @Override
             protected ObservableList<User> call() throws Exception {
-                // Returns an ObservableList populated via the INNER JOIN query from your Repository class
                 return userRepository.findAllUsersWithEmployeeDetails();
             }
         };
 
-        // When the database fetching completes, push the final results into your live UI list tracking wrapper
         fetchTask.setOnSucceeded(event -> {
-            userList.setAll(fetchTask.getValue());
-
-            for (User user : userList) {
-                System.out.println(
-                        user.getUsername()
-                                + " | "
-                                + user.getDepartment()
-                                + " | "
-                                + user.getRole()
-                );
-            }
+            allUsers.setAll(fetchTask.getValue());
+            applyUserFilter();
+            setStatus("User table loaded successfully. " + allUsers.size() + " user record(s) found.");
         });
-        fetchTask.setOnFailed(event -> fetchTask.getException().printStackTrace());
+
+        fetchTask.setOnFailed(event -> {
+            fetchTask.getException().printStackTrace();
+            setStatus("Failed to load user records.");
+            showAlert(Alert.AlertType.ERROR, "Failed to load user records: " + fetchTask.getException().getMessage());
+        });
 
         Thread thread = new Thread(fetchTask);
-        thread.setDaemon(true); // Closes the background processing thread if the application window is terminated
+        thread.setDaemon(true);
         thread.start();
     }
 
+    private void loadActivityLogsFromDatabase() {
+        Task<ObservableList<ActivityLog>> fetchTask = new Task<>() {
+            @Override
+            protected ObservableList<ActivityLog> call() throws Exception {
+                return activityLogRepository.findAll();
+            }
+        };
+
+        fetchTask.setOnSucceeded(event -> {
+            allActivityLogs.setAll(fetchTask.getValue());
+            applyActivityFilter();
+        });
+
+        fetchTask.setOnFailed(event -> {
+            fetchTask.getException().printStackTrace();
+            setStatus("Failed to load activity logs.");
+            showAlert(Alert.AlertType.ERROR, "Failed to load activity logs: " + fetchTask.getException().getMessage());
+        });
+
+        Thread thread = new Thread(fetchTask);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private void applyUserFilter() {
+        String query = normalize(userSearchField.getText());
+        filteredUsers.setAll(allUsers.filtered(user -> {
+            if (query.isEmpty()) return true;
+            return contains(user.getUsername(), query)
+                    || contains(user.getFirstName(), query)
+                    || contains(user.getLastName(), query)
+                    || contains(user.getDepartment(), query)
+                    || contains(user.getRole(), query);
+        }));
+        refreshUsersPagination();
+    }
+
+    private void applyActivityFilter() {
+        String query = normalize(activitySearchField.getText());
+        filteredActivityLogs.setAll(allActivityLogs.filtered(log -> {
+            if (query.isEmpty()) return true;
+            String createdAt = log.getCreatedAt() == null ? "" : log.getCreatedAt().format(LOG_DATE_FORMATTER);
+            return contains(log.getUsername(), query)
+                    || contains(log.getAction(), query)
+                    || contains(log.getLogInDetails(), query)
+                    || contains(createdAt, query)
+                    || String.valueOf(log.getLogId()).contains(query)
+                    || String.valueOf(log.getUserId()).contains(query);
+        }));
+        refreshActivityPagination();
+    }
+
+    private void refreshUsersPagination() {
+        int pageCount = calculatePageCount(filteredUsers.size(), USERS_PER_PAGE);
+        usersPagination.setPageCount(pageCount);
+        usersPagination.setCurrentPageIndex(0);
+        updateUsersTablePage(0);
+    }
+
+    private void refreshActivityPagination() {
+        int pageCount = calculatePageCount(filteredActivityLogs.size(), ACTIVITY_LOGS_PER_PAGE);
+        activityLogsPagination.setPageCount(pageCount);
+        activityLogsPagination.setCurrentPageIndex(0);
+        updateActivityLogsTablePage(0);
+    }
+
+    private int calculatePageCount(int totalItems, int rowsPerPage) {
+        return Math.max(1, (int) Math.ceil(totalItems / (double) rowsPerPage));
+    }
+
+    private void updateUsersTablePage(int pageIndex) {
+        int fromIndex = pageIndex * USERS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + USERS_PER_PAGE, filteredUsers.size());
+
+        if (filteredUsers.isEmpty() || fromIndex >= filteredUsers.size()) {
+            usersTable.setItems(FXCollections.observableArrayList());
+            usersPageInfoLabel.setText("No user records found");
+            return;
+        }
+
+        usersTable.setItems(FXCollections.observableArrayList(filteredUsers.subList(fromIndex, toIndex)));
+        usersPageInfoLabel.setText("Showing " + (fromIndex + 1) + "-" + toIndex + " of " + filteredUsers.size() + " user(s)");
+    }
+
+    private void updateActivityLogsTablePage(int pageIndex) {
+        int fromIndex = pageIndex * ACTIVITY_LOGS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + ACTIVITY_LOGS_PER_PAGE, filteredActivityLogs.size());
+
+        if (filteredActivityLogs.isEmpty() || fromIndex >= filteredActivityLogs.size()) {
+            activityLogsTable.setItems(FXCollections.observableArrayList());
+            activityPageInfoLabel.setText("No activity logs found");
+            return;
+        }
+
+        activityLogsTable.setItems(FXCollections.observableArrayList(filteredActivityLogs.subList(fromIndex, toIndex)));
+        activityPageInfoLabel.setText("Showing " + (fromIndex + 1) + "-" + toIndex + " of " + filteredActivityLogs.size() + " log(s)");
+    }
+
+    @FXML
+    private void handleClearUserFilter() {
+        userSearchField.clear();
+        applyUserFilter();
+        setStatus("User filter cleared.");
+    }
+
+    @FXML
+    private void handleClearActivityFilter() {
+        activitySearchField.clear();
+        applyActivityFilter();
+        setStatus("Activity log filter cleared.");
+    }
 
     private void populateProfileFields() {
         User currentUser = SessionManager.getCurrentUser();
@@ -105,8 +281,6 @@ public class ProfileController implements Initializable {
 
     @FXML
     private void handleSaveProfile() {
-
-        System.out.println("change button clicked");
         User currentUser = SessionManager.getCurrentUser();
         if (currentUser == null) return;
 
@@ -117,7 +291,6 @@ public class ProfileController implements Initializable {
         String newPw = newPassword.getText();
         String confirmPw = confirmNewPassword.getText();
 
-        // --- Validation ---
         if (newFirstName.isBlank() || newLastName.isBlank() || newUsername.isBlank()) {
             showAlert(Alert.AlertType.WARNING, "First name, last name, and username cannot be empty.");
             return;
@@ -128,13 +301,11 @@ public class ProfileController implements Initializable {
             return;
         }
 
-        // Verify current password against stored hash
         if (!BCrypt.checkpw(currentPw, currentUser.getUserPassword())) {
             showAlert(Alert.AlertType.ERROR, "Current password is incorrect.");
             return;
         }
 
-        // Check if new username is taken by someone else
         try {
             if (userRepository.existsByUsernameExcluding(newUsername, currentUser.getUserId())) {
                 showAlert(Alert.AlertType.WARNING, "Username '" + newUsername + "' is already taken.");
@@ -146,10 +317,8 @@ public class ProfileController implements Initializable {
             return;
         }
 
-        // Determine final password — keep existing if no new password entered
         String finalHashedPassword;
         if (newPw.isBlank()) {
-            // No change to password — keep the current hash
             finalHashedPassword = currentUser.getUserPassword();
         } else {
             if (!newPw.equals(confirmPw)) {
@@ -159,7 +328,6 @@ public class ProfileController implements Initializable {
             finalHashedPassword = BCrypt.hashpw(newPw, BCrypt.gensalt());
         }
 
-        // --- Save ---
         try {
             boolean success = userRepository.updateCredentials(
                     currentUser.getUserId(),
@@ -170,17 +338,11 @@ public class ProfileController implements Initializable {
             );
 
             if (success) {
-                ActivityLogRepository logRepo = new ActivityLogRepository();
-
-                logRepo.log(
+                activityLogRepository.log(
                         "UPDATE_USER",
-                        String.format(
-                                "User account updated: %s",
-                                newUsername
-                        )
+                        String.format("User account updated: %s", newUsername)
                 );
 
-                // Update the session so the navbar/other screens reflect changes immediately
                 currentUser.setFirstName(newFirstName);
                 currentUser.setLastName(newLastName);
                 currentUser.setUsername(newUsername);
@@ -190,6 +352,9 @@ public class ProfileController implements Initializable {
                 newPassword.clear();
                 confirmNewPassword.clear();
 
+                loadUsersFromDatabase();
+                loadActivityLogsFromDatabase();
+                setStatus("Profile updated successfully.");
                 showAlert(Alert.AlertType.INFORMATION, "Profile updated successfully.");
             } else {
                 showAlert(Alert.AlertType.ERROR, "Failed to update profile. Please try again.");
@@ -214,18 +379,12 @@ public class ProfileController implements Initializable {
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    String username = currentUser.getUsername();
-                    ActivityLogRepository logRepo = new ActivityLogRepository();
+                    String activeUsername = currentUser.getUsername();
 
-                    logRepo.log(
+                    activityLogRepository.log(
                             "DELETE_OWN_ACCOUNT",
-                            "User deleted their own account: " + username
+                            "User deleted their own account: " + activeUsername
                     );
-
-                    userRepository.deleteUser(currentUser.getUserId());
-
-                    SessionManager.clearSession();
-
 
                     userRepository.deleteUser(currentUser.getUserId());
                     SessionManager.clearSession();
@@ -238,15 +397,33 @@ public class ProfileController implements Initializable {
         });
     }
 
+    @FXML
+    private void goToAddEmployee() {
+        SceneNavigator.switchTo("addUserView");
+    }
+
+    private boolean contains(String value, String query) {
+        return value != null && value.toLowerCase(Locale.ENGLISH).contains(query);
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ENGLISH);
+    }
+
+    private String nullToDash(String value) {
+        return value == null || value.isBlank() ? "-" : value;
+    }
+
+    private void setStatus(String message) {
+        if (profileStatusLabel != null) {
+            profileStatusLabel.setText(message == null ? "" : message);
+        }
+    }
+
     private void showAlert(Alert.AlertType type, String message) {
         Alert alert = new Alert(type);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    @FXML
-    private void goToAddEmployee(){
-        SceneNavigator.switchTo("addUserView");
     }
 }
