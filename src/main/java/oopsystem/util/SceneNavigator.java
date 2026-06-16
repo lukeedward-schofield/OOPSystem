@@ -26,15 +26,23 @@ public class SceneNavigator {
      * already using, including maximized/full-screen mode.
      */
     public static void switchTo(String fxmlName) {
+        currentPage = fxmlName;
         switchToInternal(fxmlName, false);
     }
-
     /**
      * Used after login. The login window starts small, but the main dashboard
      * should open maximized instead of staying at the login window size.
      */
     public static void switchToMaximized(String fxmlName) {
         switchToInternal(fxmlName, true);
+    }
+
+    private static String currentPage = "DashboardView"; // default
+
+
+
+    public static String getCurrentPage() {
+        return currentPage;
     }
 
     private static void switchToInternal(String fxmlName, boolean maximizeAfterLoad) {

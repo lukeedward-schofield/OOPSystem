@@ -21,8 +21,7 @@
 /* Active Menu */
 
 .active-menu{
-    -fx-background-color:#6d1111;
-    -fx-text-fill:white;
+    -fx-text-fill:black;
 }
 
 /* Titles */

@@ -18,7 +18,7 @@ public class EmployeeApplication extends Application {
                 EmployeeApplication.class.getResource("/oopsystem/login/LoginView.fxml")
         );
         Scene scene = new Scene(fxmlLoader.load(), 700, 500);
-        stage.setTitle("Hello!");
+        stage.setTitle("PassSLip Management System");
         stage.setScene(scene);
         stage.show();
         stage.setMaximized(true);

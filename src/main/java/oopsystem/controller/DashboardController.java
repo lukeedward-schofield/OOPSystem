@@ -26,6 +26,7 @@ public class DashboardController implements Initializable {
     @FXML private TableView<MovementLog> movementTable;
     @FXML private TableColumn<MovementLog, String> colEmpName, colDept, colReason, colTimeOut, colStatus, colAction;
     @FXML private Label movFooter;
+    @FXML private NavbarController navbarController;
 
     private final MovementLogRepository movementLogRepository = new MovementLogRepository();
     private final PassSlipRepository passSlipRepository = new PassSlipRepository();
@@ -33,6 +34,7 @@ public class DashboardController implements Initializable {
 
     @Override
     public void initialize(URL u, ResourceBundle r) {
+        navbarController.setActiveMenu("dashboard");
         movementTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         setupTableColumns();
         loadTodayMovements();

@@ -1,0 +1,155 @@
+/* ============================================================
+   PASS SLIP ISSUANCE — Stylesheet
+   ============================================================ */
+
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 13px;
+    -fx-background-color: #F5F5F5;
+}
+
+/* ── PAGE HEADER LABELS ─────────────────────────────────────── */
+.center > .vbox > .vbox > .label:first-child {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1A1A1A;
+    -fx-padding: 24 32 0 32;
+}
+
+.center > .vbox > .vbox > .label:last-child {
+    -fx-font-size: 12px;
+    -fx-text-fill: #777777;
+    -fx-padding: 4 32 16 32;
+}
+
+/* ── FORM CARD ──────────────────────────────────────────────── */
+.form-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);
+}
+
+/* ── AUTHORIZATION FORM TITLE ───────────────────────────────── */
+.Passslip {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #8B0000;
+}
+
+/* ── FIELD LABELS ───────────────────────────────────────────── */
+.form-card .label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #888888;
+    -fx-padding: 0 0 4 0;
+}
+
+/* ── TEXT FIELDS ────────────────────────────────────────────── */
+.form-card .text-field {
+    -fx-background-color: #FAFAFA;
+    -fx-border-color: #DDDDDD;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1A1A1A;
+    -fx-prompt-text-fill: #BBBBBB;
+}
+
+.form-card .text-field:focused {
+    -fx-border-color: #8B0000;
+    -fx-background-color: #FFFFFF;
+}
+
+#timeOutField {
+    -fx-background-color: #F9F0F0;
+    -fx-border-color: #D0A0A0;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: #8B0000;
+    -fx-font-weight: bold;
+    -fx-padding: 8 12;
+}
+
+/* ── FEEDBACK LABEL ─────────────────────────────────────────── */
+#feedbackLabel {
+    -fx-font-size: 12px;
+    -fx-text-fill: #CC0000;
+    -fx-padding: 2 0;
+}
+
+/* ── GENERATE BUTTON ────────────────────────────────────────── */
+#generateButton {
+    -fx-background-color: #8B0000;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
+}
+
+#generateButton:hover  { -fx-background-color: #9D0000; }
+#generateButton:pressed { -fx-background-color: #700000; }
+
+/* ── PREVIEW CARD ───────────────────────────────────────────── */
+.preview-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8px;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);
+}
+
+/* ── SLIP BANNER ────────────────────────────────────────────── */
+.slip-banner {
+    -fx-background-color: #8B0000;
+    -fx-background-radius: 8px 8px 0 0;
+    -fx-padding: 16 20;
+    -fx-spacing: 4;
+}
+
+.slip-banner-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFFFFF;
+}
+
+.slip-banner-subtitle {
+    -fx-font-size: 9px;
+    -fx-text-fill: #FFD0D0;
+}
+
+/* ── SLIP BANNER BODY LABELS ────────────────────────────────── */
+.slip-banner .label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 12px;
+}
+
+.slip-banner .hbox .label:first-child {
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD0D0;
+    -fx-font-size: 11px;
+}
+
+/* ── DOWNLOAD BUTTON ────────────────────────────────────────── */
+#downloadPdfButton {
+    -fx-background-color: #1565C0;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+}
+
+#downloadPdfButton:hover { -fx-background-color: #1976D2; }
+
+#downloadPdfButton:disabled {
+    -fx-background-color: #90CAF9;
+    -fx-text-fill: #FFFFFF;
+}

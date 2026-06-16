@@ -2,51 +2,86 @@ package oopsystem.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import oopsystem.repository.ActivityLogRepository;
 import oopsystem.util.SceneNavigator;
-import oopsystem.util.SessionManager;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class NavbarController implements Initializable {
 
-    @FXML public Button dashboardMenu;
-    @FXML public Button passSlipMenu;
-    @FXML public Button movementLogsMenu;
-    @FXML public Button employeeDirectoryMenu;
-    @FXML public Button reportsMenu;
-    @FXML public Button profileMenu;
-    @FXML public Button logoutBtn;
+    @FXML private Button dashboardMenu;
+    @FXML private Button passSlipMenu;
+    @FXML private Button movementLogsMenu;
+    @FXML private Button employeeDirectoryMenu;
+    @FXML private Button reportsMenu;
+    @FXML private Button profileMenu;
+    @FXML private Button logoutBtn;
 
-    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
+    private List<Button> menuButtons;
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        dashboardMenu.setOnAction(e -> SceneNavigator.switchTo("dashboard/DashboardView"));
-        passSlipMenu.setOnAction(e -> SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView"));
-        movementLogsMenu.setOnAction(e -> SceneNavigator.switchTo("movementLogs/MovementLogsView"));
-        employeeDirectoryMenu.setOnAction(e -> SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView"));
-        reportsMenu.setOnAction(e -> SceneNavigator.switchTo("reports/ReportsView"));
-        profileMenu.setOnAction(e -> SceneNavigator.switchTo("profile/ProfileView"));
+    public void initialize(URL location, ResourceBundle resources) {
+        menuButtons = Arrays.asList(
+                dashboardMenu, passSlipMenu, movementLogsMenu,
+                employeeDirectoryMenu, reportsMenu, profileMenu
+        );
 
-        logoutBtn.setOnAction(e -> handleLogout());
+        dashboardMenu.setOnAction(e -> handleNavigation("DashboardView"));
+        passSlipMenu.setOnAction(e -> handleNavigation("PassSlipIssuanceView"));
+        movementLogsMenu.setOnAction(e -> handleNavigation("MovementLogsView"));
+        employeeDirectoryMenu.setOnAction(e -> handleNavigation("EmployeeDirectoryView"));
+        reportsMenu.setOnAction(e -> handleNavigation("ReportsView"));
+        profileMenu.setOnAction(e -> handleNavigation("SettingsView"));
+        logoutBtn.setOnAction(e -> SceneNavigator.switchTo("LoginView"));
+
+        highlightCurrentPage();
     }
 
-    private void handleLogout() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Logout");
-        confirm.setHeaderText("Are you sure you want to logout?");
+    private void handleNavigation(String viewName) {
+        SceneNavigator.switchTo(viewName);
 
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                activityLogRepository.log("LOGOUT", "User " + SessionManager.getLoggedInUsername() + " logged out");
-                SessionManager.clearSession();
-                SceneNavigator.switchTo("login/LoginView");
-            }
-        });
+    }
+
+    private void highlightCurrentPage() {
+        String page = SceneNavigator.getCurrentPage();
+        Button target = switch (page) {
+            case "DashboardView"         -> dashboardMenu;
+            case "PassSlipIssuanceView"  -> passSlipMenu;
+            case "MovementLogsView"      -> movementLogsMenu;
+            case "EmployeeDirectoryView" -> employeeDirectoryMenu;
+            case "ReportsView"           -> reportsMenu;
+            case "SettingsView"          -> profileMenu;
+            default                      -> dashboardMenu;
+        };
+
+        for (Button btn : menuButtons) {
+            if (btn != null) btn.getStyleClass().remove("active-menu");
+        }
+        if (target != null && !target.getStyleClass().contains("active-menu")) {
+            target.getStyleClass().add("active-menu");
+        }
+    }
+
+
+    public void setActiveMenu(String menuKey) {
+        Button target = switch (menuKey) {
+            case "dashboard"         -> dashboardMenu;
+            case "passSlip"          -> passSlipMenu;
+            case "movementLogs"      -> movementLogsMenu;
+            case "employeeDirectory" -> employeeDirectoryMenu;
+            case "reports"           -> reportsMenu;
+            case "profile"           -> profileMenu;
+            default                  -> null;
+        };
+
+        for (Button btn : menuButtons) {
+            if (btn != null) btn.getStyleClass().remove("active-menu");
+        }
+        if (target != null && !target.getStyleClass().contains("active-menu")) {
+            target.getStyleClass().add("active-menu");
+        }
     }
 }
