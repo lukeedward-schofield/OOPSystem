@@ -1,20 +1,30 @@
 package oopsystem.controller;
 
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.VBox;
 import oopsystem.model.Employee;
 import oopsystem.model.PassSlip;
 import oopsystem.repository.PassSlipRepository;
 import oopsystem.util.SceneNavigator;
 import oopsystem.util.SessionManager;
 
+import javax.imageio.ImageIO;
+import java.awt.Desktop;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -59,6 +69,9 @@ public class PassSlipIssuanceController implements Initializable {
     @FXML private Button    downloadPdfButton;
     @FXML private Label     feedbackLabel;
 
+    // Preview panel — the whole VBox is snapshotted for PDF
+    @FXML private VBox  previewPanel;
+    @FXML private Label previewSlipNo;
     @FXML private Label previewEmployee;
     @FXML private Label previewDepartment;
     @FXML private Label previewRole;
@@ -68,19 +81,27 @@ public class PassSlipIssuanceController implements Initializable {
     @FXML private Label previewDuration;
     @FXML private Label previewEstReturn;
     @FXML private Label previewIssuedBy;
+    @FXML private Label previewGeneratedAt;
+
 
     // =========================================================================
     // STATE
     // =========================================================================
-
     private final PassSlipRepository passSlipRepo = new PassSlipRepository();
-    private Employee selectedEmployee = null;
-    private int lastIssuedPassSlipId = -1;
-    private boolean isSelectingFromDropdown = false;
+
+    private Employee      selectedEmployee        = null;
+    private int           lastIssuedPassSlipId    = -1;
+    private boolean       isSelectingFromDropdown = false;
+    private LocalDateTime capturedTimeOut;
 
     private static final DateTimeFormatter DISPLAY_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private LocalDateTime capturedTimeOut;
+
+    private static final String OUTPUT_DIR =
+            System.getProperty("user.home") + File.separator
+                    + "OOPSystem" + File.separator + "passslips";
+
+
     // =========================================================================
     // INITIALIZE
     // =========================================================================
@@ -88,18 +109,21 @@ public class PassSlipIssuanceController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         capturedTimeOut = LocalDateTime.now();
-        timeOutField.setText(LocalDateTime.now().format(DISPLAY_FMT));
+        timeOutField.setText(capturedTimeOut.format(DISPLAY_FMT));
         timeOutField.setEditable(false);
-
 
         downloadPdfButton.setDisable(true);
         clearFeedback();
+
         setupLiveSearch();
         setupDurationField();
-        reasonField.textProperty().addListener((obs, oldVal, newVal) -> updatePreview());
-        destinationField.textProperty().addListener((obs, oldVal, newVal) -> updatePreview());
+
+        reasonField.textProperty().addListener((obs, o, n) -> updatePreview());
+        destinationField.textProperty().addListener((obs, o, n) -> updatePreview());
+
         updatePreview();
     }
+
 
     // =========================================================================
     // LIVE EMPLOYEE SEARCH Function
@@ -173,8 +197,19 @@ public class PassSlipIssuanceController implements Initializable {
         });
     }
 
+    // =========================================================================
+    // PREVIEW UPDATE
+    // =========================================================================
+
     private void updatePreview() {
-        // Employee info — only if selected from dropdown
+
+        // Slip number — only shown after generation
+        if (lastIssuedPassSlipId != -1) {
+            previewSlipNo.setText("No. " + lastIssuedPassSlipId);
+        } else {
+            previewSlipNo.setText("No. —");
+        }
+
         if (selectedEmployee != null) {
             previewEmployee.setText(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName());
             previewDepartment.setText(selectedEmployee.getDepartment());
@@ -185,26 +220,23 @@ public class PassSlipIssuanceController implements Initializable {
             previewRole.setText("—");
         }
 
-        // Reason
         String reason = reasonField.getText().trim();
         previewReason.setText(reason.isBlank() ? "—" : reason);
 
-        // Destination
         String dest = destinationField.getText().trim();
         previewDestination.setText(dest.isBlank() ? "—" : dest);
 
-        // Time out
         previewTimeOut.setText(capturedTimeOut.format(DISPLAY_FMT));
 
-        // Duration + estimated return
         String durationText = durationField.getText().trim();
         if (!durationText.isBlank()) {
             try {
                 int minutes = Integer.parseInt(durationText);
                 if (minutes > 0 && minutes <= 480) {
                     previewDuration.setText(minutes + " min");
-                    LocalDateTime estReturn = capturedTimeOut.plusMinutes(minutes);
-                    previewEstReturn.setText(estReturn.format(DISPLAY_FMT));
+                    previewEstReturn.setText(
+                            capturedTimeOut.plusMinutes(minutes).format(DISPLAY_FMT)
+                    );
                 } else {
                     previewDuration.setText("—");
                     previewEstReturn.setText("—");
@@ -218,25 +250,69 @@ public class PassSlipIssuanceController implements Initializable {
             previewEstReturn.setText("—");
         }
 
-        // Issued by — from session
         String issuedBy = SessionManager.getLoggedInFullName();
         previewIssuedBy.setText(issuedBy != null ? issuedBy : "—");
+
+        previewGeneratedAt.setText(LocalDateTime.now().format(DISPLAY_FMT));
     }
+
+//    private void updatePreview() {
+//        // Employee info — only if selected from dropdown
+//        if (selectedEmployee != null) {
+//            previewEmployee.setText(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName());
+//            previewDepartment.setText(selectedEmployee.getDepartment());
+//            previewRole.setText(selectedEmployee.getRole());
+//        } else {
+//            previewEmployee.setText("—");
+//            previewDepartment.setText("—");
+//            previewRole.setText("—");
+//        }
+//
+//        // Reason
+//        String reason = reasonField.getText().trim();
+//        previewReason.setText(reason.isBlank() ? "—" : reason);
+//
+//        // Destination
+//        String dest = destinationField.getText().trim();
+//        previewDestination.setText(dest.isBlank() ? "—" : dest);
+//
+//        // Time out
+//        previewTimeOut.setText(capturedTimeOut.format(DISPLAY_FMT));
+//
+//        // Duration + estimated return
+//        String durationText = durationField.getText().trim();
+//        if (!durationText.isBlank()) {
+//            try {
+//                int minutes = Integer.parseInt(durationText);
+//                if (minutes > 0 && minutes <= 480) {
+//                    previewDuration.setText(minutes + " min");
+//                    LocalDateTime estReturn = capturedTimeOut.plusMinutes(minutes);
+//                    previewEstReturn.setText(estReturn.format(DISPLAY_FMT));
+//                } else {
+//                    previewDuration.setText("—");
+//                    previewEstReturn.setText("—");
+//                }
+//            } catch (NumberFormatException e) {
+//                previewDuration.setText("—");
+//                previewEstReturn.setText("—");
+//            }
+//        } else {
+//            previewDuration.setText("—");
+//            previewEstReturn.setText("—");
+//        }
+//
+//        // Issued by — from session
+//        String issuedBy = SessionManager.getLoggedInFullName();
+//        previewIssuedBy.setText(issuedBy != null ? issuedBy : "—");
+//    }
 
     // =========================================================================
     // DURATION FIELD SETUP
     // =========================================================================
 
-    /**
-     * Two behaviours:
-     * 1. Strips any non-digit character immediately as the user types.
-     * 2. Shows a live gray preview of the estimated return time
-     *    (time_out + entered minutes) so staff can confirm before submitting.
-     */
     private void setupDurationField() {
         durationField.textProperty().addListener((obs, oldVal, newVal) -> {
 
-            // Strip non-digits (handles paste, keyboard, anything)
             if (newVal != null && !newVal.matches("\\d*")) {
                 durationField.setText(newVal.replaceAll("[^\\d]", ""));
                 return;
@@ -252,8 +328,8 @@ public class PassSlipIssuanceController implements Initializable {
             try {
                 int minutes = Integer.parseInt(newVal);
                 if (minutes > 0 && minutes <= 480) {
-                    LocalDateTime estimated = capturedTimeOut.plusMinutes(minutes);
-                    showInfo("Estimated return: " + estimated.format(DISPLAY_FMT));
+                    showInfo("Estimated return: "
+                            + capturedTimeOut.plusMinutes(minutes).format(DISPLAY_FMT));
                 } else if (minutes > 480) {
                     showError("Duration cannot exceed 480 minutes (8 hours).");
                 } else {
@@ -263,8 +339,6 @@ public class PassSlipIssuanceController implements Initializable {
                 clearFeedback();
             }
         });
-
-        updatePreview();
     }
 
     // =========================================================================
@@ -385,7 +459,49 @@ public class PassSlipIssuanceController implements Initializable {
     }
 
     // =========================================================================
-    // DOWNLOAD PDF
+    // SUCCESS POPUP ALERT
+    // =========================================================================
+
+    /**
+     * Shows a styled confirmation dialog after a pass slip is successfully issued.
+     * Uses JavaFX Alert so it's native to the application window.
+     *
+     * Offers two actions:
+     *   - Download PDF immediately
+     *   - Close (do nothing)
+     */
+
+    private void showSuccessAlert(int slipId, String employeeName, String estimatedReturn) {
+
+        Alert alert = new Alert(Alert.AlertType.NONE);
+        alert.setTitle("Pass Slip Issued");
+        alert.setHeaderText("Pass slip #" + slipId + " issued successfully.");
+        alert.setContentText(
+                "Employee: " + employeeName + "\n"
+                        + "Estimated return: " + estimatedReturn + "\n\n"
+                        + "Would you like to download the PDF now?"
+        );
+
+        ButtonType downloadBtn = new ButtonType("Download PDF", ButtonBar.ButtonData.OK_DONE);
+        ButtonType closeBtn    = new ButtonType("Close",        ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(downloadBtn, closeBtn);
+
+        // Style the dialog header to match the maroon theme
+        alert.getDialogPane().setStyle(
+                "-fx-font-size: 13;"
+        );
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == downloadBtn) {
+            handleDownloadPdf();
+        }
+    }
+
+
+    // =========================================================================
+    // DOWNLOAD PDF (snapshot approach)
     // =========================================================================
 
     @FXML
@@ -396,38 +512,52 @@ public class PassSlipIssuanceController implements Initializable {
             return;
         }
 
-        PassSlip slip = passSlipRepo.findById(lastIssuedPassSlipId);
-        if (slip == null) {
-            showError("Could not load pass slip record for PDF generation.");
+        if (previewPanel == null) {
+            showError("Preview panel not available.");
             return;
         }
 
-        // ----------------------------------------------------------------
-        // PDF GENERATION — implement here when PDF library is added
-        // ----------------------------------------------------------------
-        // String fileName  = "pass_slip_" + lastIssuedPassSlipId + ".pdf";
-        // String outputDir = "passslips/";
-        // String fullPath  = outputDir + fileName;
-        //
-        // boolean ok = PassSlipPdfGenerator.generate(
-        //         slip,
-        //         selectedEmployee,
-        //         estimatedReturnField.getText().trim(),
-        //         fullPath
-        // );
-        //
-        // if (ok) {
-        //     passSlipRepo.updateFilePath(lastIssuedPassSlipId, fullPath);
-        //     showSuccess("PDF saved: " + fullPath);
-        // } else {
-        //     showError("PDF generation failed.");
-        // }
-        // ----------------------------------------------------------------
+        try {
+            // Ensure output directory exists
+            Files.createDirectories(Paths.get(OUTPUT_DIR));
 
-        // Temporary stub
-        System.out.println("[PassSlip] PDF requested for pass_slip_ID=" + lastIssuedPassSlipId);
-        showSuccess("PDF generation ready — plug in your PDF library to activate.");
+            String fileName = "pass_slip_" + lastIssuedPassSlipId + ".png";
+            String fullPath = OUTPUT_DIR + File.separator + fileName;
+
+            // Temporarily hide the Download button before snapshot so it
+            // doesn't appear in the saved image
+            downloadPdfButton.setVisible(false);
+
+            // Snapshot the preview panel at its current rendered size
+            WritableImage fxImage = previewPanel.snapshot(null, null);
+
+            // Restore button visibility
+            downloadPdfButton.setVisible(true);
+
+            // Convert JavaFX image to AWT BufferedImage
+            BufferedImage awtImage = SwingFXUtils.fromFXImage(fxImage, null);
+
+            // Save to disk as PNG
+            File outputFile = new File(fullPath);
+            ImageIO.write(awtImage, "PNG", outputFile);
+
+            // Store file path in DB
+            passSlipRepo.updateFilePath(lastIssuedPassSlipId, fullPath);
+
+            // Auto-open with system default viewer
+            if (Desktop.isDesktopSupported() && outputFile.exists()) {
+                Desktop.getDesktop().open(outputFile);
+            }
+
+            showSuccess("Saved to: " + fullPath);
+
+        } catch (Exception e) {
+            downloadPdfButton.setVisible(true); // ensure button returns if error
+            showError("Failed to save pass slip image: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
+
 
     // =========================================================================
     // NAVIGATION

@@ -9,37 +9,22 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Repository for all pass_slip table operations.
- * Follows the same pattern as EmployeeRepository:
- *   - public method takes plain values or a model object
- *   - opens a connection, runs SQL, closes everything in try-with-resources
- *   - private mapRow() converts ResultSet → model
-
- * Three main responsibilities:
- *   1. issuePassSlip()   — INSERT a new record, return the generated PK
- *   2. searchEmployees() — live employee search used by the form's search field
- *   3. updateFilePath()  — store the PDF path after generation
- *   4. findById()        — reload a full record by PK (used after insert)
- */
 public class PassSlipRepository {
 
     // =========================================================================
-    // ISSUE PASS SLIP
+    // ISSUE PASS SLIP + ACTIVITY LOG  (single transaction)
     // =========================================================================
 
     /**
-     * Inserts a new pass slip record into the database.
-
-     * time_out is set to NOW() at the exact moment of INSERT — this avoids
-     * any clock drift between the Java side and the DB server.
-
-     * time_in, duration, file_path are left NULL; they are populated later
-     * when the employee returns (Movement Logs module) and after PDF generation.
-
-     * status is set to FALSE — employee has not yet returned.
-
-     * Returns the auto-generated pass_slip_ID on success, or -1 on failure.
+     * Inserts a new pass slip and writes an activity_log entry atomically.
+     *
+     * Column notes matching the actual DB schema:
+     *   estimated_duration  — minutes entered by staff at issuance
+     *   status              — pass_slip_status enum, starts as 'OUT'
+     *   time_out            — set to NOW() by the DB server
+     *   time_in / duration  — NULL until the employee returns
+     *
+     * Returns the generated pass_slip_ID, or -1 on failure.
      */
     public int issuePassSlip(PassSlip slip, int issuedByUserId) {
 
@@ -53,7 +38,7 @@ public class PassSlipRepository {
                     estimated_duration,
                     status
                 )
-                VALUES (?, ?, ?, ?, NOW(), ?,'OUT')
+                VALUES (?, ?, ?, ?, NOW(), ?, 'OUT')
                 """;
 
         String logSql = """
@@ -65,9 +50,9 @@ public class PassSlipRepository {
 
         try {
             conn = Database.getConnection();
-            conn.setAutoCommit(false); // start transaction
+            conn.setAutoCommit(false);
 
-            // --- 1. Insert pass slip ---
+            // 1. Insert pass slip
             int generatedId;
             try (PreparedStatement stmt = conn.prepareStatement(slipSql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -81,7 +66,7 @@ public class PassSlipRepository {
                     stmt.setString(4, slip.getDestination());
                 }
 
-                stmt.setInt(5, slip.getDuration());
+                stmt.setInt(5, slip.getEstimatedDuration());
                 stmt.executeUpdate();
 
                 try (ResultSet keys = stmt.getGeneratedKeys()) {
@@ -93,24 +78,22 @@ public class PassSlipRepository {
                 }
             }
 
-            // --- 2. Write activity log ---
+            // 2. Write activity log
             try (PreparedStatement logStmt = conn.prepareStatement(logSql)) {
-
                 String details = String.format(
-                        "Pass slip #%d issued for employee_id=%d. Reason: %s. Duration: %d min.",
+                        "Pass slip #%d issued for employee_id=%d. Reason: %s. Est. duration: %d min.",
                         generatedId,
                         slip.getEmployeeId(),
                         slip.getReason(),
-                        slip.getDuration()
+                        slip.getEstimatedDuration()
                 );
-
                 logStmt.setInt(1, issuedByUserId);
                 logStmt.setString(2, "ISSUE_PASS_SLIP");
                 logStmt.setString(3, details);
                 logStmt.executeUpdate();
             }
 
-            conn.commit(); // both inserts succeeded
+            conn.commit();
             return generatedId;
 
         } catch (SQLException e) {
@@ -129,18 +112,48 @@ public class PassSlipRepository {
     }
 
     // =========================================================================
+    // CHECK FOR OPEN PASS SLIP
+    // =========================================================================
+
+    /**
+     * Returns true if the employee currently has an open pass slip (status = 'OUT').
+     *
+     * Called by the controller before issuePassSlip() to prevent duplicate
+     * active slips for the same employee.
+     */
+    public boolean hasOpenPassSlip(int employeeId) {
+
+        String sql = """
+                SELECT 1 FROM pass_slip
+                WHERE employee_id = ?
+                  AND status = 'OUT'
+                LIMIT 1
+                """;
+
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setInt(1, employeeId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking open pass slip: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // =========================================================================
     // RECORD TIME-IN  (called by Movement Logs module)
     // =========================================================================
 
     /**
-     * Records the employee's return time for an open (status=false) pass slip.
-     *
-     * Calculates duration in minutes directly in SQL using PostgreSQL's
-     * EXTRACT(EPOCH ...) function, keeping the Java side clean.
-     *
-     * Also flips status to TRUE so the slip is marked as completed.
-     *
-     * Returns true if a row was updated, false otherwise.
+     * Records the employee's actual return time.
+     * Calculates the real duration in minutes (time_in - time_out).
+     * Flips status to 'IN'.
      */
     public boolean recordTimeIn(int passSlipId, LocalDateTime timeIn) {
 
@@ -149,7 +162,7 @@ public class PassSlipRepository {
                 SET
                     time_in  = ?,
                     duration = CAST(EXTRACT(EPOCH FROM (? - time_out)) / 60 AS INT),
-                    status   = TRUE
+                    status   = 'IN'
                 WHERE pass_slip_ID = ?
                   AND time_in IS NULL
                 """;
@@ -176,12 +189,6 @@ public class PassSlipRepository {
     // UPDATE FILE PATH
     // =========================================================================
 
-    /**
-     * Saves the PDF file path back to the pass_slip row after generation.
-     *
-     * Called by PassSlipIssuanceController after the PDF is written to disk,
-     * so the file_path column is populated and the file can be retrieved later.
-     */
     public boolean updateFilePath(int passSlipId, String filePath) {
 
         String sql = "UPDATE pass_slip SET file_path = ? WHERE pass_slip_ID = ?";
@@ -206,16 +213,6 @@ public class PassSlipRepository {
     // SEARCH EMPLOYEES
     // =========================================================================
 
-    /**
-     * Searches for active employees matching the query string against
-     * first_name, last_name, or department using case-insensitive ILIKE.
-     *
-     * Only returns employees with active_status = TRUE so inactive staff
-     * cannot receive a pass slip.
-     *
-     * Results are capped at 10 to keep the dropdown manageable.
-     * Used by the live search listener in PassSlipIssuanceController.
-     */
     public List<Employee> searchEmployees(String query) {
 
         String sql = """
@@ -243,9 +240,7 @@ public class PassSlipRepository {
             stmt.setString(3, pattern);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    results.add(mapEmployee(rs));
-                }
+                while (rs.next()) results.add(mapEmployee(rs));
             }
 
         } catch (SQLException e) {
@@ -260,15 +255,6 @@ public class PassSlipRepository {
     // FIND BY ID
     // =========================================================================
 
-    /**
-     * Loads a single pass slip by its PK.
-     *
-     * Used by the controller right after issuePassSlip() returns the new ID,
-     * so the full record (including the DB-generated time_out) is available
-     * for display and PDF generation.
-     *
-     * Returns null if no record is found.
-     */
     public PassSlip findById(int passSlipId) {
 
         String sql = "SELECT * FROM pass_slip WHERE pass_slip_ID = ?";
@@ -278,11 +264,8 @@ public class PassSlipRepository {
                 PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
             stmt.setInt(1, passSlipId);
-
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapPassSlip(rs);
-                }
+                if (rs.next()) return mapPassSlip(rs);
             }
 
         } catch (SQLException e) {
@@ -294,16 +277,10 @@ public class PassSlipRepository {
     }
 
     // =========================================================================
-    // GET LATEST TODAY PASS SLIP (used by Dashboard)
+    // DASHBOARD QUERIES
     // =========================================================================
 
-    /**
-     * Returns the most recent pass slip issued today, joined with employee name.
-     * Used by DashboardController to populate the Official Pass Slip section.
-     * Returns null if no pass slip was issued today.
-     */
     public PassSlip getLatestTodayPassSlip() {
-
         String sql = """
                 SELECT ps.*,
                        e.first_name || ' ' || e.last_name AS employee_name
@@ -324,81 +301,40 @@ public class PassSlipRepository {
                 slip.setEmployeeName(rs.getString("employee_name"));
                 return slip;
             }
-
         } catch (SQLException e) {
             System.err.println("Error getting latest pass slip: " + e.getMessage());
             e.printStackTrace();
         }
-
         return null;
     }
 
-    // =========================================================================
-    // DASHBOARD STAT COUNTS
-    // =========================================================================
-
-    /**
-     * Returns count of employees currently out (status = OUT) today.
-     * Used by DashboardController for "Total Employees Out" stat card.
-     */
     public int getEmployeesOutCount() {
-        String sql = """
-                SELECT COUNT(*) FROM pass_slip
-                WHERE DATE(time_out) = CURRENT_DATE
-                  AND status = 'OUT'
-                """;
-        try (
-                Connection conn = Database.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()
-        ) {
+        String sql = "SELECT COUNT(*) FROM pass_slip WHERE DATE(time_out) = CURRENT_DATE AND status = 'OUT'";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
         return 0;
     }
 
-    /**
-     * Returns count of overdue pass slips today.
-     * Used by DashboardController for "Pending Returns" stat card.
-     */
     public int getPendingReturnsCount() {
-        String sql = """
-                SELECT COUNT(*) FROM pass_slip
-                WHERE DATE(time_out) = CURRENT_DATE
-                  AND status = 'OVERDUE'
-                """;
-        try (
-                Connection conn = Database.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()
-        ) {
+        String sql = "SELECT COUNT(*) FROM pass_slip WHERE DATE(time_out) = CURRENT_DATE AND status = 'OVERDUE'";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
         return 0;
     }
 
-    /**
-     * Returns total count of pass slips issued today.
-     * Used by DashboardController for "Total Pass Slips Today" stat card.
-     */
     public int getTotalPassSlipsToday() {
-        String sql = """
-                SELECT COUNT(*) FROM pass_slip
-                WHERE DATE(time_out) = CURRENT_DATE
-                """;
-        try (
-                Connection conn = Database.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()
-        ) {
+        String sql = "SELECT COUNT(*) FROM pass_slip WHERE DATE(time_out) = CURRENT_DATE";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
         return 0;
     }
 
@@ -411,11 +347,14 @@ public class PassSlipRepository {
         Timestamp timeInTs  = rs.getTimestamp("time_in");
         Timestamp timeOutTs = rs.getTimestamp("time_out");
 
+        int rawEstDuration  = rs.getInt("estimated_duration");
+        Integer estDuration = rs.wasNull() ? null : rawEstDuration;
+
         int rawDuration  = rs.getInt("duration");
         Integer duration = rs.wasNull() ? null : rawDuration;
 
-        boolean rawStatus = rs.getBoolean("status");
-        Boolean status    = rs.wasNull() ? null : rawStatus;
+        // status is a PostgreSQL enum — read as String, never as boolean
+        String status = rs.getString("status");
 
         return new PassSlip(
                 rs.getInt("pass_slip_ID"),
@@ -426,15 +365,12 @@ public class PassSlipRepository {
                 rs.getString("file_path"),
                 timeInTs  != null ? timeInTs.toLocalDateTime()  : null,
                 timeOutTs != null ? timeOutTs.toLocalDateTime() : null,
+                estDuration,
                 duration,
                 status
         );
     }
 
-    /**
-     * Mirrors EmployeeRepository.mapRow() exactly — same column names,
-     * same constructor order — so both repositories stay in sync.
-     */
     private Employee mapEmployee(ResultSet rs) throws SQLException {
         return new Employee(
                 rs.getInt("employee_id"),
