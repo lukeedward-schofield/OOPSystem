@@ -203,7 +203,7 @@ public class DashboardController implements Initializable {
         statTotal.setText(String.valueOf(total));
 
         statOutNote.setText("↗ employees currently out");
-        statPendingNote.setText(pending > 0 ? "⚠ " + pending + " pending returns" : "✓ All returned");
+        statPendingNote.setText(pending > 0 ? "⚠ " + pending + " overdue returns" : "✓ All returned");
         statTotalNote.setText("Last updated: just now");
     }
 

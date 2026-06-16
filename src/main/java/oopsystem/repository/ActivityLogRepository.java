@@ -46,25 +46,32 @@ public class ActivityLogRepository {
     public ObservableList<ActivityLog> findAll() throws SQLException {
         ObservableList<ActivityLog> logs = FXCollections.observableArrayList();
 
+        // Changed INNER JOIN to LEFT JOIN to preserve orphan logs
         String sql = """
-            SELECT al.log_id, al.user_id, al.action, al.log_in_details, al.created_at, u.username
-            FROM activity_logs al
-            INNER JOIN users u ON al.user_id = u.user_id
-            ORDER BY al.created_at DESC
-            """;
+        SELECT al.log_id, al.user_id, al.action, al.log_in_details, al.created_at, u.username
+        FROM activity_logs al
+        LEFT JOIN users u ON al.user_id = u.user_id
+        ORDER BY al.created_at DESC
+        """;
 
         try (Connection conn = Database.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
+                // Handle the username being null gracefully
+                String username = rs.getString("username");
+                if (username == null) {
+                    username = "Deleted User"; // Fallback text for the UI table column
+                }
+
                 logs.add(new ActivityLog(
                         rs.getInt("log_id"),
-                        rs.getInt("user_id"),
+                        rs.getInt("user_id"), // rs.getInt() returns 0 if database value is NULL
                         rs.getString("action"),
                         rs.getString("log_in_details"),
                         rs.getTimestamp("created_at").toInstant().atZone(java.time.ZoneId.systemDefault()),
-                        rs.getString("username")
+                        username
                 ));
             }
         }
