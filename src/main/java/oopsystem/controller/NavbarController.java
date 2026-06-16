@@ -50,10 +50,9 @@ public class NavbarController implements Initializable {
         navLoadingOverlay.setVisible(true);
         navLoadingOverlay.setManaged(true);
 
-        // disable all buttons so user can't double-click
+
         setButtonsDisabled(true);
 
-        // short delay so the spinner renders before the scene switch
         new Thread(() -> {
             try { Thread.sleep(120); } catch (InterruptedException ignored) {}
             Platform.runLater(() -> {
