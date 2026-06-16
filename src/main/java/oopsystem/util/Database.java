@@ -20,8 +20,18 @@ public final class Database {
             throw new RuntimeException("PostgreSQL Driver not found");
         }
 
+        String url = ENV.get("DB_URL");
+
+// Append prepareThreshold=0 to disable server-side prepared statement caching.
+// Without this, the PostgreSQL JDBC driver reuses cached statement names (S_1, S_2)
+// across connections, causing "prepared statement already exists" errors when
+// a connection is reused after a failed transaction.
+        if (!url.contains("prepareThreshold")) {
+            url += (url.contains("?") ? "&" : "?") + "prepareThreshold=0";
+        }
+
         return DriverManager.getConnection(
-                ENV.get("DB_URL"),
+                url,
                 ENV.get("DB_USER"),
                 ENV.get("DB_PASSWORD")
         );
