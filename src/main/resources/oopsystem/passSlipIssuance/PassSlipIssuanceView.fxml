@@ -3,177 +3,199 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            prefHeight="700.0" prefWidth="1209.0"
-            xmlns="http://javafx.com/javafx/26"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="oopsystem.controller.PassSlipIssuanceController">
+<!--
+   Layout strategy for resize-friendliness:
+   - BorderPane fills the scene (no fixed max/min width/height)
+   - Center VBox uses VBox.vgrow="ALWAYS" and HBox.hgrow="ALWAYS" so it
+     stretches with the window instead of clipping content
+   - Fixed prefWidth values are removed from containers; only leaf controls
+     (TextFields, Buttons) keep their preferred sizes
+   - A ScrollPane wraps the center content so small windows don't clip anything
+-->
+<BorderPane
+        xmlns="http://javafx.com/javafx/21"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="oopsystem.controller.PassSlipIssuanceController">
+
    <left>
       <fx:include fx:id="navBar" source="../components/Nav.fxml" />
    </left>
+
    <center>
-      <VBox prefHeight="700.0" prefWidth="959.0" BorderPane.alignment="CENTER">
-         <VBox prefHeight="200.0" prefWidth="100.0"/>
-         <VBox prefHeight="200.0" prefWidth="100.0">
-            <children>
-               <Label text="Issue Pass Slip"/>
-               <Label text="Complete the form below to authorize employee departure during office hours."/>
-            </children>
-         </VBox>
-         <HBox prefHeight="718.0" prefWidth="979.0">
-            <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="609.0" prefWidth="600.0">
-               <children>
-                  <VBox alignment="CENTER" fillWidth="false" prefHeight="347.0" prefWidth="531.0"
-                        style="-fx-border-color: red;">
-                     <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="482.0">
-                           <children>
-                              <Label text="Authorization Form">
-                                 <font>
-                                    <Font name="System Bold" size="20.0"/>
-                                 </font>
-                              </Label>
-                           </children>
-                        </HBox>
-                        <HBox prefHeight="64.0" prefWidth="486.0">
-                           <children>
-                              <VBox prefHeight="75.0" prefWidth="238.0">
-                                 <children>
-                                    <Label text="SEARCH EMPLOYEE"/>
-                                    <TextField fx:id="searchEmployeeField" promptText="Type name or department..."/>
-                                 </children>
-                              </VBox>
-                              <VBox prefHeight="75.0" prefWidth="247.0">
-                                 <children>
-                                    <Label text="REASON FOR LEAVING"/>
-                                    <TextField fx:id="reasonField" promptText="Max 50 characters"/>
-                                 </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                        <VBox fillWidth="false" prefHeight="64.0" prefWidth="482.0">
-                           <children>
-                              <Label text="DESTINATION"/>
-                              <TextField fx:id="destinationField" prefHeight="25.0" prefWidth="485.0"
-                                         promptText="Optional"/>
-                           </children>
+      <ScrollPane fitToWidth="true" fitToHeight="true"
+                  hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED">
+         <content>
+            <VBox spacing="12" style="-fx-padding: 24;">
+               <VBox.vgrow>ALWAYS</VBox.vgrow>
+
+               <!-- Page header -->
+               <Label text="Issue Pass Slip" style="-fx-font-size: 20; -fx-font-weight: bold;" />
+               <Label text="Complete the form below to authorize employee departure during office hours."
+                      style="-fx-text-fill: #666;" />
+
+               <!-- Two-column content row -->
+               <HBox spacing="24" VBox.vgrow="ALWAYS">
+
+                  <!-- LEFT: Authorization Form -->
+                  <VBox spacing="12" HBox.hgrow="ALWAYS"
+                        style="-fx-border-color: #ccc; -fx-border-radius: 6; -fx-background-color: white;
+                               -fx-background-radius: 6; -fx-padding: 20;">
+
+                     <Label text="Authorization Form"
+                            style="-fx-font-size: 18; -fx-font-weight: bold;" />
+
+                     <!-- Row 1: Employee + Reason -->
+                     <HBox spacing="12">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                           <Label text="SEARCH EMPLOYEE"
+                                  style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #555;" />
+                           <TextField fx:id="searchEmployeeField"
+                                      promptText="Type name or department..."
+                                      maxWidth="Infinity" />
                         </VBox>
-                        <HBox prefHeight="66.0" prefWidth="482.0">
-                           <children>
-                              <VBox prefHeight="76.0" prefWidth="240.0">
-                                 <children>
-                                    <Label text="TIME-OUT (CURRENT)"/>
-                                    <TextField fx:id="timeOutField"/>
-                                 </children>
-                              </VBox>
-                              <VBox prefHeight="76.0" prefWidth="245.0">
-                                 <children>
-                                    <!-- RENAMED: estimatedReturnField → durationField -->
-                                    <!-- RENAMED: label "ESTIMATED RETURN" → "DURATION (MINUTES)" -->
-                                    <Label text="DURATION (MINUTES)"/>
-                                    <TextField fx:id="durationField" promptText="e.g. 30"/>
-                                 </children>
-                              </VBox>
-                           </children>
-                        </HBox>
-                        <Label fx:id="feedbackLabel" prefWidth="482.0" wrapText="true"/>
-                        <Button fx:id="generateButton"
-                                mnemonicParsing="false"
-                                prefHeight="25.0"
-                                prefWidth="222.0"
-                                text="Generate Pass Slip"
-                                onAction="#handleGeneratePassSlip"/>
-                     </children>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                           <Label text="REASON FOR LEAVING"
+                                  style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #555;" />
+                           <TextField fx:id="reasonField"
+                                      promptText="Max 50 characters"
+                                      maxWidth="Infinity" />
+                        </VBox>
+                     </HBox>
+
+                     <!-- Row 2: Destination (full width) -->
+                     <VBox spacing="4">
+                        <Label text="DESTINATION"
+                               style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #555;" />
+                        <TextField fx:id="destinationField"
+                                   promptText="Optional"
+                                   maxWidth="Infinity" />
+                     </VBox>
+
+                     <!-- Row 3: Time Out + Duration -->
+                     <HBox spacing="12">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                           <Label text="TIME-OUT (CURRENT)"
+                                  style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #555;" />
+                           <TextField fx:id="timeOutField" maxWidth="Infinity" />
+                        </VBox>
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                           <Label text="DURATION (MINUTES)"
+                                  style="-fx-font-size: 11; -fx-font-weight: bold; -fx-text-fill: #555;" />
+                           <TextField fx:id="durationField"
+                                      promptText="e.g. 30"
+                                      maxWidth="Infinity" />
+                        </VBox>
+                     </HBox>
+
+                     <!-- Feedback label -->
+                     <Label fx:id="feedbackLabel" wrapText="true" maxWidth="Infinity" />
+
+                     <!-- Generate button -->
+                     <Button fx:id="generateButton"
+                             text="Generate Pass Slip"
+                             onAction="#handleGeneratePassSlip"
+                             style="-fx-background-color: #7b1113; -fx-text-fill: white;
+                                    -fx-font-weight: bold; -fx-padding: 8 20;"
+                             maxWidth="Infinity" />
                   </VBox>
-               </children>
+
+                  <!-- RIGHT: Pass Slip Preview -->
+                  <!--
+                     fx:id="previewPanel" is used by PassSlipPdfGenerator.generate()
+                     to snapshot this node. Do not remove it.
+                  -->
+                  <VBox fx:id="previewPanel" spacing="8" HBox.hgrow="ALWAYS"
+                        style="-fx-border-color: #ccc; -fx-border-radius: 6;
+                               -fx-background-color: white; -fx-background-radius: 6;
+                               -fx-padding: 20;">
+
+                     <Label text="PASS SLIP PREVIEW"
+                            style="-fx-font-weight: bold; -fx-font-size: 13; -fx-text-fill: #333;" />
+                     <Label text="────────────────────────────────"
+                            style="-fx-text-fill: #ccc;" />
+
+                     <HBox spacing="8">
+                        <Label text="Employee:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewEmployee" text="—" wrapText="true" />
+                     </HBox>
+                     <HBox spacing="8">
+                        <Label text="Department:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewDepartment" text="—" wrapText="true" />
+                     </HBox>
+                     <HBox spacing="8">
+                        <Label text="Role:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewRole" text="—" wrapText="true" />
+                     </HBox>
+
+                     <Label text="────────────────────────────────"
+                            style="-fx-text-fill: #ccc;" />
+
+                     <HBox spacing="8">
+                        <Label text="Reason:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewReason" text="—" wrapText="true" HBox.hgrow="ALWAYS" />
+                     </HBox>
+                     <HBox spacing="8">
+                        <Label text="Destination:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewDestination" text="—" wrapText="true" HBox.hgrow="ALWAYS" />
+                     </HBox>
+
+                     <Label text="────────────────────────────────"
+                            style="-fx-text-fill: #ccc;" />
+
+                     <HBox spacing="8">
+                        <Label text="Time Out:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewTimeOut" text="—" />
+                     </HBox>
+                     <HBox spacing="8">
+                        <Label text="Duration:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewDuration" text="—" />
+                     </HBox>
+                     <HBox spacing="8">
+                        <Label text="Est. Return:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewEstReturn" text="—" />
+                     </HBox>
+
+                     <Label text="────────────────────────────────"
+                            style="-fx-text-fill: #ccc;" />
+
+                     <HBox spacing="8">
+                        <Label text="Issued By:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewIssuedBy" text="—" wrapText="true" />
+                     </HBox>
+
+                     <!-- Spacer pushes button to the bottom -->
+                     <Region VBox.vgrow="ALWAYS" />
+
+                     <Button fx:id="downloadPdfButton"
+                             text="DOWNLOAD PDF"
+                             onAction="#handleDownloadPdf"
+                             disable="true"
+                             maxWidth="Infinity"
+                             style="-fx-background-color: #2196F3; -fx-text-fill: white;
+                                    -fx-font-weight: bold; -fx-padding: 10 20;" />
+                  </VBox>
+
+               </HBox>
             </VBox>
-            <VBox alignment="TOP_CENTER" fillWidth="false" prefHeight="579.0" prefWidth="410.0" spacing="8"
-                  style="-fx-border-color: #cccccc; -fx-border-radius: 4; -fx-padding: 20;">
-
-               <!-- HEADER -->
-               <Label text="PASS SLIP PREVIEW" style="-fx-font-weight: bold; -fx-font-size: 13;" />
-               <Label text="─────────────────────────────" />
-
-               <!-- EMPLOYEE -->
-               <HBox spacing="8">
-                  <Label text="Employee:" style="-fx-font-weight: bold;" />
-                  <Label fx:id="previewEmployee" text="—" />
-               </HBox>
-
-               <!-- DEPARTMENT -->
-               <HBox spacing="8">
-                  <Label text="Department:" style="-fx-font-weight: bold;" />
-                  <Label fx:id="previewDepartment" text="—" />
-               </HBox>
-
-               <!-- ROLE -->
-               <HBox spacing="8">
-                  <Label text="Role:" style="-fx-font-weight: bold;" />
-                  <Label fx:id="previewRole" text="—" />
-               </HBox>
-
-               <Label text="─────────────────────────────" />
-
-               <!-- REASON -->
-               <HBox spacing="8">
-                  <Label text="Reason:" style="-fx-font-weight: bold;" />
-                  <Label fx:id="previewReason" text="—" wrapText="true" />
-               </HBox>
-
-               <!-- DESTINATION -->
-               <HBox spacing="8">
-                  <Label text="Destination:" style="-fx-font-weight: bold;" />
-                  <Label fx:id="previewDestination" text="—" wrapText="true" />
-               </HBox>
-
-               <Label text="─────────────────────────────" />
-
-               <!-- TIME OUT -->
-               <HBox spacing="8">
-                  <Label text="Time Out:" style="-fx-font-weight: bold;" />
-                  <Label fx:id="previewTimeOut" text="—" />
-               </HBox>
-
-               <!-- DURATION -->
-               <HBox spacing="8">
-                  <Label text="Duration:" style="-fx-font-weight: bold;" />
-                  <Label fx:id="previewDuration" text="—" />
-               </HBox>
-
-               <!-- ESTIMATED RETURN -->
-               <HBox spacing="8">
-                  <Label text="Est. Return:" style="-fx-font-weight: bold;" />
-                  <Label fx:id="previewEstReturn" text="—" />
-               </HBox>
-
-               <Label text="─────────────────────────────" />
-
-               <!-- ISSUED BY -->
-               <HBox spacing="8">
-                  <Label text="Issued By:" style="-fx-font-weight: bold;" />
-                  <Label fx:id="previewIssuedBy" text="—" />
-               </HBox>
-
-               <!-- DOWNLOAD BUTTON -->
-               <Button fx:id="downloadPdfButton"
-                       mnemonicParsing="false"
-                       prefHeight="40.0"
-                       prefWidth="191.0"
-                       text="DOWNLOAD PDF"
-                       onAction="#handleDownloadPdf"
-                       style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-weight: bold;"
-                       disable="true">
-                  <VBox.margin><Insets top="20.0" /></VBox.margin>
-               </Button>
-
-            </VBox>
-         </HBox>
-      </VBox>
+         </content>
+      </ScrollPane>
    </center>
 </BorderPane>
