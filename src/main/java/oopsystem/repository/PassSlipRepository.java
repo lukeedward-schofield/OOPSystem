@@ -28,6 +28,14 @@ public class PassSlipRepository {
      */
     public int issuePassSlip(PassSlip slip, int issuedByUserId) {
 
+        String checkSql = """
+            SELECT 1 FROM pass_slip
+            WHERE employee_id = ?
+              AND status = 'OUT'
+            LIMIT 1
+            FOR UPDATE
+            """;
+
         String slipSql = """
             INSERT INTO pass_slip (
                 employee_id,
@@ -46,9 +54,25 @@ public class PassSlipRepository {
             VALUES (?, ?, ?)
             """;
 
-        // Wrapping Connection in try-with-resources guarantees it closes cleanly under all paths
-        try (Connection conn = Database.getConnection()) {
+        Connection conn = null;
+
+        try {
+            conn = Database.getConnection();
             conn.setAutoCommit(false);
+
+            // Check inside the transaction with a row-level lock.
+            // If another request is mid-insert for the same employee,
+            // this blocks until that transaction commits or rolls back.
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setInt(1, slip.getEmployeeId());
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next()) {
+                        // Employee already has an open slip — abort cleanly
+                        conn.rollback();
+                        return -2; // distinct code so controller can show the right message
+                    }
+                }
+            }
 
             // 1. Insert pass slip
             int generatedId;
@@ -95,12 +119,17 @@ public class PassSlipRepository {
             return generatedId;
 
         } catch (SQLException e) {
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
             System.err.println("Error issuing pass slip: " + e.getMessage());
             e.printStackTrace();
 
-            // Note: The outer try-with-resources automatically closes the connection here.
-            // If you want a driver level workaround to stop named statements entirely,
-            // add '?prepareThreshold=0' to your DB connection string url.
+        } finally {
+            if (conn != null) {
+                try { conn.setAutoCommit(true); conn.close(); }
+                catch (SQLException ex) { ex.printStackTrace(); }
+            }
         }
 
         return -1;
