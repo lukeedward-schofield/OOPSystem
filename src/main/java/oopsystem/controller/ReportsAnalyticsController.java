@@ -80,6 +80,7 @@ public class ReportsAnalyticsController {
     @FXML private Button weeklyTabButton;
     @FXML private Button exportExcelButton;
     @FXML private Button exportPdfButton;
+    @FXML private Button generateReportButton;
     @FXML private Label viewAllDepartmentsLabel;
 
     // Repository object used by the controller to get reports from the database.
@@ -202,6 +203,44 @@ public class ReportsAnalyticsController {
             showInfo("Export successful", "PDF file was exported successfully.");
         } catch (IOException e) {
             showError("Export failed", e.getMessage());
+        }
+    }
+
+    /**
+     * Generates a downloadable report for the currently selected compliance view.
+     *
+     * If Daily is active, it generates a daily compliance report.
+     * If Weekly is active, it generates a weekly compliance report.
+     */
+    @FXML
+    private void handleGenerateReport() {
+        if (currentReportRows == null || currentReportRows.isEmpty()) {
+            showInfo(
+                    "No report data",
+                    "No " + selectedReportModeText().toLowerCase() + " report data is available for the selected date range."
+            );
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Generate " + selectedReportModeText() + " Report");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf"));
+        fileChooser.setInitialFileName(defaultExportName(selectedReportModeText().toLowerCase() + "-compliance-report", "pdf"));
+
+        File file = fileChooser.showSaveDialog(generateReportButton.getScene().getWindow());
+        if (file == null) {
+            setStatus(selectedReportModeText() + " report generation cancelled.", false);
+            return;
+        }
+
+        try {
+            writeSimplePdf(file, buildComplianceReportLines());
+            showInfo(
+                    "Report generated",
+                    selectedReportModeText() + " report was generated and downloaded successfully."
+            );
+        } catch (IOException e) {
+            showError("Report generation failed", e.getMessage());
         }
     }
 
@@ -622,6 +661,38 @@ public class ReportsAnalyticsController {
     }
 
     /**
+     * Builds the downloadable Daily/Weekly compliance report selected by the user.
+     */
+    private List<String> buildComplianceReportLines() {
+        List<String> lines = new ArrayList<>();
+        String reportMode = selectedReportModeText();
+
+        lines.add(reportMode + " Compliance and Overdue Report");
+        lines.add("Date Range: " + startDatePicker.getValue() + " to " + endDatePicker.getValue());
+        lines.add("Generated From: Reports & Analytics Module");
+        lines.add("");
+        lines.add("Summary");
+        lines.add("Total Pass Slips: " + (currentSummary == null ? 0 : currentSummary.getTotalPassSlips()));
+        lines.add("Compliance Rate: " + (currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate())));
+        lines.add("Average Duration: " + (currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes())));
+        lines.add("Overdue Passes: " + (currentSummary == null ? 0 : currentSummary.getOverduePasses()));
+        lines.add("");
+        lines.add(reportMode + " Records");
+        lines.add((weeklyMode ? "Week Start" : "Date") + " | Total Issued | Returned On Time | Overdue | Avg Duration | Compliance");
+
+        for (DailyReport report : currentReportRows) {
+            lines.add(report.getReportDate()
+                    + " | " + report.getTotalIssued()
+                    + " | " + report.getReturnedOnTime()
+                    + " | " + report.getOverdue()
+                    + " | " + formatDuration(report.getAverageDurationMinutes())
+                    + " | " + String.format("%.1f%%", report.getComplianceRate()));
+        }
+
+        return lines;
+    }
+
+    /**
      * Creates a small valid PDF file using only standard Java classes.
      */
     private void writeSimplePdf(File file, List<String> rawLines) throws IOException {
@@ -741,6 +812,10 @@ public class ReportsAnalyticsController {
             return '"' + text.replace("\"", "\"\"") + '"';
         }
         return text;
+    }
+
+    private String selectedReportModeText() {
+        return weeklyMode ? "Weekly" : "Daily";
     }
 
     private String defaultExportName(String baseName, String extension) {

@@ -325,6 +325,21 @@
     -fx-padding: 6 16 6 16;
 }
 
+.generate-report-button {
+    -fx-background-color: #710000;
+    -fx-text-fill: white;
+    -fx-border-color: #710000;
+    -fx-background-radius: 2;
+    -fx-border-radius: 2;
+    -fx-padding: 6 14 6 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+}
+
+.generate-report-button:hover {
+    -fx-background-color: #8b0000;
+}
 
 .status-label {
     -fx-text-fill: #0b5d4a;
