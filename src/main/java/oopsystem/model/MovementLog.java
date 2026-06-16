@@ -45,17 +45,9 @@ public class MovementLog {
         this.actualDuration = actualDuration;
         this.createdAt = createdAt;
 
-        resolveOverdue();
     }
 
-    private void resolveOverdue() {
-        if ("OUT".equals(status) && timeOut != null && estimatedDuration > 0) {
-            LocalDateTime deadline = timeOut.plusMinutes(estimatedDuration + 3);
-            if (LocalDateTime.now().isAfter(deadline)) {
-                this.status = "OVERDUE";
-            }
-        }
-    }
+
 
     public int getPassSlipId() {
         return passSlipId;

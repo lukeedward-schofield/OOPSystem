@@ -16,15 +16,21 @@ import java.util.stream.Collectors;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.geometry.Side;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import javafx.application.Platform;
+
+
 
 public class MovementLogController {
 
     /* NAVIGATION */
-    @FXML public void goToDashboard()         { SceneNavigator.switchTo("DashboardView"); }
-    @FXML public void goToPassSlipIssuance()  { SceneNavigator.switchTo("PassSlipIssuanceView"); }
+    @FXML public void goToDashboard()         { stopAutoRefresh(); SceneNavigator.switchTo("DashboardView"); }
+    @FXML public void goToPassSlipIssuance()  { stopAutoRefresh(); SceneNavigator.switchTo("PassSlipIssuanceView"); }
     @FXML public void goToMovementLogs()      { SceneNavigator.switchTo("MovementlogView"); }
-    @FXML public void goToEmployeeDirectory() { SceneNavigator.switchTo("EmployeeDirectoryView"); }
-    @FXML public void gotoReports()           { SceneNavigator.switchTo("ReportsView"); }
+    @FXML public void goToEmployeeDirectory() { stopAutoRefresh(); SceneNavigator.switchTo("EmployeeDirectoryView"); }
+    @FXML public void gotoReports()           { stopAutoRefresh();SceneNavigator.switchTo("ReportsView"); }
 
     /* FILTERS */
     @FXML private DatePicker startDatePicker;
@@ -76,6 +82,7 @@ public class MovementLogController {
     private final DateTimeFormatter timeFmt      = DateTimeFormatter.ofPattern("hh:mm a");
     private final DateTimeFormatter cardStampFmt = DateTimeFormatter.ofPattern("MMM dd, yyyy | hh:mm a");
     private ContextMenu exportMenu;
+    private ScheduledExecutorService scheduler;
 
     /* ------------------------------------------------------------------ */
     @FXML
@@ -87,6 +94,7 @@ public class MovementLogController {
         setupSelectionListener();
         setupExportMenu();
         setupClickOutsideListener();
+        startAutoRefresh();
 
         reasonColumn.prefWidthProperty().bind(
                 movementLogsTable.widthProperty()
@@ -164,7 +172,25 @@ public class MovementLogController {
             }
         });
     }
+    private void startAutoRefresh() {
+        scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "overdue-sync");
+            t.setDaemon(true);
+            return t;
+        });
 
+
+
+        scheduler.scheduleAtFixedRate(() ->
+                        Platform.runLater(this::loadMovementLogs),
+                60, 60, TimeUnit.SECONDS
+        );
+    }
+    public void stopAutoRefresh() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdownNow();
+        }
+    }
     /* ------------------------------------------------------------------ */
     /*  LOAD & FILTER                                                       */
     /* ------------------------------------------------------------------ */
