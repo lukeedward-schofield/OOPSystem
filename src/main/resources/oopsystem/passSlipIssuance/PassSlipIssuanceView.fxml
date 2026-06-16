@@ -120,6 +120,13 @@
 
                      <Label text="PASS SLIP PREVIEW"
                             style="-fx-font-weight: bold; -fx-font-size: 13; -fx-text-fill: #333;" />
+
+                     <HBox spacing="8">
+                        <Label text="Slip No:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewSlipNo" text="—" wrapText="true" />
+                     </HBox>
+
                      <Label text="────────────────────────────────"
                             style="-fx-text-fill: #ccc;" />
 
@@ -179,6 +186,12 @@
                         <Label text="Issued By:"
                                style="-fx-font-weight: bold; -fx-min-width: 90;" />
                         <Label fx:id="previewIssuedBy" text="—" wrapText="true" />
+                     </HBox>
+
+                     <HBox spacing="8">
+                        <Label text="Generated At:"
+                               style="-fx-font-weight: bold; -fx-min-width: 90;" />
+                        <Label fx:id="previewGeneratedAt" text="—" wrapText="true" />
                      </HBox>
 
                      <!-- Spacer pushes button to the bottom -->

@@ -1,14 +1,12 @@
 package oopsystem.controller;
 
+import javafx.scene.control.*;
 import oopsystem.model.User;
 import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.UserRepository;
 import oopsystem.util.AppConfig;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import oopsystem.util.SceneNavigator;
 import oopsystem.util.SessionManager;
 
@@ -54,6 +52,14 @@ public class LoginController {
 
                 SceneNavigator.switchToMaximized("employeeDirectory/EmployeeDirectoryView");
             } else {
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                confirm.setHeaderText("Invalid Credentials");
+
+                confirm.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        confirm.close();
+                    }
+                });
                 System.out.println("Invalid username or password");
             }
 

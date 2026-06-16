@@ -29,27 +29,25 @@ public class PassSlipRepository {
     public int issuePassSlip(PassSlip slip, int issuedByUserId) {
 
         String slipSql = """
-                INSERT INTO pass_slip (
-                    employee_id,
-                    issued_by,
-                    reason,
-                    destination,
-                    time_out,
-                    estimated_duration,
-                    status
-                )
-                VALUES (?, ?, ?, ?, NOW(), ?, 'OUT')
-                """;
+            INSERT INTO pass_slip (
+                employee_id,
+                issued_by,
+                reason,
+                destination,
+                time_out,
+                estimated_duration,
+                status
+            )
+            VALUES (?, ?, ?, ?, NOW(), ?, 'OUT')
+            """;
 
         String logSql = """
-                INSERT INTO activity_logs (user_id, action, log_in_details)
-                VALUES (?, ?, ?)
-                """;
+            INSERT INTO activity_logs (user_id, action, log_in_details)
+            VALUES (?, ?, ?)
+            """;
 
-        Connection conn = null;
-
-        try {
-            conn = Database.getConnection();
+        // Wrapping Connection in try-with-resources guarantees it closes cleanly under all paths
+        try (Connection conn = Database.getConnection()) {
             conn.setAutoCommit(false);
 
             // 1. Insert pass slip
@@ -61,7 +59,7 @@ public class PassSlipRepository {
                 stmt.setString(3, slip.getReason());
 
                 if (slip.getDestination() == null || slip.getDestination().isBlank()) {
-                    stmt.setNull(4, Types.VARCHAR);
+                    stmt.setNull(4, java.sql.Types.VARCHAR);
                 } else {
                     stmt.setString(4, slip.getDestination());
                 }
@@ -99,18 +97,14 @@ public class PassSlipRepository {
         } catch (SQLException e) {
             System.err.println("Error issuing pass slip: " + e.getMessage());
             e.printStackTrace();
-            if (conn != null) {
-                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            }
-        } finally {
-            if (conn != null) {
-                try { conn.setAutoCommit(true); conn.close(); } catch (SQLException ex) { ex.printStackTrace(); }
-            }
+
+            // Note: The outer try-with-resources automatically closes the connection here.
+            // If you want a driver level workaround to stop named statements entirely,
+            // add '?prepareThreshold=0' to your DB connection string url.
         }
 
         return -1;
     }
-
     // =========================================================================
     // CHECK FOR OPEN PASS SLIP
     // =========================================================================
@@ -282,21 +276,24 @@ public class PassSlipRepository {
 
     public PassSlip getLatestTodayPassSlip() {
         String sql = """
-            SELECT ps.pass_slip_ID,
-                   ps.employee_id,
-                   ps.issued_by,
-                   ps.reason,
-                   ps.destination,
-                   ps.file_path,
-                   ps.time_in,
-                   ps.time_out,
-                   ps.status,
-                   e.first_name || ' ' || e.last_name AS employee_name
-            FROM pass_slip ps
-            INNER JOIN employee e ON ps.employee_id = e.employee_id
-            ORDER BY ps.time_out DESC
-            LIMIT 1
-            """;
+        SELECT ps.pass_slip_ID,
+               ps.employee_id,
+               ps.issued_by,
+               ps.reason,
+               ps.destination,
+               ps.file_path,
+               ps.time_in,
+               ps.time_out,
+               ps.estimated_duration,
+               ps.duration,
+               ps.status,
+               e.first_name || ' ' || e.last_name AS employee_name
+        FROM pass_slip ps
+        INNER JOIN employee e ON ps.employee_id = e.employee_id
+        WHERE DATE(ps.time_out) = CURRENT_DATE
+        ORDER BY ps.time_out DESC
+        LIMIT 1
+        """;
 
         try (
                 Connection conn = Database.getConnection();
@@ -306,9 +303,17 @@ public class PassSlipRepository {
             if (rs.next()) {
                 Timestamp timeInTs  = rs.getTimestamp("time_in");
                 Timestamp timeOutTs = rs.getTimestamp("time_out");
-                String statusStr = rs.getString("status");
-                Boolean status   = statusStr != null ? !statusStr.equals("RETURNED") : null;
 
+                // Correctly handle primitive to nullable Integer conversions
+                int rawEstDuration  = rs.getInt("estimated_duration");
+                Integer estDuration = rs.wasNull() ? null : rawEstDuration;
+
+                int rawDuration     = rs.getInt("duration");
+                Integer duration    = rs.wasNull() ? null : rawDuration;
+
+                String statusStr    = rs.getString("status");
+
+                // Calls the matching 11-argument database constructor perfectly
                 PassSlip slip = new PassSlip(
                         rs.getInt("pass_slip_ID"),
                         rs.getInt("employee_id"),
@@ -318,9 +323,11 @@ public class PassSlipRepository {
                         rs.getString("file_path"),
                         timeInTs  != null ? timeInTs.toLocalDateTime()  : null,
                         timeOutTs != null ? timeOutTs.toLocalDateTime() : null,
-                        null,
-                        status
+                        estDuration,
+                        duration,
+                        statusStr
                 );
+
                 slip.setEmployeeName(rs.getString("employee_name"));
                 return slip;
             }
