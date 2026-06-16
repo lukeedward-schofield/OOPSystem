@@ -1,5 +1,6 @@
 package oopsystem.controller;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
@@ -66,7 +67,7 @@ public class ReportsAnalyticsController {
     @FXML private TableColumn<DailyReport, Integer> overdueColumn;
     @FXML private TableColumn<DailyReport, Double> averageDurationColumn;
     @FXML private TableColumn<DailyReport, Double> dailyComplianceColumn;
-    @FXML private TableColumn<DailyReport, Void> actionColumn;
+    @FXML private TableColumn<DailyReport, DailyReport> actionColumn;
 
     @FXML private TableView<DepartmentUsage> departmentUsageTable;
     @FXML private TableColumn<DepartmentUsage, String> departmentColumn;
@@ -340,27 +341,29 @@ public class ReportsAnalyticsController {
         });
 
         // The submitted UI has a Details text in the last column.
-        // It now opens a small pop-up for the selected daily/weekly report row.
+        // Each non-empty report row now receives its own Details button.
+        // Using the row object as the cell value is more reliable than checking the visible row index,
+        // because JavaFX reuses table cells when the table is refreshed, resized, or scrolled.
         if (actionColumn != null) {
+            actionColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue()));
             actionColumn.setCellFactory(column -> new TableCell<>() {
                 private final Button detailsButton = new Button("Details");
 
                 {
                     detailsButton.getStyleClass().add("details-link-button");
-                    detailsButton.setOnAction(event -> {
-                        DailyReport report = getTableView().getItems().get(getIndex());
-                        showComplianceDetails(report);
-                    });
                 }
 
                 @Override
-                protected void updateItem(Void item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
+                protected void updateItem(DailyReport report, boolean empty) {
+                    super.updateItem(report, empty);
+
+                    if (empty || report == null) {
                         setGraphic(null);
                     } else {
+                        detailsButton.setOnAction(event -> showComplianceDetails(report));
                         setGraphic(detailsButton);
                     }
+
                     setText(null);
                 }
             });
