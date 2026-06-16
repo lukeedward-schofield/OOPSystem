@@ -141,6 +141,7 @@
                             <Region HBox.hgrow="ALWAYS" />
                             <Button fx:id="dailyTabButton" text="Daily" onAction="#handleShowDaily" styleClass="tab-button-active" />
                             <Button fx:id="weeklyTabButton" text="Weekly" onAction="#handleShowWeekly" styleClass="tab-button" />
+                            <Button fx:id="generateReportButton" text="⇩ Generate Report" onAction="#handleGenerateReport" styleClass="generate-report-button" />
                         </HBox>
 
                         <TableView fx:id="dailyReportTable" prefHeight="150" VBox.vgrow="ALWAYS" styleClass="report-table">
