@@ -34,21 +34,33 @@ public class AddEmployeeController {
         String department = departmentField.getText().trim();
         String position = positionField.getText().trim();
 
-        // 1. Validation for Blank Required Fields
-        if (firstName.isBlank() || lastName.isBlank() || email.isBlank()) {
+        // 1. Validation for Blank Fields — Enforcing ALL fields must be filled up
+        if (firstName.isBlank() || lastName.isBlank() || email.isBlank() ||
+                contact.isBlank() || department.isBlank() || position.isBlank()) {
+
             showAlert(Alert.AlertType.WARNING, "Validation Error", "Missing Fields",
-                    "First Name, Last Name, and Email are required fields.");
+                    "All fields are required. Please ensure First Name, Last Name, Email, " +
+                            "Contact Number, Department, and Position are filled up.");
             return;
         }
 
-        // 2. Database Validation: Check for Duplicate Email
+        // 2. Format Validation: Ensure Contact Number contains ONLY integers
+        if (!contact.matches("\\d+")) {
+            showAlert(Alert.AlertType.WARNING, "Validation Error", "Invalid Contact Number",
+                    "The Contact Number field must contain integers only (digits 0-9). " +
+                            "Please remove any letters, spaces, or special characters.");
+            contactNumberField.requestFocus();
+            return;
+        }
+
+        // 3. Database Validation: Check for Duplicate Email
         if (repo.existsByEmail(email)) {
             showAlert(Alert.AlertType.ERROR, "Duplicate Data Error", "Email Already Registered",
                     "The email address '" + email + "' is already assigned to an employee.");
             return;
         }
 
-        // 3. Database Validation: Check for Duplicate Full Name (Case-Insensitive)
+        // 4. Database Validation: Check for Duplicate Full Name (Case-Insensitive)
         if (repo.existsByFullName(firstName, lastName)) {
             showAlert(Alert.AlertType.ERROR, "Duplicate Data Error", "Employee Name Exists",
                     "An employee named '" + firstName + " " + lastName + "' already exists in the directory.");
