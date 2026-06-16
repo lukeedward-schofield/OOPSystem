@@ -23,6 +23,9 @@ import oopsystem.model.PassSlip;
 import oopsystem.repository.PassSlipRepository;
 import oopsystem.util.SceneNavigator;
 import oopsystem.util.SessionManager;
+import oopsystem.util.AppConfig;
+import oopsystem.model.User;
+import oopsystem.repository.UserRepository;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -117,7 +120,7 @@ public class PassSlipIssuanceController implements Initializable {
 
         downloadPdfButton.setDisable(true);
         clearFeedback();
-
+        getEffectiveUser();
         setupLiveSearch();
         setupDurationField();
 
@@ -259,56 +262,6 @@ public class PassSlipIssuanceController implements Initializable {
         previewGeneratedAt.setText(LocalDateTime.now().format(DISPLAY_FMT));
     }
 
-//    private void updatePreview() {
-//        // Employee info — only if selected from dropdown
-//        if (selectedEmployee != null) {
-//            previewEmployee.setText(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName());
-//            previewDepartment.setText(selectedEmployee.getDepartment());
-//            previewRole.setText(selectedEmployee.getRole());
-//        } else {
-//            previewEmployee.setText("—");
-//            previewDepartment.setText("—");
-//            previewRole.setText("—");
-//        }
-//
-//        // Reason
-//        String reason = reasonField.getText().trim();
-//        previewReason.setText(reason.isBlank() ? "—" : reason);
-//
-//        // Destination
-//        String dest = destinationField.getText().trim();
-//        previewDestination.setText(dest.isBlank() ? "—" : dest);
-//
-//        // Time out
-//        previewTimeOut.setText(capturedTimeOut.format(DISPLAY_FMT));
-//
-//        // Duration + estimated return
-//        String durationText = durationField.getText().trim();
-//        if (!durationText.isBlank()) {
-//            try {
-//                int minutes = Integer.parseInt(durationText);
-//                if (minutes > 0 && minutes <= 480) {
-//                    previewDuration.setText(minutes + " min");
-//                    LocalDateTime estReturn = capturedTimeOut.plusMinutes(minutes);
-//                    previewEstReturn.setText(estReturn.format(DISPLAY_FMT));
-//                } else {
-//                    previewDuration.setText("—");
-//                    previewEstReturn.setText("—");
-//                }
-//            } catch (NumberFormatException e) {
-//                previewDuration.setText("—");
-//                previewEstReturn.setText("—");
-//            }
-//        } else {
-//            previewDuration.setText("—");
-//            previewEstReturn.setText("—");
-//        }
-//
-//        // Issued by — from session
-//        String issuedBy = SessionManager.getLoggedInFullName();
-//        previewIssuedBy.setText(issuedBy != null ? issuedBy : "—");
-//    }
-
     // =========================================================================
     // DURATION FIELD SETUP
     // =========================================================================
@@ -342,6 +295,34 @@ public class PassSlipIssuanceController implements Initializable {
                 clearFeedback();
             }
         });
+    }
+
+    private User getEffectiveUser() {
+        User currentUser = SessionManager.getCurrentUser();
+
+        if (currentUser != null) return currentUser;
+
+        if (AppConfig.DEV_MODE) {
+            try {
+                UserRepository repo = new UserRepository();
+                currentUser = repo.findFirstUser();
+
+                if (currentUser != null) {
+                    SessionManager.setCurrentUser(currentUser);
+                    System.out.println("[DEV] Session set to user_id="
+                            + currentUser.getUserId()
+                            + " (" + currentUser.getUsername() + ")");
+                } else {
+                    System.err.println("[DEV] findFirstUser() returned null — check users table.");
+                }
+
+            } catch (Exception e) {
+                System.err.println("[DEV] getEffectiveUser() failed: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+        return currentUser;
     }
 
     // =========================================================================
@@ -427,10 +408,15 @@ public class PassSlipIssuanceController implements Initializable {
         }
 
         // 5. Session — Option A bypass while LoginController is unfinished
-        int issuedBy = SessionManager.getLoggedInUserId();
-        if (issuedBy == -1) {
-            issuedBy = 1; // TODO: remove when LoginController is fully wired
+        User currentUser = getEffectiveUser();
+
+        if (currentUser == null) {
+            showError("No logged-in user found. Please log in again.");
+            generateButton.setDisable(false);
+            return;
         }
+
+        int issuedBy = currentUser.getUserId();
 
         LocalDateTime estimatedReturn = capturedTimeOut.plusMinutes(durationMinutes);
 

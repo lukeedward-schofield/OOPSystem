@@ -29,12 +29,12 @@ public class PassSlipRepository {
     public int issuePassSlip(PassSlip slip, int issuedByUserId) {
 
         String checkSql = """
-            SELECT 1 FROM pass_slip
-            WHERE employee_id = ?
-              AND status IN = ('OUT', 'OVERDUE')
-            LIMIT 1
-            FOR UPDATE
-            """;
+        SELECT 1 FROM pass_slip
+        WHERE employee_id = ?
+        AND status IN ('OUT', 'OVERDUE')
+        LIMIT 1
+        FOR UPDATE
+        """;
 
         String slipSql = """
             INSERT INTO pass_slip (
@@ -148,12 +148,11 @@ public class PassSlipRepository {
     public boolean hasOpenPassSlip(int employeeId) {
 
         String sql = """
-                SELECT 1 FROM pass_slip
-                WHERE employee_id = ?
-                  AND status IN = ('OUT', 'OVERDUE')
-                LIMIT 1
-                FOR UPDATE
-                """;
+            SELECT 1 FROM pass_slip
+            WHERE employee_id = ?
+            AND status IN ('OUT', 'OVERDUE')
+            LIMIT 1
+            """;
 
         try (
                 Connection conn = Database.getConnection();
