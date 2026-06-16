@@ -16,21 +16,58 @@
 /* ── CARDS ─────────────────────────────────────────────────── */
 .card {
     -fx-background-color: #FFFFFF;
-    -fx-background-radius: 8px;
+    -fx-background-radius: 0px;
     -fx-border-color: #8B0000;
-    -fx-border-radius: 8px;
+    -fx-border-radius: 3px;
     -fx-border-width: 1px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);
 }
 .stat-card {
     -fx-background-color: #FFFFFF;
-    -fx-background-radius: 8px;
+    -fx-background-radius: 0px;
     -fx-border-color: #8B0000;
-    -fx-border-radius: 8px;
+    -fx-border-radius: 5px;
     -fx-border-width: 1px;
     -fx-padding: 16px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);
 }
+
+.third-card {
+    -fx-background-color: #800000;
+    -fx-background-radius: 8px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 4, 0, 0, 2);
+}
+
+
+.third-card .label {
+    -fx-text-fill: #FFFFFF;
+}
+
+
+.stat-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: gray;
+}
+
+.stat-lebel {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: rgba(255, 255, 255, 0.75) !important;
+}
+
+
+.stat-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+/* Style for the bottom footnote/note */
+.stat-note {
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+    -fx-text-fill: rgba(255, 255, 255, 0.6)
 .stat-label { -fx-text-fill: #999999; -fx-font-size: 11px; -fx-font-weight: bold; }
 .stat-value { -fx-text-fill: #1A1A1A; -fx-font-size: 28px; -fx-font-weight: bold; }
 .stat-value-warn { -fx-text-fill: #C07000; -fx-font-size: 28px; -fx-font-weight: bold; }
@@ -57,12 +94,12 @@
     -fx-font-size: 11px;
     -fx-font-weight: bold;
     -fx-alignment: CENTER_LEFT;
-    -fx-padding: 10px 12px;
+   /* -fx-padding: 2px 4px;*/
 }
 .table-view .table-cell {
     -fx-text-fill: #1A1A1A;
     -fx-font-size: 12px;
-    -fx-padding: 10px 12px;
+    /*-fx-padding: 5px 4px;*/
     -fx-alignment: CENTER_LEFT;
     -fx-border-color: transparent transparent #E8D0D0 transparent;
     -fx-border-width: 0 0 1 0;
