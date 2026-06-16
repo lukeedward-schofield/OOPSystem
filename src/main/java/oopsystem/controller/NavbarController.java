@@ -5,11 +5,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import oopsystem.repository.ActivityLogRepository;
 import oopsystem.util.SceneNavigator;
 import oopsystem.util.SessionManager;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class NavbarController implements Initializable {
@@ -22,8 +22,6 @@ public class NavbarController implements Initializable {
     @FXML public Button profileMenu;
     @FXML public Button logoutBtn;
 
-    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         dashboardMenu.setOnAction(e -> SceneNavigator.switchTo("dashboard/DashboardView"));
@@ -32,8 +30,58 @@ public class NavbarController implements Initializable {
         employeeDirectoryMenu.setOnAction(e -> SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView"));
         reportsMenu.setOnAction(e -> SceneNavigator.switchTo("reports/ReportsView"));
         profileMenu.setOnAction(e -> SceneNavigator.switchTo("profile/ProfileView"));
-
         logoutBtn.setOnAction(e -> handleLogout());
+
+        setActiveMenu(SceneNavigator.getCurrentPage());
+    }
+
+    private void setActiveMenu(String currentPage) {
+        List<Button> buttons = List.of(
+                dashboardMenu,
+                passSlipMenu,
+                movementLogsMenu,
+                employeeDirectoryMenu,
+                reportsMenu,
+                profileMenu
+        );
+
+        for (Button button : buttons) {
+            button.getStyleClass().remove("active-menu");
+        }
+
+        Button activeButton = resolveActiveButton(currentPage);
+        if (activeButton != null && !activeButton.getStyleClass().contains("active-menu")) {
+            activeButton.getStyleClass().add("active-menu");
+        }
+    }
+
+    private Button resolveActiveButton(String currentPage) {
+        if (currentPage == null || currentPage.isBlank()) {
+            return null;
+        }
+
+        String page = currentPage.toLowerCase();
+
+        if (page.contains("dashboard")) {
+            return dashboardMenu;
+        }
+        if (page.contains("passslipissuance") || page.contains("passslip")) {
+            return passSlipMenu;
+        }
+        if (page.contains("movementlogs") || page.contains("movementlog")) {
+            return movementLogsMenu;
+        }
+        if (page.contains("employeedirectory") || page.contains("addemployee")) {
+            return employeeDirectoryMenu;
+        }
+        if (page.contains("reports")) {
+            return reportsMenu;
+        }
+        if (page.contains("profile") || page.contains("settings")) {
+            return profileMenu;
+        }
+
+        return null;
     }
 
     private void handleLogout() {
@@ -43,7 +91,6 @@ public class NavbarController implements Initializable {
 
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                activityLogRepository.log("LOGOUT", "User " + SessionManager.getLoggedInUsername() + " logged out");
                 SessionManager.clearSession();
                 SceneNavigator.switchTo("login/LoginView");
             }
