@@ -167,8 +167,26 @@ public class EmployeeDirectoryController implements Initializable {
                                     )
                             );
 
-                            // 4. If DB deletion succeeds, drop it from the ObservableList to update the TableView instantly
-                            allEmployeesMasterList.remove(selectedEmployee);
+                            // 4. If DB deletion succeeds, remove the employee from the master list.
+                            //    The table only displays one paginated slice of the master list, so
+                            //    refresh the pagination frame after deleting to update the visible rows immediately.
+                            allEmployeesMasterList.removeIf(employee ->
+                                    employee.getEmployeeId() == selectedEmployee.getEmployeeId()
+                            );
+
+                            // Refresh the stat cards and the current table page so the deleted row disappears
+                            // without requiring the user to leave and return to Employee Directory.
+                            setupDataHeader();
+                            refreshPaginationAfterDataChange();
+                            employeeTable.refresh();
+
+                            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                            successAlert.setTitle("Employee Deleted");
+                            successAlert.setHeaderText("Employee record deleted successfully.");
+                            successAlert.setContentText(selectedEmployee.getFirstName() + " "
+                                    + selectedEmployee.getLastName() + " was removed from the employee directory.");
+                            successAlert.showAndWait();
+
                             System.out.println("Successfully deleted from DB and UI.");
                         } else {
                             // 5. Show error alert if the database query fails
@@ -267,6 +285,26 @@ public class EmployeeDirectoryController implements Initializable {
 
         // Render the initial view frame manually
         updateTablePageFrame(0);
+    }
+
+    /**
+     * Refreshes the visible table page after the underlying employee list changes.
+     * This is used after deleting an employee so the TableView and pagination update
+     * immediately without forcing the user back to page 1 unless the current page
+     * no longer exists.
+     */
+    private void refreshPaginationAfterDataChange() {
+        int totalPagesCount = (int) Math.ceil((double) filteredEmployees.size() / ROWS_PER_PAGE);
+        if (totalPagesCount == 0) totalPagesCount = 1;
+
+        int safePageIndex = Math.min(pagination.getCurrentPageIndex(), totalPagesCount - 1);
+        if (safePageIndex < 0) safePageIndex = 0;
+
+        pagination.setPageCount(totalPagesCount);
+        pagination.setMaxPageIndicatorCount(Math.min(7, totalPagesCount));
+        pagination.setCurrentPageIndex(safePageIndex);
+
+        updateTablePageFrame(safePageIndex);
     }
 
     private void showEditDialog(Employee employee) {
