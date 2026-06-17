@@ -37,7 +37,7 @@
          </padding>
          <children>
             <FontAwesomeIconView fill="WHITE" glyphName="BOOK" size="100" />
-            <Label text="Employee Management System" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+            <Label text="Employee Pass Slip Management System" textAlignment="CENTER" textFill="WHITE" wrapText="true">
                <font>
                   <Font name="System Bold" size="28.0" />
                </font>
@@ -88,8 +88,6 @@
                            <Insets top="10.0" />
                         </VBox.margin>
                      </Button>
-
-                     <Hyperlink text="Forgot password?" textFill="MAROON" />
 
                   </children>
                </VBox>
