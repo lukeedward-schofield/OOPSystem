@@ -1,29 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="oopsystem.controller.LogoutDialogController"
+           style="-fx-background-color:transparent;"
+           prefWidth="520" prefHeight="340">
 
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+   <VBox prefWidth="420" maxWidth="420" alignment="CENTER"
+         style="-fx-background-color:white; -fx-background-radius:10px; -fx-effect:dropshadow(gaussian,rgba(0,0,0,0.3),20,0,0,4);">
 
+      <!-- Header -->
+      <HBox alignment="CENTER_LEFT" spacing="10"
+            style="-fx-background-color:#8B0000; -fx-padding:14px 20px; -fx-background-radius:10px 10px 0 0;">
+         <Label text="⎋" style="-fx-text-fill:white; -fx-font-size:16px;"/>
+         <Label text="System Logout" style="-fx-text-fill:white; -fx-font-size:14px; -fx-font-weight:bold;"/>
+      </HBox>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <Label layoutX="153.0" layoutY="126.0" text="Logging out?">
-         <font>
-            <Font size="50.0" />
-         </font>
-      </Label>
-      <Button layoutX="166.0" layoutY="200.0" mnemonicParsing="false" text="LOG OUT">
-         <font>
-            <Font name="System Bold" size="20.0" />
-         </font>
-      </Button>
-      <Button cancelButton="true" layoutX="343.0" layoutY="200.0" mnemonicParsing="false" text="Cancel">
-         <font>
-            <Font size="20.0" />
-         </font>
-      </Button>
-      <FontAwesomeIconView glyphName="SIGN_OUT" layoutX="270.0" layoutY="120.0" size="80" wrappingWidth="72.54608154296875" />
-   </children>
-</AnchorPane>
+      <!-- Body -->
+      <VBox style="-fx-padding:28px 32px 20px 32px;" spacing="16" alignment="CENTER">
+         <StackPane>
+            <Region style="-fx-background-color:#FEE2E2; -fx-background-radius:50%;"
+                    prefWidth="64" prefHeight="64"/>
+            <Label text="!" style="-fx-text-fill:#DC2626; -fx-font-size:28px; -fx-font-weight:bold;"/>
+         </StackPane>
+         <Label text="Are you sure you want to log out?"
+                style="-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:#1A1A1A;"
+                alignment="CENTER" textAlignment="CENTER"/>
+         <Label text="Any unsaved changes in the pass slip issuer or employee directory will be lost. You will need to log back in to access the administrator portal."
+                style="-fx-font-size:12px; -fx-text-fill:#666666;"
+                wrapText="true" alignment="CENTER" textAlignment="CENTER"/>
+         <HBox spacing="12" alignment="CENTER" style="-fx-padding:8px 0 0 0;">
+            <Button fx:id="cancelBtn" text="Cancel"
+                    style="-fx-background-color:white; -fx-border-color:#CCCCCC; -fx-border-radius:6px; -fx-background-radius:6px; -fx-font-size:13px; -fx-cursor:hand;"
+                    onAction="#handleCancel" prefWidth="130" prefHeight="38"/>
+            <Button fx:id="logoutBtn" text="Logout"
+                    style="-fx-background-color:#8B0000; -fx-text-fill:white; -fx-background-radius:6px; -fx-font-size:13px; -fx-font-weight:bold; -fx-cursor:hand;"
+                    onAction="#handleLogout" prefWidth="130" prefHeight="38"/>
+         </HBox>
+      </VBox>
+
+      <!-- Footer -->
+      <Label text="OFFICIAL PASS SLIP MANAGEMENT SYSTEM • ADMIN MODULE"
+             style="-fx-text-fill:#AAAAAA; -fx-font-size:9px; -fx-padding:10px; -fx-background-color:#F9F9F9; -fx-background-radius:0 0 10px 10px;"
+             maxWidth="Infinity" alignment="CENTER"/>
+   </VBox>
+</StackPane>

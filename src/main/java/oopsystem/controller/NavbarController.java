@@ -3,9 +3,7 @@ package oopsystem.controller;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
@@ -45,11 +43,9 @@ public class NavbarController implements Initializable {
     }
 
     private void navigateTo(String view, String label) {
-        // show overlay
         navLoadingLabel.setText("Loading " + label + "...");
         navLoadingOverlay.setVisible(true);
         navLoadingOverlay.setManaged(true);
-
 
         setButtonsDisabled(true);
 
@@ -57,7 +53,6 @@ public class NavbarController implements Initializable {
             try { Thread.sleep(120); } catch (InterruptedException ignored) {}
             Platform.runLater(() -> {
                 SceneNavigator.switchTo(view);
-                // reset in case same controller reuses this nav instance
                 navLoadingOverlay.setVisible(false);
                 navLoadingOverlay.setManaged(false);
                 setButtonsDisabled(false);
@@ -91,26 +86,32 @@ public class NavbarController implements Initializable {
 
         String page = currentPage.toLowerCase();
 
-        if (page.contains("dashboard"))                                     return dashboardMenu;
-        if (page.contains("passslipissuance") || page.contains("passslip")) return passSlipMenu;
+        if (page.contains("dashboard"))                                        return dashboardMenu;
+        if (page.contains("passslipissuance") || page.contains("passslip"))   return passSlipMenu;
         if (page.contains("movementlogs")     || page.contains("movementlog")) return movementLogsMenu;
         if (page.contains("employeedirectory") || page.contains("addemployee")) return employeeDirectoryMenu;
-        if (page.contains("reports"))                                       return reportsMenu;
-        if (page.contains("profile")          || page.contains("settings")) return profileMenu;
+        if (page.contains("reports"))                                          return reportsMenu;
+        if (page.contains("profile")          || page.contains("settings"))   return profileMenu;
 
         return null;
     }
 
     private void handleLogout() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Logout");
-        confirm.setHeaderText("Are you sure you want to logout?");
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/oopsystem/components/LogoutScreen.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
 
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                SessionManager.clearSession();
-                SceneNavigator.switchTo("login/LoginView");
-            }
-        });
+            javafx.stage.Stage dialog = new javafx.stage.Stage();
+            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialog.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+            dialog.setScene(new javafx.scene.Scene(root));
+            dialog.getScene().setFill(javafx.scene.paint.Color.TRANSPARENT);
+            dialog.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
