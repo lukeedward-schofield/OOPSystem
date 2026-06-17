@@ -45,7 +45,10 @@
                 <VBox HBox.hgrow="ALWAYS" styleClass="content-box-primary" spacing="4.0">
                     <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
                     <Label text="PASS SLIP COMPLIANCE" styleClass="stat-title-primary"/>
-                    <Label fx:id="complianceRateLabel" text="0.0%" styleClass="stat-value-primary"/>
+                    <HBox alignment="BOTTOM_LEFT" spacing="10.0">
+                        <Label fx:id="complianceRateLabel" text="0.0%" styleClass="stat-value-primary"/>
+                        <Label text="return late included" styleClass="stat-note-primary"/>
+                    </HBox>
                 </VBox>
             </HBox>
 
