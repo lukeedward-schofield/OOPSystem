@@ -259,72 +259,114 @@
     -fx-font-size: 13px;
     -fx-text-fill: #64748b;
 }
-
-/* ============================================================
-   NAVIGATION DESIGN OVERRIDE
-   Keeps shared sidebar professional on every page, including pages
-   with older local .active-menu or Button styles.
-   ============================================================ */
-.button.nav-menu-button,
-.button.nav-menu-button:focused,
-.button.nav-menu-button:hover,
-.button.nav-menu-button:armed,
-.button.nav-menu-button:pressed,
-.sidebar .button.nav-menu-button,
-.sidebar .button.nav-menu-button:focused,
-.sidebar .button.nav-menu-button:hover,
-.sidebar .button.nav-menu-button:armed,
-.sidebar .button.nav-menu-button:pressed {
-    -fx-background-insets: 0;
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
-    -fx-effect: null;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-.button.nav-menu-button,
-.sidebar .button.nav-menu-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: #3A302D;
-    -fx-font-size: 15px;
-    -fx-font-weight: 700;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 14px 16px 14px 22px;
-    -fx-border-color: transparent;
-    -fx-border-width: 0 3px 0 0;
+/* Reports-style export buttons */
+.btn-export {
+    -fx-background-color: #800000;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-color: #800000;
     -fx-cursor: hand;
 }
 
-.button.nav-menu-button:hover,
-.sidebar .button.nav-menu-button:hover {
-    -fx-background-color: #FBF4F3;
-    -fx-text-fill: #7B0000;
+.btn-export:hover {
+    -fx-background-color: #990000;
+    -fx-border-color: #990000;
 }
 
-.button.nav-menu-button.active-menu,
-.sidebar .button.nav-menu-button.active-menu,
-.button.active-menu.nav-menu-button,
-.sidebar .button.active-menu.nav-menu-button {
-    -fx-background-color: #FBF4F3;
-    -fx-text-fill: #7B0000;
-    -fx-font-weight: 800;
-    -fx-border-color: transparent #9B7B00 transparent transparent;
-    -fx-border-width: 0 3px 0 0;
-    -fx-padding: 14px 16px 14px 22px;
+.btn-export:pressed {
+    -fx-background-color: #5f0000;
+    -fx-border-color: #5f0000;
+}
+
+/* =========================
+   EMPLOYEE DIRECTORY-STYLE TABLE
+   ========================= */
+.table-card {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #ead4d4;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.movement-table,
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #ead4d4;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-table-cell-border-color: #eadfdf;
+    -fx-fixed-cell-size: 36px;
+}
+
+.movement-table .column-header-background,
+.table-view .column-header-background {
+    -fx-background-color: #f2eeee;
+    -fx-background-radius: 6px 6px 0 0;
+    -fx-border-color: #ead4d4;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.movement-table .column-header,
+.table-view .column-header {
+    -fx-background-color: #f2eeee;
+    -fx-border-color: transparent #eadfdf transparent transparent;
+    -fx-padding: 8px 6px 8px 6px;
+    -fx-pref-height: 38px;
+}
+
+.movement-table .column-header .label,
+.table-view .column-header .label {
+    -fx-text-fill: #2b1a1a;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+}
+
+.movement-table .table-row-cell,
+.table-view .table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #eadfdf transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-cell-size: 36px;
+}
+
+.movement-table .table-row-cell:odd,
+.table-view .table-row-cell:odd {
+    -fx-background-color: #fbfbfb;
+}
+
+.movement-table .table-row-cell:selected,
+.table-view .table-row-cell:selected {
+    -fx-background-color: #f8eeee;
+}
+
+.movement-table .table-cell,
+.table-view .table-cell {
+    -fx-text-fill: #1f1f1f;
+    -fx-font-size: 13px;
     -fx-alignment: CENTER_LEFT;
+    -fx-padding: 7px 8px 7px 8px;
+    -fx-border-color: transparent #eadfdf transparent transparent;
 }
 
-.button.nav-menu-button.active-menu:hover,
-.button.nav-menu-button.active-menu:focused,
-.button.nav-menu-button.active-menu:armed,
-.button.nav-menu-button.active-menu:pressed,
-.sidebar .button.nav-menu-button.active-menu:hover,
-.sidebar .button.nav-menu-button.active-menu:focused,
-.sidebar .button.nav-menu-button.active-menu:armed,
-.sidebar .button.nav-menu-button.active-menu:pressed {
-    -fx-background-color: #FBF4F3;
-    -fx-text-fill: #7B0000;
-    -fx-border-color: transparent #9B7B00 transparent transparent;
-    -fx-border-width: 0 3px 0 0;
+.movement-table .placeholder .label,
+.table-view .placeholder .label {
+    -fx-text-fill: #8a7a7a;
+    -fx-font-size: 13px;
+}
+
+.movement-table .scroll-bar:vertical,
+.table-view .scroll-bar:vertical {
+    -fx-background-color: #f7f2f2;
+    -fx-pref-width: 12px;
+}
+
+.movement-table .scroll-bar:vertical .thumb,
+.table-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #c9b8b8;
+    -fx-background-radius: 8px;
 }
