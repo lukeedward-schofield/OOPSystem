@@ -156,35 +156,28 @@ public class EmployeeDirectoryController implements Initializable {
 
                         if (isDeleted) {
 
-                            ActivityLogRepository logRepo = new ActivityLogRepository();
-
-                            logRepo.log(
-                                    "DEACTIVATE_EMPLOYEE",
+                            // Record the successful employee deletion in Activity Logs.
+                            activityLogRepository.log(
+                                    "DELETE_EMPLOYEE",
                                     String.format(
-                                            "Employee deactivated: %s %s",
+                                            "Deleted employee: %s %s (Employee ID: %d, Department: %s)",
                                             selectedEmployee.getFirstName(),
-                                            selectedEmployee.getLastName()
+                                            selectedEmployee.getLastName(),
+                                            selectedEmployee.getEmployeeId(),
+                                            selectedEmployee.getDepartment()
                                     )
                             );
 
-                            // 4. If DB deletion succeeds, remove the employee from the master list.
-                            //    The table only displays one paginated slice of the master list, so
-                            //    refresh the pagination frame after deleting to update the visible rows immediately.
-                            allEmployeesMasterList.removeIf(employee ->
-                                    employee.getEmployeeId() == selectedEmployee.getEmployeeId()
-                            );
-
-                            // Refresh the stat cards and the current table page so the deleted row disappears
-                            // without requiring the user to leave and return to Employee Directory.
-                            setupDataHeader();
-                            refreshPaginationAfterDataChange();
-                            employeeTable.refresh();
+                            // 4. If DB deletion succeeds, refresh the paginated table immediately.
+                            // The TableView is bound to visibleEmployeesPageList, not directly to allEmployeesMasterList,
+                            // so we must rebuild the current page frame after removing the employee.
+                            refreshAfterDelete(selectedEmployee);
 
                             Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                             successAlert.setTitle("Employee Deleted");
                             successAlert.setHeaderText("Employee record deleted successfully.");
-                            successAlert.setContentText(selectedEmployee.getFirstName() + " "
-                                    + selectedEmployee.getLastName() + " was removed from the employee directory.");
+                            successAlert.setContentText(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName()
+                                    + " has been removed from the employee directory.");
                             successAlert.showAndWait();
 
                             System.out.println("Successfully deleted from DB and UI.");
@@ -288,23 +281,33 @@ public class EmployeeDirectoryController implements Initializable {
     }
 
     /**
-     * Refreshes the visible table page after the underlying employee list changes.
-     * This is used after deleting an employee so the TableView and pagination update
-     * immediately without forcing the user back to page 1 unless the current page
-     * no longer exists.
+     * Refreshes the Employee Directory immediately after a successful delete.
+     * This keeps the current search filter/pagination active while removing the deleted row.
      */
-    private void refreshPaginationAfterDataChange() {
+    private void refreshAfterDelete(Employee deletedEmployee) {
+        int previousPageIndex = pagination.getCurrentPageIndex();
+
+        // Remove from the master list. The FilteredList will update from this source list.
+        allEmployeesMasterList.removeIf(employee ->
+                employee.getEmployeeId() == deletedEmployee.getEmployeeId()
+        );
+
+        // Refresh top summary cards/counts from the database.
+        setupDataHeader();
+
+        // Recalculate pagination based on the filtered list after deletion.
         int totalPagesCount = (int) Math.ceil((double) filteredEmployees.size() / ROWS_PER_PAGE);
         if (totalPagesCount == 0) totalPagesCount = 1;
 
-        int safePageIndex = Math.min(pagination.getCurrentPageIndex(), totalPagesCount - 1);
-        if (safePageIndex < 0) safePageIndex = 0;
-
         pagination.setPageCount(totalPagesCount);
         pagination.setMaxPageIndicatorCount(Math.min(7, totalPagesCount));
-        pagination.setCurrentPageIndex(safePageIndex);
 
-        updateTablePageFrame(safePageIndex);
+        int targetPageIndex = Math.min(previousPageIndex, totalPagesCount - 1);
+        if (targetPageIndex < 0) targetPageIndex = 0;
+
+        pagination.setCurrentPageIndex(targetPageIndex);
+        updateTablePageFrame(targetPageIndex);
+        employeeTable.refresh();
     }
 
     private void showEditDialog(Employee employee) {
