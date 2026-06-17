@@ -19,10 +19,10 @@ public class PassSlipRepository {
      * Inserts a new pass slip and writes an activity_log entry atomically.
      *
      * Column notes matching the actual DB schema:
-     *   estimated_duration  — minutes entered by staff at issuance
-     *   status              — pass_slip_status enum, starts as 'OUT'
-     *   time_out            — set to NOW() by the DB server
-     *   time_in / actual_duration  — NULL until the employee returns
+     * estimated_duration  — minutes entered by staff at issuance
+     * status              — pass_slip_status enum, starts as 'OUT'
+     * time_out            — set to NOW() by the DB server
+     * time_in / actual_duration  — NULL until the employee returns
      *
      * Returns the generated pass_slip_ID, or -1 on failure.
      */
@@ -140,7 +140,7 @@ public class PassSlipRepository {
     // =========================================================================
 
     /**
-     * Returns true if the employee currently has an open pass slip (status = 'OUT').
+     * Returns true if the employee currently has an open pass slip (status = 'OUT' or 'OVERDUE').
      *
      * Called by the controller before issuePassSlip() to prevent duplicate
      * active slips for the same employee.
@@ -338,7 +338,6 @@ public class PassSlipRepository {
                 Timestamp timeInTs  = rs.getTimestamp("time_in");
                 Timestamp timeOutTs = rs.getTimestamp("time_out");
 
-                // Correctly handle primitive to nullable Integer conversions
                 int rawEstDuration  = rs.getInt("estimated_duration");
                 Integer estDuration = rs.wasNull() ? null : rawEstDuration;
 
@@ -347,7 +346,6 @@ public class PassSlipRepository {
 
                 String statusStr = rs.getString("status");
 
-                // Calls the matching 11-argument database constructor perfectly
                 PassSlip slip = new PassSlip(
                         rs.getInt("pass_slip_ID"),
                         rs.getInt("employee_id"),
@@ -373,32 +371,29 @@ public class PassSlipRepository {
     }
 
     public int getEmployeesOutCount() {
-        String sql = "SELECT COUNT(*) FROM pass_slip WHERE DATE(time_out) = CURRENT_DATE AND status = 'OUT'";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) return rs.getInt(1);
-        } catch (SQLException e) { e.printStackTrace(); }
-        return 0;
+        String sql = "SELECT COUNT(*) FROM pass_slip WHERE status = 'OUT'";
+        return executeCountQuery(sql);
     }
 
     public int getPendingReturnsCount() {
-        String sql = "SELECT COUNT(*) FROM pass_slip WHERE DATE(time_out) = CURRENT_DATE AND status = 'OVERDUE'";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) return rs.getInt(1);
-        } catch (SQLException e) { e.printStackTrace(); }
-        return 0;
+        String sql = "SELECT COUNT(*) FROM pass_slip WHERE status = 'OVERDUE'";
+        return executeCountQuery(sql);
     }
 
     public int getTotalPassSlipsToday() {
-        String sql = "SELECT COUNT(*) FROM pass_slip WHERE DATE(time_out) = CURRENT_DATE";
+        // No date filter — counts all pass slips ever issued
+        String sql = "SELECT COUNT(*) FROM pass_slip";
+        return executeCountQuery(sql);
+    }
+
+    private int executeCountQuery(String sql) {
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 
