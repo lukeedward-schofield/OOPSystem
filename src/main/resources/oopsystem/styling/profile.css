@@ -302,3 +302,19 @@
     -fx-border-color: #8B0000;
     -fx-text-fill: #FFFFFF;
 }
+
+/* Scroll wrapper for Profile tabs so User Management / Activity Logs remain reachable on smaller screens. */
+.profile-tab-scroll,
+.profile-tab-scroll .viewport {
+    -fx-background-color: #F8F4F3;
+}
+
+.profile-tab-scroll {
+    -fx-background-color: transparent;
+    -fx-fit-to-width: true;
+    -fx-padding: 0;
+}
+
+.profile-tab-scroll .scroll-bar:vertical {
+    -fx-pref-width: 12px;
+}

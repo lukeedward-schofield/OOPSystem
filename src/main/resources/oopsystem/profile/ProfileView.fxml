@@ -5,13 +5,12 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Pagination?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -35,200 +34,148 @@
                 <Label styleClass="profile-topbar-title" text="Pass Slip Management" />
             </HBox>
 
-            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;" VBox.vgrow="ALWAYS">
-                <content>
-                    <VBox styleClass="profile-content" spacing="15.0">
-                        <padding>
-                            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
-                        </padding>
-                        <children>
-                            <Label styleClass="profile-page-title" text="Profile" />
-                            <Label styleClass="profile-page-subtitle" text="Manage your account preferences, user accounts, and activity logs." />
+            <VBox VBox.vgrow="ALWAYS" styleClass="profile-content">
+                <Label styleClass="profile-page-title" text="Profile" />
+                <Label styleClass="profile-page-subtitle" text="Manage your account preferences, user accounts, and activity logs." />
 
-                            <Label fx:id="profileStatusLabel" styleClass="profile-status-label" text="" />
+                <Label fx:id="profileStatusLabel" styleClass="profile-status-label" text="" />
 
-                            <TabPane fx:id="profileTabPane" tabClosingPolicy="UNAVAILABLE" styleClass="profile-tab-pane">
-                                <tabs>
-                                    <Tab text="Profile &amp; Users">
-                                        <VBox spacing="20.0" styleClass="profile-tab-content">
-                                            <children>
+                <TabPane fx:id="profileTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" styleClass="profile-tab-pane">
+                    <tabs>
+                        <Tab text="Profile &amp; Users">
+                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="profile-tab-scroll">
+                                <content>
+                                    <VBox spacing="18.0" styleClass="profile-tab-content">
+                                <HBox spacing="18.0" VBox.vgrow="NEVER">
+                                    <VBox spacing="14.0" styleClass="profile-card" HBox.hgrow="ALWAYS">
+                                        <Label styleClass="profile-card-title" text="Profile Settings" />
+                                        <Label styleClass="profile-card-subtitle" text="Update your account name, username, and password." />
 
-                                                <GridPane hgap="24.0" maxWidth="Infinity" VBox.vgrow="NEVER">
-                                                    <columnConstraints>
-                                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="70.0" />
-                                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0" />
-                                                    </columnConstraints>
-                                                    <rowConstraints>
-                                                        <RowConstraints vgrow="ALWAYS" />
-                                                    </rowConstraints>
-                                                    <children>
+                                        <GridPane hgap="18.0" vgap="12.0" styleClass="profile-form-grid">
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints vgrow="NEVER" />
+                                                <RowConstraints vgrow="NEVER" />
+                                                <RowConstraints vgrow="NEVER" />
+                                                <RowConstraints vgrow="NEVER" />
+                                            </rowConstraints>
 
-                                                        <VBox spacing="14.0" styleClass="profile-card" GridPane.columnIndex="0" maxWidth="Infinity">
-                                                            <children>
-                                                                <Label styleClass="profile-card-title" text="Profile Settings" />
-                                                                <Label styleClass="profile-card-subtitle" text="Update your account name, username, and password." />
+                                            <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                                <Label styleClass="profile-field-label" text="First Name" />
+                                                <TextField fx:id="firstName" styleClass="profile-input" />
+                                            </VBox>
+                                            <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                <Label styleClass="profile-field-label" text="Last Name" />
+                                                <TextField fx:id="lastName" styleClass="profile-input" />
+                                            </VBox>
 
-                                                                <GridPane hgap="18.0" vgap="12.0" styleClass="profile-form-grid">
-                                                                    <columnConstraints>
-                                                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
-                                                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
-                                                                    </columnConstraints>
-                                                                    <rowConstraints>
-                                                                        <RowConstraints vgrow="NEVER" />
-                                                                        <RowConstraints vgrow="NEVER" />
-                                                                        <RowConstraints vgrow="NEVER" />
-                                                                        <RowConstraints vgrow="NEVER" />
-                                                                    </rowConstraints>
-                                                                    <children>
-                                                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                                                            <children>
-                                                                                <Label styleClass="profile-field-label" text="First Name" />
-                                                                                <TextField fx:id="firstName" styleClass="profile-input" />
-                                                                            </children>
-                                                                        </VBox>
-                                                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                                                            <children>
-                                                                                <Label styleClass="profile-field-label" text="Last Name" />
-                                                                                <TextField fx:id="lastName" styleClass="profile-input" />
-                                                                            </children>
-                                                                        </VBox>
+                                            <VBox spacing="6.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                                                <Label styleClass="profile-field-label" text="Username" />
+                                                <TextField fx:id="username" styleClass="profile-input" />
+                                            </VBox>
 
-                                                                        <VBox spacing="6.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
-                                                                            <children>
-                                                                                <Label styleClass="profile-field-label" text="Username" />
-                                                                                <TextField fx:id="username" styleClass="profile-input" />
-                                                                            </children>
-                                                                        </VBox>
+                                            <VBox spacing="6.0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                                                <Label styleClass="profile-field-label" text="Current Password" />
+                                                <PasswordField fx:id="currentPassword" promptText="Required to save changes" styleClass="profile-input" />
+                                            </VBox>
 
-                                                                        <VBox spacing="6.0" GridPane.columnSpan="2" GridPane.rowIndex="2">
-                                                                            <children>
-                                                                                <Label styleClass="profile-field-label" text="Current Password" />
-                                                                                <PasswordField fx:id="currentPassword" promptText="Required to save changes" styleClass="profile-input" />
-                                                                            </children>
-                                                                        </VBox>
+                                            <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                                <Label styleClass="profile-field-label" text="New Password" />
+                                                <PasswordField fx:id="newPassword" promptText="Leave blank to keep current password" styleClass="profile-input" />
+                                            </VBox>
+                                            <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                <Label styleClass="profile-field-label" text="Confirm New Password" />
+                                                <PasswordField fx:id="confirmNewPassword" styleClass="profile-input" />
+                                            </VBox>
+                                        </GridPane>
 
-                                                                        <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                                                                            <children>
-                                                                                <Label styleClass="profile-field-label" text="New Password" />
-                                                                                <PasswordField fx:id="newPassword" promptText="Leave blank to keep current password" styleClass="profile-input" />
-                                                                            </children>
-                                                                        </VBox>
-                                                                        <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                                                            <children>
-                                                                                <Label styleClass="profile-field-label" text="Confirm New Password" />
-                                                                                <PasswordField fx:id="confirmNewPassword" styleClass="profile-input" />
-                                                                            </children>
-                                                                        </VBox>
-                                                                    </children>
-                                                                </GridPane>
+                                        <HBox alignment="CENTER_RIGHT">
+                                            <Button fx:id="saveProfileBtn" mnemonicParsing="false" onAction="#handleSaveProfile" styleClass="profile-primary-button" text="Save Changes" />
+                                        </HBox>
+                                    </VBox>
 
-                                                                <HBox alignment="CENTER_RIGHT">
-                                                                    <children>
-                                                                        <Button fx:id="saveProfileBtn" mnemonicParsing="false" onAction="#handleSaveProfile" styleClass="profile-primary-button" text="Save Changes" />
-                                                                    </children>
-                                                                </HBox>
-                                                            </children>
-                                                        </VBox>
+                                    <VBox spacing="10.0" styleClass="profile-danger-card" HBox.hgrow="NEVER">
+                                        <Label styleClass="profile-danger-title" text="Danger Zone" />
+                                        <Label maxWidth="300.0" styleClass="profile-danger-text" text="Deleting your account is permanent and cannot be undone." wrapText="true" />
+                                        <Button fx:id="deleteAccountBtn" mnemonicParsing="false" onAction="#handleDeleteOwnAccount" styleClass="profile-danger-button" text="Delete My Account" />
+                                    </VBox>
+                                </HBox>
 
-                                                        <VBox spacing="16.0" styleClass="profile-danger-card" GridPane.columnIndex="1" maxWidth="Infinity" alignment="TOP_CENTER">
-                                                            <children>
-                                                                <Label styleClass="profile-danger-title" text="Danger Zone" />
-                                                                <Label styleClass="profile-danger-text" text="Deleting your account is permanent and cannot be undone." textAlignment="CENTER" wrapText="true" />
-                                                                <Button fx:id="deleteAccountBtn" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleDeleteOwnAccount" styleClass="profile-danger-button" text="Delete My Account" />
-                                                            </children>
-                                                        </VBox>
-
-                                                    </children>
-                                                </GridPane>
-
-                                                <VBox spacing="12.0" styleClass="profile-card">
-                                                    <children>
-                                                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="profile-table-toolbar">
-                                                            <children>
-                                                                <VBox spacing="3.0" HBox.hgrow="ALWAYS">
-                                                                    <children>
-                                                                        <Label styleClass="profile-card-title" text="User Management" />
-                                                                        <Label styleClass="profile-card-subtitle" text="Search, filter, and review system user accounts." />
-                                                                    </children>
-                                                                </VBox>
-                                                                <TextField fx:id="userSearchField" prefWidth="320.0" promptText="Filter by username, department, or role..." styleClass="profile-search-field" />
-                                                                <Button fx:id="clearUserFilterBtn" mnemonicParsing="false" onAction="#handleClearUserFilter" styleClass="profile-outline-button" text="Clear" />
-                                                                <Button fx:id="addUserBtn" mnemonicParsing="false" onAction="#goToAddEmployee" styleClass="profile-primary-button" text="+ Create New User" />
-                                                            </children>
-                                                        </HBox>
-
-                                                        <TableView fx:id="usersTable" minHeight="240.0" prefHeight="260.0" styleClass="profile-table">
-                                                            <columns>
-                                                                <TableColumn fx:id="usernameColumn" prefWidth="260.0" text="User" />
-                                                                <TableColumn fx:id="departmentColumn" prefWidth="220.0" text="Department" />
-                                                                <TableColumn fx:id="roleColumn" prefWidth="220.0" text="Role" />
-                                                            </columns>
-                                                            <columnResizePolicy>
-                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN" />
-                                                            </columnResizePolicy>
-                                                        </TableView>
-
-                                                        <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="profile-table-footer">
-                                                            <children>
-                                                                <Label fx:id="usersPageInfoLabel" styleClass="profile-footer-text" text="Showing users" />
-                                                                <Pagination fx:id="usersPagination" maxHeight="40.0" prefHeight="38.0" styleClass="profile-pagination" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
-
-                                            </children>
+                                <VBox spacing="12.0" styleClass="profile-card" VBox.vgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="profile-table-toolbar">
+                                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="profile-card-title" text="User Management" />
+                                            <Label styleClass="profile-card-subtitle" text="Search, filter, and review system user accounts." />
                                         </VBox>
-                                    </Tab>
+                                        <TextField fx:id="userSearchField" prefWidth="320.0" promptText="Filter by username, department, or role..." styleClass="profile-search-field" />
+                                        <Button fx:id="clearUserFilterBtn" mnemonicParsing="false" onAction="#handleClearUserFilter" styleClass="profile-outline-button" text="Clear" />
+                                        <Button fx:id="addUserBtn" mnemonicParsing="false" onAction="#goToAddEmployee" styleClass="profile-primary-button" text="+ Create New User" />
+                                    </HBox>
 
-                                    <Tab text="Activity Logs">
-                                        <VBox spacing="14.0" styleClass="profile-tab-content">
-                                            <children>
-                                                <VBox spacing="12.0" styleClass="profile-card">
-                                                    <children>
-                                                        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="profile-table-toolbar">
-                                                            <children>
-                                                                <VBox spacing="3.0" HBox.hgrow="ALWAYS">
-                                                                    <children>
-                                                                        <Label styleClass="profile-card-title" text="Activity Logs" />
-                                                                        <Label styleClass="profile-card-subtitle" text="Review login, profile, user, and system activity records." />
-                                                                    </children>
-                                                                </VBox>
-                                                                <TextField fx:id="activitySearchField" prefWidth="360.0" promptText="Filter by username, action, details, or date..." styleClass="profile-search-field" />
-                                                                <Button fx:id="clearActivityFilterBtn" mnemonicParsing="false" onAction="#handleClearActivityFilter" styleClass="profile-outline-button" text="Clear" />
-                                                            </children>
-                                                        </HBox>
+                                    <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" styleClass="profile-table">
+                                        <columns>
+                                            <TableColumn fx:id="usernameColumn" prefWidth="260.0" text="User" />
+                                            <TableColumn fx:id="departmentColumn" prefWidth="220.0" text="Department" />
+                                            <TableColumn fx:id="roleColumn" prefWidth="220.0" text="Role" />
+                                        </columns>
+                                        <columnResizePolicy>
+                                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN" />
+                                        </columnResizePolicy>
+                                    </TableView>
 
-                                                        <TableView fx:id="activityLogsTable" minHeight="240.0" prefHeight="280.0" styleClass="profile-table">
-                                                            <columns>
-                                                                <TableColumn fx:id="activityLogIdColumn" prefWidth="80.0" text="Log ID" />
-                                                                <TableColumn fx:id="activityUsernameColumn" prefWidth="170.0" text="User" />
-                                                                <TableColumn fx:id="activityActionColumn" prefWidth="170.0" text="Action" />
-                                                                <TableColumn fx:id="activityDetailsColumn" prefWidth="420.0" text="Details" />
-                                                                <TableColumn fx:id="activityCreatedAtColumn" prefWidth="190.0" text="Date / Time" />
-                                                            </columns>
-                                                            <columnResizePolicy>
-                                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN" />
-                                                            </columnResizePolicy>
-                                                        </TableView>
+                                    <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="profile-table-footer">
+                                        <Label fx:id="usersPageInfoLabel" styleClass="profile-footer-text" text="Showing users" />
+                                        <Pagination fx:id="usersPagination" maxHeight="40.0" prefHeight="38.0" styleClass="profile-pagination" />
+                                    </HBox>
+                                </VBox>
+                                    </VBox>
+                                </content>
+                            </ScrollPane>
+                        </Tab>
 
-                                                        <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="profile-table-footer">
-                                                            <children>
-                                                                <Label fx:id="activityPageInfoLabel" styleClass="profile-footer-text" text="Showing activity logs" />
-                                                                <Pagination fx:id="activityLogsPagination" maxHeight="40.0" prefHeight="38.0" styleClass="profile-pagination" />
-                                                            </children>
-                                                        </HBox>
-                                                    </children>
-                                                </VBox>
-                                            </children>
+                        <Tab text="Activity Logs">
+                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="profile-tab-scroll">
+                                <content>
+                                    <VBox spacing="14.0" styleClass="profile-tab-content">
+                                <VBox spacing="12.0" styleClass="profile-card" VBox.vgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="profile-table-toolbar">
+                                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="profile-card-title" text="Activity Logs" />
+                                            <Label styleClass="profile-card-subtitle" text="Review login, profile, user, and system activity records." />
                                         </VBox>
-                                    </Tab>
-                                </tabs>
-                            </TabPane>
-                        </children>
-                    </VBox>
-                </content>
-            </ScrollPane>
+                                        <TextField fx:id="activitySearchField" prefWidth="360.0" promptText="Filter by username, action, details, or date..." styleClass="profile-search-field" />
+                                        <Button fx:id="clearActivityFilterBtn" mnemonicParsing="false" onAction="#handleClearActivityFilter" styleClass="profile-outline-button" text="Clear" />
+                                        <Button fx:id="exportActivityLogsExcelBtn" mnemonicParsing="false" onAction="#handleExportActivityLogsExcel" styleClass="profile-primary-button" text="Export Excel" />
+                                    </HBox>
+
+                                    <TableView fx:id="activityLogsTable" VBox.vgrow="ALWAYS" styleClass="profile-table">
+                                        <columns>
+                                            <TableColumn fx:id="activityLogIdColumn" prefWidth="80.0" text="Log ID" />
+                                            <TableColumn fx:id="activityUsernameColumn" prefWidth="170.0" text="User" />
+                                            <TableColumn fx:id="activityActionColumn" prefWidth="170.0" text="Action" />
+                                            <TableColumn fx:id="activityDetailsColumn" prefWidth="420.0" text="Details" />
+                                            <TableColumn fx:id="activityCreatedAtColumn" prefWidth="190.0" text="Date / Time" />
+                                        </columns>
+                                        <columnResizePolicy>
+                                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN" />
+                                        </columnResizePolicy>
+                                    </TableView>
+
+                                    <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="profile-table-footer">
+                                        <Label fx:id="activityPageInfoLabel" styleClass="profile-footer-text" text="Showing activity logs" />
+                                        <Pagination fx:id="activityLogsPagination" maxHeight="40.0" prefHeight="38.0" styleClass="profile-pagination" />
+                                    </HBox>
+                                </VBox>
+                                    </VBox>
+                                </content>
+                            </ScrollPane>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+            </VBox>
         </VBox>
     </center>
 </BorderPane>

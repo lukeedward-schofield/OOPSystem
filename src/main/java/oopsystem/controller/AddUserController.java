@@ -7,6 +7,7 @@ import oopsystem.model.Employee;
 import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.EmployeeRepository;
 import oopsystem.repository.UserRepository;
+import oopsystem.util.SceneNavigator;
 
 import java.net.URL;
 import java.sql.SQLException;
@@ -117,7 +118,7 @@ public class AddUserController implements Initializable {
                 );
 
                 showAlert(Alert.AlertType.INFORMATION, "User account created successfully.");
-                clearForm();
+                SceneNavigator.switchTo("ProfileView");
             } else {
                 showAlert(Alert.AlertType.ERROR, "Failed to create user. Please try again.");
             }
@@ -130,7 +131,7 @@ public class AddUserController implements Initializable {
 
     @FXML
     private void handleCancel() {
-        clearForm();
+        SceneNavigator.switchTo("ProfileView");
     }
 
     private void clearForm() {

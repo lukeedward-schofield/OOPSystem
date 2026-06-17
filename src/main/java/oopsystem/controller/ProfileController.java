@@ -19,6 +19,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import oopsystem.model.ActivityLog;
 import oopsystem.model.User;
 import oopsystem.repository.ActivityLogRepository;
@@ -27,7 +28,13 @@ import oopsystem.util.SceneNavigator;
 import oopsystem.util.SessionManager;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -268,6 +275,132 @@ public class ProfileController implements Initializable {
         activitySearchField.clear();
         applyActivityFilter();
         setStatus("Activity log filter cleared.");
+    }
+
+    /**
+     * Exports the currently filtered activity logs to an Excel-readable .xls file.
+     * Uses SpreadsheetML so it opens cleanly in Microsoft Excel without CSV formatting issues.
+     */
+    @FXML
+    private void handleExportActivityLogsExcel() {
+        if (filteredActivityLogs.isEmpty()) {
+            setStatus("No activity logs available to export.");
+            showAlert(Alert.AlertType.INFORMATION, "No activity logs available to export.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export Activity Logs as Excel");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel Workbook (*.xls)", "*.xls"));
+        fileChooser.setInitialFileName("activity-logs.xls");
+
+        File file = fileChooser.showSaveDialog(activityLogsTable.getScene().getWindow());
+        if (file == null) {
+            setStatus("Activity logs export cancelled.");
+            return;
+        }
+
+        try {
+            writeActivityLogsExcel(ensureExtension(file, "xls"));
+            setStatus("Activity logs exported successfully.");
+            showAlert(Alert.AlertType.INFORMATION, "Activity logs exported successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            setStatus("Failed to export activity logs.");
+            showAlert(Alert.AlertType.ERROR, "Failed to export activity logs: " + e.getMessage());
+        }
+    }
+
+    private void writeActivityLogsExcel(File file) throws IOException {
+        List<List<String>> rows = new ArrayList<>();
+        rows.add(List.of("Activity Logs"));
+        rows.add(List.of("Exported Records", String.valueOf(filteredActivityLogs.size())));
+        rows.add(List.of(""));
+        rows.add(List.of("Log ID", "User", "Action", "Details", "Date / Time"));
+
+        for (ActivityLog log : filteredActivityLogs) {
+            rows.add(List.of(
+                    String.valueOf(log.getLogId()),
+                    nullToDash(log.getUsername()),
+                    nullToDash(log.getAction()),
+                    nullToDash(log.getLogInDetails()),
+                    log.getCreatedAt() == null ? "-" : log.getCreatedAt().format(LOG_DATE_FORMATTER)
+            ));
+        }
+
+        StringBuilder workbook = new StringBuilder();
+        workbook.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        workbook.append("<?mso-application progid=\"Excel.Sheet\"?>\n");
+        workbook.append("<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\" ")
+                .append("xmlns:o=\"urn:schemas-microsoft-com:office:office\" ")
+                .append("xmlns:x=\"urn:schemas-microsoft-com:office:excel\" ")
+                .append("xmlns:ss=\"urn:schemas-microsoft-com:office:spreadsheet\">\n");
+
+        workbook.append("<Styles>")
+                .append("<Style ss:ID=\"Title\"><Font ss:Bold=\"1\" ss:Size=\"16\" ss:Color=\"#7A0000\"/></Style>")
+                .append("<Style ss:ID=\"Header\"><Font ss:Bold=\"1\" ss:Color=\"#FFFFFF\"/>")
+                .append("<Interior ss:Color=\"#7A0000\" ss:Pattern=\"Solid\"/>")
+                .append("<Borders><Border ss:Position=\"Bottom\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/>")
+                .append("<Border ss:Position=\"Left\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/>")
+                .append("<Border ss:Position=\"Right\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/>")
+                .append("<Border ss:Position=\"Top\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\"/></Borders></Style>")
+                .append("<Style ss:ID=\"Cell\"><Borders><Border ss:Position=\"Bottom\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#E0CCCC\"/>")
+                .append("<Border ss:Position=\"Left\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#E0CCCC\"/>")
+                .append("<Border ss:Position=\"Right\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#E0CCCC\"/>")
+                .append("<Border ss:Position=\"Top\" ss:LineStyle=\"Continuous\" ss:Weight=\"1\" ss:Color=\"#E0CCCC\"/></Borders></Style>")
+                .append("</Styles>\n");
+
+        appendExcelWorksheet(workbook, "Activity Logs", rows, new int[]{70, 150, 170, 420, 160});
+        workbook.append("</Workbook>");
+        Files.writeString(file.toPath(), workbook.toString(), StandardCharsets.UTF_8);
+    }
+
+    private void appendExcelWorksheet(StringBuilder workbook, String sheetName, List<List<String>> rows, int[] columnWidths) {
+        workbook.append("<Worksheet ss:Name=\"").append(xmlEscape(sheetName)).append("\">")
+                .append("<Table>");
+
+        for (int width : columnWidths) {
+            workbook.append("<Column ss:Width=\"").append(width).append("\"/>");
+        }
+
+        for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+            List<String> row = rows.get(rowIndex);
+            String style = rowIndex == 0 ? "Title" : rowIndex == 3 ? "Header" : rowIndex > 3 ? "Cell" : "";
+
+            workbook.append("<Row>");
+            for (String value : row) {
+                workbook.append("<Cell");
+                if (!style.isEmpty()) {
+                    workbook.append(" ss:StyleID=\"").append(style).append("\"");
+                }
+                workbook.append("><Data ss:Type=\"String\">")
+                        .append(xmlEscape(value == null ? "" : value))
+                        .append("</Data></Cell>");
+            }
+            workbook.append("</Row>");
+        }
+
+        workbook.append("</Table></Worksheet>\n");
+    }
+
+    private File ensureExtension(File file, String extension) {
+        String path = file.getAbsolutePath();
+        if (path.toLowerCase(Locale.ENGLISH).endsWith("." + extension.toLowerCase(Locale.ENGLISH))) {
+            return file;
+        }
+        return new File(path + "." + extension);
+    }
+
+    private String xmlEscape(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
 
     private void populateProfileFields() {
