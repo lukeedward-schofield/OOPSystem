@@ -64,7 +64,7 @@
                 </VBox>
 
                 <!-- RECENT PASS SLIP -->
-                <VBox styleClass="card" style="-fx-padding:16px;" spacing="0">
+                <VBox fx:id="printArea" styleClass="card" style="-fx-padding:16px;" spacing="0">
                     <HBox alignment="CENTER_LEFT" style="-fx-padding:0 0 10px 0;">
                         <VBox HBox.hgrow="ALWAYS" spacing="4">
                             <Label text="RECENT PASS SLIP"
