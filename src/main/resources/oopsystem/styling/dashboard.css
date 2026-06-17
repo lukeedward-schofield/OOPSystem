@@ -67,7 +67,7 @@
 .stat-note {
     -fx-font-size: 11px;
     -fx-font-style: italic;
-    -fx-text-fill: rgba(255, 255, 255, 0.6)
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
 .stat-label { -fx-text-fill: #999999; -fx-font-size: 11px; -fx-font-weight: bold; }
 .stat-value { -fx-text-fill: #1A1A1A; -fx-font-size: 28px; -fx-font-weight: bold; }
 .stat-value-warn { -fx-text-fill: #C07000; -fx-font-size: 28px; -fx-font-weight: bold; }

@@ -6,6 +6,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import oopsystem.model.MovementLog;
+import oopsystem.model.User;
+import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.MovementLogRepository;
 import oopsystem.util.SceneNavigator;
 import javafx.scene.layout.VBox;
@@ -20,7 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
-
+import oopsystem.util.SessionManager;
 
 
 public class MovementLogController {
@@ -418,6 +420,20 @@ public class MovementLogController {
                     new Alert(Alert.AlertType.INFORMATION,
                             "Time In recorded for " + selected.getEmployeeName() + ".").show();
                     loadMovementLogs();
+
+                    User currentUser = SessionManager.getCurrentUser();
+                    if (currentUser == null) return;
+
+                    String activeUsername = currentUser.getUsername();
+
+                    ActivityLogRepository activityLogRepository = new ActivityLogRepository();
+
+                    activityLogRepository.log(
+                            "PASS_SLIP_TIMEE_IN",
+                            activeUsername + " handled passslip time in for employee: " + selected.getEmployeeName()
+                    );
+
+
                 } else {
                     new Alert(Alert.AlertType.ERROR,
                             "Failed to record Time In. Please try again.").show();
