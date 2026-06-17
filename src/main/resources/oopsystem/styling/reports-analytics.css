@@ -175,6 +175,12 @@
     -fx-font-weight: 900;
 }
 
+.summary-title-note {
+    -fx-text-fill: #8d6f6f;
+    -fx-font-size: 10px;
+    -fx-font-weight: 800;
+}
+
 .summary-value {
     -fx-text-fill: #710000;
     -fx-font-size: 25px;

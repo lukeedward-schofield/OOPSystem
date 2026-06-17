@@ -161,6 +161,13 @@
     -fx-text-fill: white;
 }
 
+.stat-note-primary {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8dede;
+    -fx-padding: 0 0 5 0;
+}
+
 /*
    TEXT / UTILITIES
  */

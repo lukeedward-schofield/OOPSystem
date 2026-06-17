@@ -79,7 +79,10 @@
                         </VBox>
 
                         <VBox HBox.hgrow="ALWAYS" minWidth="0" styleClass="summary-card">
-                            <Label text="COMPLIANCE RATE" styleClass="summary-title" />
+                            <HBox alignment="CENTER_LEFT" spacing="6">
+                                <Label text="COMPLIANCE RATE" styleClass="summary-title" />
+                                <Label text="(Return on time only)" styleClass="summary-title-note" />
+                            </HBox>
                             <HBox alignment="BOTTOM_LEFT" spacing="10">
                                 <Label fx:id="complianceRateLabel" text="0.0%" styleClass="summary-value" />
                                 <Label fx:id="complianceRateChangeLabel" text="+0.0%↗" styleClass="positive-change" />
