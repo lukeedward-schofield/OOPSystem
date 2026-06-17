@@ -37,7 +37,7 @@
          </padding>
          <children>
             <FontAwesomeIconView fill="WHITE" glyphName="BOOK" size="100" />
-            <Label text="Employee Management System" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+            <Label text="Employee Permission Slip System" textAlignment="CENTER" textFill="WHITE" wrapText="true">
                <font>
                   <Font name="System Bold" size="28.0" />
                </font>
