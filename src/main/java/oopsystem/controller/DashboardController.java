@@ -5,13 +5,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.print.PrinterJob;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import oopsystem.model.MovementLog;
 import oopsystem.model.PassSlip;
 import oopsystem.repository.MovementLogRepository;
 import oopsystem.repository.PassSlipRepository;
 import oopsystem.util.SceneNavigator;
+
+
+import javafx.scene.image.ImageView;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +37,7 @@ public class DashboardController implements Initializable {
     @FXML private Label movFooter;
     @FXML private HBox paginationBox;
     @FXML private ScrollPane mainScrollPane;
+    @FXML private VBox printArea;
 
     private final MovementLogRepository movementLogRepository = new MovementLogRepository();
     private final PassSlipRepository passSlipRepository = new PassSlipRepository();
@@ -211,7 +220,49 @@ public class DashboardController implements Initializable {
         SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView");
     }
 
-    @FXML private void handlePrintCopy() {}
+    @FXML
+    private void handlePrintCopy() {
+        if (slipEmp.getText().equals("-")) return;
+
+        printArea.applyCss();
+        printArea.layout();
+
+        SnapshotParameters params = new SnapshotParameters();
+        params.setFill(Color.TRANSPARENT);
+        WritableImage image = printArea.snapshot(params, null);
+
+        ImageView printView = new ImageView(image);
+        printView.setPreserveRatio(true);
+
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job != null) {
+            boolean showDialog = job.showPrintDialog(mainScrollPane.getScene().getWindow());
+            if (showDialog) {
+                double margin = 40.0;
+                javafx.print.PageLayout pageLayout = job.getPrinter().createPageLayout(
+                        javafx.print.Paper.A4,
+                        javafx.print.PageOrientation.LANDSCAPE,
+                        margin, margin, margin, margin);
+
+                double printWidth = pageLayout.getPrintableWidth();
+                double printHeight = pageLayout.getPrintableHeight();
+
+                double scale = Math.min(printWidth / image.getWidth(), printHeight / image.getHeight());
+
+                printView.setFitWidth(image.getWidth() * scale);
+                printView.setFitHeight(image.getHeight() * scale);
+
+                javafx.scene.layout.HBox printContainer = new javafx.scene.layout.HBox(printView);
+                printContainer.setAlignment(javafx.geometry.Pos.CENTER);
+                printContainer.setPrefSize(printWidth, printHeight);
+
+                boolean success = job.printPage(pageLayout, printContainer);
+                if (success) {
+                    job.endJob();
+                }
+            }
+        }
+    }
 
     @FXML private void goToIssuePassSlip() {
         SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView");
