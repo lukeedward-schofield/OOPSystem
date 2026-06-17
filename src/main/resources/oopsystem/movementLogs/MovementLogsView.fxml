@@ -71,16 +71,16 @@
                     </VBox>
                     <Pane HBox.hgrow="ALWAYS"/>
                     <Button text="TIME IN" translateY="1.0"  onAction="#handleTimeIn"   prefHeight="34.0" prefWidth="130.0" styleClass="btn-time-in"/>
-
-                    <Button text="EXPORT" translateY="1.0" fx:id="exportBtn" prefHeight="34.0" prefWidth="140.0" styleClass="btn-outline"/>
+                    <Button fx:id="exportExcelBtn" text="⇩  Export Excel" translateY="1.0" onAction="#handleExportExcel" prefHeight="34.0" prefWidth="145.0" styleClass="btn-export"/>
+                    <Button fx:id="exportPdfBtn" text="▣  Export PDF" translateY="1.0" onAction="#handleExportPdf" prefHeight="34.0" prefWidth="130.0" styleClass="btn-export"/>
                 </HBox>
             </VBox>
 
 
             <!-- TABLE -->
-            <VBox styleClass="content-box" spacing="10.0" VBox.vgrow="ALWAYS">
+            <VBox styleClass="content-box table-card" spacing="10.0" VBox.vgrow="ALWAYS">
                 <padding><Insets bottom="14.0" left="16.0" right="16.0" top="14.0"/></padding>
-                <TableView fx:id="movementLogsTable" VBox.vgrow="ALWAYS" >
+                <TableView fx:id="movementLogsTable" styleClass="movement-table" VBox.vgrow="ALWAYS" prefHeight="430.0">
                     <columns>
                         <TableColumn fx:id="dateColumn"     text="DATE"                prefWidth="110.0"/>
                         <TableColumn fx:id="employeeColumn" text="EMPLOYEE"            prefWidth="170.0"/>
