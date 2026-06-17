@@ -15,8 +15,6 @@ import oopsystem.repository.MovementLogRepository;
 import oopsystem.repository.PassSlipRepository;
 import oopsystem.util.SceneNavigator;
 
-
-import javafx.scene.image.ImageView;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
@@ -213,7 +211,7 @@ public class DashboardController implements Initializable {
 
         statOutNote.setText("↗ employees currently out");
         statPendingNote.setText(pending > 0 ? "⚠ " + pending + " overdue returns" : "✓ All returned");
-        statTotalNote.setText("Last updated: just now");
+        statTotalNote.setText("");
     }
 
     @FXML private void handleNewEntry() {
@@ -224,39 +222,17 @@ public class DashboardController implements Initializable {
     private void handlePrintCopy() {
         if (slipEmp.getText().equals("-")) return;
 
-        printArea.applyCss();
-        printArea.layout();
-
         SnapshotParameters params = new SnapshotParameters();
         params.setFill(Color.TRANSPARENT);
         WritableImage image = printArea.snapshot(params, null);
 
-        ImageView printView = new ImageView(image);
-        printView.setPreserveRatio(true);
+        javafx.scene.image.ImageView printView = new javafx.scene.image.ImageView(image);
 
-        PrinterJob job = PrinterJob.createPrinterJob();
+        javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
         if (job != null) {
             boolean showDialog = job.showPrintDialog(mainScrollPane.getScene().getWindow());
             if (showDialog) {
-                double margin = 40.0;
-                javafx.print.PageLayout pageLayout = job.getPrinter().createPageLayout(
-                        javafx.print.Paper.A4,
-                        javafx.print.PageOrientation.LANDSCAPE,
-                        margin, margin, margin, margin);
-
-                double printWidth = pageLayout.getPrintableWidth();
-                double printHeight = pageLayout.getPrintableHeight();
-
-                double scale = Math.min(printWidth / image.getWidth(), printHeight / image.getHeight());
-
-                printView.setFitWidth(image.getWidth() * scale);
-                printView.setFitHeight(image.getHeight() * scale);
-
-                javafx.scene.layout.HBox printContainer = new javafx.scene.layout.HBox(printView);
-                printContainer.setAlignment(javafx.geometry.Pos.CENTER);
-                printContainer.setPrefSize(printWidth, printHeight);
-
-                boolean success = job.printPage(pageLayout, printContainer);
+                boolean success = job.printPage(printView);
                 if (success) {
                     job.endJob();
                 }
