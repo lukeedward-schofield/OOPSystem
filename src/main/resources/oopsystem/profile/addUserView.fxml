@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="850.0" prefWidth="1280.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.AddUserController">
+<BorderPane prefHeight="850.0" prefWidth="1280.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="oopsystem.controller.profile.AddUserController">
 
    <left>
       <fx:include fx:id="navBar" source="../components/Nav.fxml" />

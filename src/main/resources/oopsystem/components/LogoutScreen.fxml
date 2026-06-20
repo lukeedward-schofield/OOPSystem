@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
-           fx:controller="oopsystem.controller.LogoutDialogController"
+           fx:controller="oopsystem.components.LogoutDialogController"
            style="-fx-background-color:transparent;"
            prefWidth="520" prefHeight="340">
 

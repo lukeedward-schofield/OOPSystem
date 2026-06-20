@@ -8,7 +8,7 @@
             stylesheets="@../styling/MovementlogView.css"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="oopsystem.controller.MovementLogController">
+            fx:controller="oopsystem.controller.movementLog.MovementLogController">
 
     <left>
         <fx:include fx:id="navBar" source="../components/Nav.fxml" />

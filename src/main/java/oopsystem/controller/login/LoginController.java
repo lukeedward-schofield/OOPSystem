@@ -1,4 +1,4 @@
-package oopsystem.controller;
+package oopsystem.controller.login;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;

@@ -1,4 +1,4 @@
-package oopsystem.controller;
+package oopsystem.controller.passSlipIssuance;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.WritableImage;

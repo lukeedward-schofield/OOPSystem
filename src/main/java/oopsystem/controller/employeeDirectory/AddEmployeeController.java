@@ -1,4 +1,4 @@
-package oopsystem.controller;
+package oopsystem.controller.employeeDirectory;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;

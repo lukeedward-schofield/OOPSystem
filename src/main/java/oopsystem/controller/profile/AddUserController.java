@@ -1,4 +1,4 @@
-package oopsystem.controller;
+package oopsystem.controller.profile;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;

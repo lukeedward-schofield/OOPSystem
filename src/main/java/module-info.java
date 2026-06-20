@@ -29,4 +29,11 @@ module oopsystem {
 
 //    Export entry point
     exports oopsystem.app;
+    opens oopsystem.controller.employeeDirectory to javafx.fxml;
+    opens oopsystem.controller.profile to javafx.fxml;
+    opens oopsystem.controller.dashboard to javafx.fxml;
+    opens oopsystem.controller.login to javafx.fxml;
+    opens oopsystem.controller.movementLog to javafx.fxml;
+    opens oopsystem.components to javafx.fxml;
+    opens oopsystem.controller.passSlipIssuance to javafx.fxml;
 }

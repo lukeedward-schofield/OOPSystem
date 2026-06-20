@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="oopsystem.controller.AddEmployeeController"
+            fx:controller="oopsystem.controller.employeeDirectory.AddEmployeeController"
             minWidth="1050" minHeight="650"
             styleClass="employee-root"
             stylesheets="@../styling/employeeDirectory.css">

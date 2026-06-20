@@ -19,7 +19,7 @@
 <GridPane prefHeight="500.0" prefWidth="700.0"
           xmlns="http://javafx.com/javafx/26"
           xmlns:fx="http://javafx.com/fxml/1"
-          fx:controller="oopsystem.controller.LoginController">
+          fx:controller="oopsystem.controller.login.LoginController">
 
    <columnConstraints>
       <ColumnConstraints percentWidth="50.0" hgrow="ALWAYS" />

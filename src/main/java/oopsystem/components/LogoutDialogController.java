@@ -1,4 +1,4 @@
-package oopsystem.controller;
+package oopsystem.components;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
