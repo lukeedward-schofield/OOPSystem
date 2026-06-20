@@ -24,7 +24,7 @@
 <BorderPane
         xmlns="http://javafx.com/javafx/21"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="oopsystem.controller.PassSlipIssuanceController">
+        fx:controller="oopsystem.controller.passSlipIssuance.PassSlipIssuanceController">
 
    <left>
       <fx:include fx:id="navBar" source="../components/Nav.fxml" />

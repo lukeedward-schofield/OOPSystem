@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="oopsystem.controller.EmployeeDirectoryController"
+            fx:controller="oopsystem.controller.employeeDirectory.EmployeeDirectoryController"
             minWidth="1050" minHeight="650"
             styleClass="employee-root"
             stylesheets="@../styling/employeeDirectory.css">
@@ -48,7 +48,7 @@
                             <Label text="Manage institution staff profiles and official records." styleClass="employee-page-subtitle" />
                         </VBox>
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="addEmployeeBtn" onAction="#addEmployee" text="+  Add New Employee" styleClass="employee-primary-button" />
+                        <Button fx:id="addEmployeeBtn" onAction="#goToAddEmployee" text="+  Add New Employee" styleClass="employee-primary-button" />
                     </HBox>
 
                     <HBox spacing="16" styleClass="employee-summary-row">

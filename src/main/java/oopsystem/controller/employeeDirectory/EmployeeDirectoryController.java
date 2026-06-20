@@ -1,4 +1,4 @@
-package oopsystem.controller;
+package oopsystem.controller.employeeDirectory;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -18,20 +18,14 @@ import oopsystem.repository.EmployeeRepository;
 import oopsystem.util.SceneNavigator;
 
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class EmployeeDirectoryController implements Initializable {
 
-    // =========================
-    // FXML COMPONENTS
-    // =========================
     @FXML private Label employeeCount;
     @FXML private Label activeEmployeeCount;
-
     @FXML private TextField searchField;
-
 
     @FXML private TableView<Employee> employeeTable;
     @FXML private TableColumn<Employee, String> nameColumn;
@@ -43,27 +37,14 @@ public class EmployeeDirectoryController implements Initializable {
 
     @FXML private Pagination pagination;
 
-
-    // =========================
-    // REPOSITORY
-    // =========================
-
     private final EmployeeRepository employeeRepository = new EmployeeRepository();
     private final ObservableList<Employee> allEmployeesMasterList = FXCollections.observableArrayList();
     private FilteredList<Employee> filteredEmployees;
     private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
-    // =========================
-    // TABLE DATA & PAGINATION VARIABLES
-    // =========================
-    // This acts as your master list containing ALL data loaded from your database
+
     private final ObservableList<Employee> visibleEmployeesPageList = FXCollections.observableArrayList();
 
-    // This holds only the maximum 10 rows shown on screen at any given time
-    private int currentPageIndex = 0;
     private static final int ROWS_PER_PAGE = 10;
-    // =========================
-    // INITIALIZE
-    // =========================
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -89,10 +70,9 @@ public class EmployeeDirectoryController implements Initializable {
         setupSearchFilter();
     }
 
-
-    // =========================
-    // TABLE CONFIGURATION
-    // =========================
+    @FXML public void goToAddEmployee(){
+        SceneNavigator.switchTo("employeeDirectory/AddEmployeeView");
+    }
 
     private void setupDataHeader(){
         this.employeeCount.setText(String.valueOf(this.employeeRepository.getEmployeeCount()));
@@ -114,8 +94,7 @@ public class EmployeeDirectoryController implements Initializable {
         contactColumn.setCellValueFactory(new PropertyValueFactory<>("emailAddress"));
     }
 
-    private void setupActionButtonsColumn()
-    {
+    private void setupActionButtonsColumn() {
         actionColumn.setCellFactory( param -> new TableCell<Employee, Void>()
         {
                 private final HBox layoutContainer = new HBox();
@@ -205,10 +184,6 @@ public class EmployeeDirectoryController implements Initializable {
         });
     }
 
-    // =========================
-    // LOAD EMPLOYEES
-    // =========================
-
     private void loadEmployees() {
         // Fetch records from repository directly into master list
         allEmployeesMasterList.setAll(employeeRepository.getAllEmployees());
@@ -217,10 +192,6 @@ public class EmployeeDirectoryController implements Initializable {
         resetPagination();
     }
 
-    /**
-     * Slices the large master list into chunks of 10 rows maximum
-     * based on your current page location tracking context variable.
-     */
     private void updateTablePageFrame(int pageIndex) {
         int fromIndex = pageIndex * ROWS_PER_PAGE;
         int toIndex = Math.min(fromIndex + ROWS_PER_PAGE, filteredEmployees.size());
@@ -280,10 +251,6 @@ public class EmployeeDirectoryController implements Initializable {
         updateTablePageFrame(0);
     }
 
-    /**
-     * Refreshes the Employee Directory immediately after a successful delete.
-     * This keeps the current search filter/pagination active while removing the deleted row.
-     */
     private void refreshAfterDelete(Employee deletedEmployee) {
         int previousPageIndex = pagination.getCurrentPageIndex();
 
@@ -402,13 +369,6 @@ public class EmployeeDirectoryController implements Initializable {
             }
         });
     }
+    
 
-    // =========================
-    // PAGINATION BUTTON ACTIONS
-    // =========================
-
-    @FXML
-    public void addEmployee(){
-        SceneNavigator.switchTo("employeeDirectory/AddEmployeeView");
-    }
 }

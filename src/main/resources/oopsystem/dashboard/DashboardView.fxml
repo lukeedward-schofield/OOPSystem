@@ -5,7 +5,7 @@
 
 <BorderPane prefWidth="1209.0" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="oopsystem.controller.DashboardController">
+            fx:controller="oopsystem.controller.dashboard.DashboardController">
 
     <left>
         <fx:include fx:id="navBar" source="../components/Nav.fxml" />

@@ -1,4 +1,4 @@
-package oopsystem.controller;
+package oopsystem.controller.movementLog;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;

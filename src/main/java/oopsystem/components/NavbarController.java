@@ -1,4 +1,4 @@
-package oopsystem.controller;
+package oopsystem.components;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -8,7 +8,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 import oopsystem.util.SceneNavigator;
-import oopsystem.util.SessionManager;
 
 import java.net.URL;
 import java.util.List;

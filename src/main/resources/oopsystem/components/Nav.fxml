@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="oopsystem.controller.NavbarController">
+           fx:controller="oopsystem.components.NavbarController">
 
     <!-- SIDEBAR CONTENT -->
     <VBox fx:id="sidebarContent" prefWidth="264.0" minWidth="264.0" fillWidth="true"
