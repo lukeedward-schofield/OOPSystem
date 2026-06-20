@@ -221,21 +221,36 @@ public class DashboardController implements Initializable {
     private void handlePrintCopy() {
         if (slipEmp.getText().equals("-")) return;
 
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job == null) return;
+
+        javafx.print.Printer printer = job.getPrinter();
+        javafx.print.PageLayout pageLayout = printer.createPageLayout(
+                javafx.print.Paper.A4,
+                javafx.print.PageOrientation.LANDSCAPE,
+                javafx.print.Printer.MarginType.DEFAULT
+        );
+        job.getJobSettings().setPageLayout(pageLayout);
+
+        boolean showDialog = job.showPrintDialog(mainScrollPane.getScene().getWindow());
+        if (!showDialog) return;
+
+        double pageWidth = pageLayout.getPrintableWidth();
+        double pageHeight = pageLayout.getPrintableHeight();
+
         SnapshotParameters params = new SnapshotParameters();
-        params.setFill(Color.TRANSPARENT);
-        WritableImage image = printArea.snapshot(params, null);
+        params.setFill(Color.WHITE);
+        params.setTransform(javafx.scene.transform.Transform.scale(2, 2));
+        WritableImage snapshot = printArea.snapshot(params, null);
 
-        javafx.scene.image.ImageView printView = new javafx.scene.image.ImageView(image);
+        javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(snapshot);
+        imageView.setPreserveRatio(true);
+        imageView.setFitWidth(pageWidth);
+        imageView.setFitHeight(pageHeight);
 
-        javafx.print.PrinterJob job = javafx.print.PrinterJob.createPrinterJob();
-        if (job != null) {
-            boolean showDialog = job.showPrintDialog(mainScrollPane.getScene().getWindow());
-            if (showDialog) {
-                boolean success = job.printPage(printView);
-                if (success) {
-                    job.endJob();
-                }
-            }
+        boolean success = job.printPage(pageLayout, imageView);
+        if (success) {
+            job.endJob();
         }
     }
 
