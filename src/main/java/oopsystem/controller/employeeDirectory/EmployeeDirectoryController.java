@@ -15,6 +15,7 @@ import javafx.scene.layout.HBox;
 import oopsystem.model.Employee;
 import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.EmployeeRepository;
+import oopsystem.service.EmployeeService;
 import oopsystem.util.SceneNavigator;
 
 import java.net.URL;
@@ -130,24 +131,12 @@ public class EmployeeDirectoryController implements Initializable {
                     Optional<ButtonType> result = alert.showAndWait();
                     if (result.isPresent() && result.get() == ButtonType.OK) {
 
-                        // 3. Attempt to delete from the PostgreSQL Database
-                        boolean isDeleted = employeeRepository.deleteEmployeeById(selectedEmployee.getEmployeeId());
+                        EmployeeService service = new EmployeeService();
+
+                        boolean isDeleted = service.terminateEmployee(selectedEmployee);
 
                         if (isDeleted) {
-
-                            // Record the successful employee deletion in Activity Logs.
-                            activityLogRepository.log(
-                                    "DELETE_EMPLOYEE",
-                                    String.format(
-                                            "Deleted employee: %s %s (Employee ID: %d, Department: %s)",
-                                            selectedEmployee.getFirstName(),
-                                            selectedEmployee.getLastName(),
-                                            selectedEmployee.getEmployeeId(),
-                                            selectedEmployee.getDepartment()
-                                    )
-                            );
-
-                            // 4. If DB deletion succeeds, refresh the paginated table immediately.
+                            // If DB deletion succeeds, refresh the paginated table immediately.
                             // The TableView is bound to visibleEmployeesPageList, not directly to allEmployeesMasterList,
                             // so we must rebuild the current page frame after removing the employee.
                             refreshAfterDelete(selectedEmployee);
@@ -162,6 +151,7 @@ public class EmployeeDirectoryController implements Initializable {
                             System.out.println("Successfully deleted from DB and UI.");
                         } else {
                             // 5. Show error alert if the database query fails
+                            System.out.println(isDeleted);
                             Alert errorAlert = new Alert(Alert.AlertType.ERROR);
                             errorAlert.setTitle("Database Error");
                             errorAlert.setHeaderText("Deletion Failed");

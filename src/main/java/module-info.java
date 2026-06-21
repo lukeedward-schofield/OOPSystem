@@ -24,7 +24,6 @@ module oopsystem {
 
 //    Open packages to JavaFX for reflection
     opens oopsystem.app to javafx.graphics;
-    opens oopsystem.controller to javafx.fxml;
     opens oopsystem.model to javafx.base;
 
 //    Export entry point
@@ -36,4 +35,5 @@ module oopsystem {
     opens oopsystem.controller.movementLog to javafx.fxml;
     opens oopsystem.components to javafx.fxml;
     opens oopsystem.controller.passSlipIssuance to javafx.fxml;
+    opens oopsystem.controller.reportsAnalytics to javafx.fxml;
 }

@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="oopsystem.controller.ReportsAnalyticsController"
+            fx:controller="oopsystem.controller.reportsAnalytics.ReportsAnalyticsController"
             minWidth="1050" minHeight="650"
             styleClass="app-root"
             stylesheets="@../styling/reports-analytics.css">

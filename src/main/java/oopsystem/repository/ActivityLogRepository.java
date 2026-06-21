@@ -17,7 +17,7 @@ public class ActivityLogRepository {
      */
     public void log(String action, String details) {
         int userId = SessionManager.getLoggedInUserId();
-        System.out.println("LOG CALLED — userId: " + userId + " | action: " + action + " | details: " + details);
+//        System.out.println("LOG CALLED — userId: " + userId + " | action: " + action + " | details: " + details);
 
         if (userId == -1) {
             System.out.println("LOG SKIPPED — no active session");
