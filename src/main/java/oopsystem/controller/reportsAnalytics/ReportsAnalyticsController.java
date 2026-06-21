@@ -1,4 +1,4 @@
-package oopsystem.controller;
+package oopsystem.controller.reportsAnalytics;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
