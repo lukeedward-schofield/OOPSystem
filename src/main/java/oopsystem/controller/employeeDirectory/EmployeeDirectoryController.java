@@ -13,8 +13,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import oopsystem.model.Employee;
-import oopsystem.repository.ActivityLogRepository;
-import oopsystem.repository.EmployeeRepository;
 import oopsystem.service.EmployeeService;
 import oopsystem.util.SceneNavigator;
 
@@ -38,10 +36,9 @@ public class EmployeeDirectoryController implements Initializable {
 
     @FXML private Pagination pagination;
 
-    private final EmployeeRepository employeeRepository = new EmployeeRepository();
+
     private final ObservableList<Employee> allEmployeesMasterList = FXCollections.observableArrayList();
     private FilteredList<Employee> filteredEmployees;
-    private final ActivityLogRepository activityLogRepository = new ActivityLogRepository();
 
     private final ObservableList<Employee> visibleEmployeesPageList = FXCollections.observableArrayList();
 
@@ -76,8 +73,10 @@ public class EmployeeDirectoryController implements Initializable {
     }
 
     private void setupDataHeader(){
-        this.employeeCount.setText(String.valueOf(this.employeeRepository.getEmployeeCount()));
-        this.activeEmployeeCount.setText(String.valueOf(this.employeeRepository.getActiveEmployeeCount()));
+        EmployeeService employeeService = new EmployeeService();
+
+        this.employeeCount.setText(String.valueOf(employeeService.getEmployeeCount()));
+        this.activeEmployeeCount.setText(String.valueOf(employeeService.getActiveEmployeeCount()));
     }
 
     private void setupTableColumns() {
@@ -175,8 +174,9 @@ public class EmployeeDirectoryController implements Initializable {
     }
 
     private void loadEmployees() {
-        // Fetch records from repository directly into master list
-        allEmployeesMasterList.setAll(employeeRepository.getAllEmployees());
+        EmployeeService employeeService = new EmployeeService();
+
+        allEmployeesMasterList.setAll(employeeService.getAllEmployees());
 
         // Recalculate your page boundaries based on current row numbers
         resetPagination();

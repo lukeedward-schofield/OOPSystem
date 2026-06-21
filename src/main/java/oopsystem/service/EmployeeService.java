@@ -5,10 +5,24 @@ import oopsystem.model.Employee;
 import oopsystem.repository.ActivityLogRepository;
 import oopsystem.repository.EmployeeRepository;
 
+import java.util.List;
+
 public class EmployeeService {
 
     private EmployeeRepository employeeRepository = new EmployeeRepository();
     private ActivityLogRepository activityLogRepository = new ActivityLogRepository();
+
+    public int getEmployeeCount(){
+        return this.employeeRepository.getEmployeeCount();
+    }
+
+    public int getActiveEmployeeCount(){
+        return this.employeeRepository.getActiveEmployeeCount();
+    }
+
+    public List<Employee> getAllEmployees(){
+        return employeeRepository.getAllEmployees();
+    }
 
     public Boolean terminateEmployee(Employee employee) {
 
@@ -30,7 +44,6 @@ public class EmployeeService {
         return true;
 
     }
-
 
     public Boolean editEmployeeDetails(Employee employee){
         boolean isUpdated = employeeRepository.updateEmployee(employee);
