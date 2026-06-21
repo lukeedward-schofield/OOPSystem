@@ -12,6 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import oopsystem.factory.AlertFactory;
 import oopsystem.model.Employee;
 import oopsystem.service.EmployeeService;
 import oopsystem.util.SceneNavigator;
@@ -109,25 +110,14 @@ public class EmployeeDirectoryController implements Initializable {
 
                 editBtn.setOnAction(event -> {
                     Employee selectedEmployee = getTableView().getItems().get(getIndex());
-
-                    System.out.println("User clicked EDIT on row index: " + getIndex());
-                    System.out.println("Extracted Hidden Database ID: " + selectedEmployee.getEmployeeId());
-                    System.out.println("Extracted Target Username: " + selectedEmployee.getEmployeeId());
-
                     showEditDialog(selectedEmployee);
                 });
 
                 deleteBtn.setOnAction(event -> {
                     Employee selectedEmployee = getTableView().getItems().get(getIndex());
 
-                    // 1. Show a confirmation popup alert
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Delete Employee");
-                    alert.setHeaderText("Are you sure you want to delete this employee?");
-                    alert.setContentText("Employee ID: " + selectedEmployee.getEmployeeId() + "\nThis action cannot be undone.");
-
-                    // 2. Wait for the user to click a button
-                    Optional<ButtonType> result = alert.showAndWait();
+                    // Wait for the user to click a button
+                    Optional<ButtonType> result = AlertFactory.showDeleteConfirmation(selectedEmployee);
                     if (result.isPresent() && result.get() == ButtonType.OK) {
 
                         EmployeeService service = new EmployeeService();
@@ -135,28 +125,13 @@ public class EmployeeDirectoryController implements Initializable {
                         boolean isDeleted = service.terminateEmployee(selectedEmployee);
 
                         if (isDeleted) {
-                            // If DB deletion succeeds, refresh the paginated table immediately.
-                            // The TableView is bound to visibleEmployeesPageList, not directly to allEmployeesMasterList,
-                            // so we must rebuild the current page frame after removing the employee.
                             refreshAfterDelete(selectedEmployee);
-
-                            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                            successAlert.setTitle("Employee Deleted");
-                            successAlert.setHeaderText("Employee record deleted successfully.");
-                            successAlert.setContentText(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName()
-                                    + " has been removed from the employee directory.");
-                            successAlert.showAndWait();
-
-                            System.out.println("Successfully deleted from DB and UI.");
+                            AlertFactory.employeeDeletionSuccess(selectedEmployee);
                         } else {
-                            // 5. Show error alert if the database query fails
-                            System.out.println(isDeleted);
-                            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                            errorAlert.setTitle("Database Error");
-                            errorAlert.setHeaderText("Deletion Failed");
-                            errorAlert.setContentText("Could not drop employee record from the database.");
-                            errorAlert.showAndWait();
+
+                            AlertFactory.employeeDeletionDatabaseError();
                         }
+
                     }
                 });
             }
@@ -175,7 +150,6 @@ public class EmployeeDirectoryController implements Initializable {
 
     private void loadEmployees() {
         EmployeeService employeeService = new EmployeeService();
-
         allEmployeesMasterList.setAll(employeeService.getAllEmployees());
 
         // Recalculate your page boundaries based on current row numbers
@@ -196,11 +170,11 @@ public class EmployeeDirectoryController implements Initializable {
     private void setupSearchFilter() {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             // Safe check: If the list isn't ready yet, skip processing to prevent a crash
-            if (filteredEmployees == null) {
+            if (this.filteredEmployees == null) {
                 return;
             }
 
-            filteredEmployees.setPredicate(employee -> {
+            this.filteredEmployees.setPredicate(employee -> {
                 if (newValue == null || newValue.trim().isEmpty()) {
                     return true;
                 }
@@ -335,9 +309,9 @@ public class EmployeeDirectoryController implements Initializable {
 
             if (employeeUpdated) {
                 // Refresh the master list in place so pagination/search stay intact
-                int index = allEmployeesMasterList.indexOf(employee);
+                int index = this.allEmployeesMasterList.indexOf(employee);
                 if (index >= 0) {
-                    allEmployeesMasterList.set(index, updatedEmployee);
+                    this.allEmployeesMasterList.set(index, updatedEmployee);
                 }
                 updateTablePageFrame(pagination.getCurrentPageIndex());
             } else {
