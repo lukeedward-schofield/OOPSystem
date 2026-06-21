@@ -13,9 +13,6 @@ public class EmployeeService {
     public Boolean terminateEmployee(Employee employee) {
 
         boolean isDeleted = employeeRepository.deleteEmployeeById(employee.getEmployeeId());
-
-//        System.out.println(isDeleted);
-
         if (!isDeleted) {
             System.out.println("Error occurred when deleting employee. The problem might be in the repository");
             return false;
@@ -32,5 +29,29 @@ public class EmployeeService {
                             employee.getDepartment()));
         return true;
 
+    }
+
+
+    public Boolean editEmployeeDetails(Employee employee){
+        boolean isUpdated = employeeRepository.updateEmployee(employee);
+
+        if(! isUpdated){
+            System.out.println("Employee not updated. Possible database exception");
+            return false;
+        }
+
+        ActivityLogRepository logRepo = new ActivityLogRepository();
+
+        logRepo.log(
+                "UPDATE_EMPLOYEE",
+                String.format(
+                        "Employee updated: %s %s (%s)",
+                        employee.getFirstName(),
+                        employee.getLastName(),
+                        employee.getDepartment()
+                )
+        );
+
+        return true;
     }
 }

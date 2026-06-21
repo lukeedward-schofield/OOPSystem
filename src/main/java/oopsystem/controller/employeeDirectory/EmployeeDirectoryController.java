@@ -330,21 +330,10 @@ public class EmployeeDirectoryController implements Initializable {
 
         // --- Handle Result ---
         dialog.showAndWait().ifPresent(updatedEmployee -> {
-            boolean success = employeeRepository.updateEmployee(updatedEmployee);
-            if (success) {
+            EmployeeService employeeService = new EmployeeService();
+            boolean employeeUpdated = employeeService.editEmployeeDetails(updatedEmployee);
 
-                ActivityLogRepository logRepo = new ActivityLogRepository();
-
-                logRepo.log(
-                        "UPDATE_EMPLOYEE",
-                        String.format(
-                                "Employee updated: %s %s (%s)",
-                                employee.getFirstName(),
-                                employee.getLastName(),
-                                employee.getDepartment()
-                        )
-                );
-
+            if (employeeUpdated) {
                 // Refresh the master list in place so pagination/search stay intact
                 int index = allEmployeesMasterList.indexOf(employee);
                 if (index >= 0) {
