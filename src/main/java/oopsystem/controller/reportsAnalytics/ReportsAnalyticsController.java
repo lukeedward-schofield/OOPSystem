@@ -436,7 +436,9 @@ public class ReportsAnalyticsController {
             currentSummary = repository.getSummary(startDate, endDate);
             totalPassSlipsLabel.setText(String.valueOf(currentSummary.getTotalPassSlips()));
             complianceRateLabel.setText(String.format("%.1f%%", currentSummary.getComplianceRate()));
-            averageDurationLabel.setText(formatDuration(currentSummary.getAverageDurationMinutes()));
+            if (averageDurationLabel != null) {
+                averageDurationLabel.setText(formatDuration(currentSummary.getAverageDurationMinutes()));
+            }
             overduePassesLabel.setText(String.valueOf(currentSummary.getOverduePasses()));
             currentlyOutLabel.setText(String.valueOf(currentSummary.getCurrentlyOut()));
 
@@ -504,7 +506,7 @@ public class ReportsAnalyticsController {
                 "Total Issued: " + report.getTotalIssued() + "\n" +
                 "Returned On Time: " + report.getReturnedOnTime() + "\n" +
                 "Overdue: " + report.getOverdue() + "\n" +
-                "Average Duration: " + formatDuration(report.getAverageDurationMinutes()) + "\n" +
+                "Avg. Time Outside: " + formatDuration(report.getAverageDurationMinutes()) + "\n" +
                 "Compliance Rate: " + String.format("%.1f%%", report.getComplianceRate())
         );
         alert.showAndWait();
@@ -653,7 +655,6 @@ public class ReportsAnalyticsController {
         rows.add(List.of("Metric", "Value", "Change"));
         rows.add(List.of("Total Pass Slips", String.valueOf(currentSummary == null ? 0 : currentSummary.getTotalPassSlips()), safeLabelText(totalPassSlipsChangeLabel)));
         rows.add(List.of("Compliance Rate", currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate()), safeLabelText(complianceRateChangeLabel)));
-        rows.add(List.of("Average Duration", currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes()), safeLabelText(averageDurationChangeLabel)));
         rows.add(List.of("Overdue Passes", String.valueOf(currentSummary == null ? 0 : currentSummary.getOverduePasses()), safeLabelText(overduePassesChangeLabel)));
         return rows;
     }
@@ -679,7 +680,7 @@ public class ReportsAnalyticsController {
         rows.add(List.of(selectedReportModeText() + " Compliance and Overdue Monitoring"));
         rows.add(List.of("Date Range", String.valueOf(startDatePicker.getValue()), "to " + endDatePicker.getValue()));
         rows.add(List.of(""));
-        rows.add(List.of(weeklyMode ? "Week Start" : "Date", "Total Issued", "Returned On Time", "Overdue", "Average Duration", "Compliance Rate"));
+        rows.add(List.of(weeklyMode ? "Week Start" : "Date", "Total Issued", "Returned On Time", "Overdue", "Avg. Time Outside", "Compliance Rate"));
         for (DailyReport report : currentReportRows) {
             rows.add(List.of(
                     String.valueOf(report.getReportDate()),
@@ -812,7 +813,6 @@ public class ReportsAnalyticsController {
         rows.add(List.of("Metric", "Value", "Change"));
         rows.add(List.of("Total Pass Slips", String.valueOf(currentSummary == null ? 0 : currentSummary.getTotalPassSlips()), safeLabelText(totalPassSlipsChangeLabel)));
         rows.add(List.of("Compliance Rate", currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate()), safeLabelText(complianceRateChangeLabel)));
-        rows.add(List.of("Average Duration", currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes()), safeLabelText(averageDurationChangeLabel)));
         rows.add(List.of("Overdue Passes", String.valueOf(currentSummary == null ? 0 : currentSummary.getOverduePasses()), safeLabelText(overduePassesChangeLabel)));
         return buildWorksheetXml(rows, new double[]{28, 20, 18, 14}, true);
     }
@@ -838,7 +838,7 @@ public class ReportsAnalyticsController {
         rows.add(List.of(selectedReportModeText() + " Compliance and Overdue Monitoring"));
         rows.add(List.of("Date Range", String.valueOf(startDatePicker.getValue()), "to", String.valueOf(endDatePicker.getValue())));
         rows.add(List.of(""));
-        rows.add(List.of(weeklyMode ? "Week Start" : "Date", "Total Issued", "Returned On Time", "Overdue", "Average Duration", "Compliance Rate"));
+        rows.add(List.of(weeklyMode ? "Week Start" : "Date", "Total Issued", "Returned On Time", "Overdue", "Avg. Time Outside", "Compliance Rate"));
         for (DailyReport report : currentReportRows) {
             rows.add(List.of(
                     String.valueOf(report.getReportDate()),
@@ -912,7 +912,6 @@ public class ReportsAnalyticsController {
                 List.of(
                         new String[]{"Total Pass Slips", String.valueOf(currentSummary == null ? 0 : currentSummary.getTotalPassSlips()), safeLabelText(totalPassSlipsChangeLabel)},
                         new String[]{"Compliance Rate", currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate()), safeLabelText(complianceRateChangeLabel)},
-                        new String[]{"Average Duration", currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes()), safeLabelText(averageDurationChangeLabel)},
                         new String[]{"Overdue Passes", String.valueOf(currentSummary == null ? 0 : currentSummary.getOverduePasses()), safeLabelText(overduePassesChangeLabel)}
                 )
         );
@@ -943,7 +942,7 @@ public class ReportsAnalyticsController {
             });
         }
         pdf.addTable(
-                new String[]{weeklyMode ? "Week Start" : "Date", "Total Issued", "Returned On Time", "Overdue", "Avg Duration", "Compliance"},
+                new String[]{weeklyMode ? "Week Start" : "Date", "Total Issued", "Returned On Time", "Overdue", "Avg Time Outside", "Compliance"},
                 new double[]{105, 105, 130, 85, 110, 110},
                 complianceRows
         );
@@ -1175,7 +1174,6 @@ public class ReportsAnalyticsController {
         csv.append("Metric,Value\n");
         csv.append("Total Pass Slips,").append(currentSummary == null ? 0 : currentSummary.getTotalPassSlips()).append("\n");
         csv.append("Compliance Rate,").append(currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate())).append("\n");
-        csv.append("Average Duration,").append(csvValue(currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes()))).append("\n");
         csv.append("Overdue Passes,").append(currentSummary == null ? 0 : currentSummary.getOverduePasses()).append("\n\n");
 
         csv.append("Departmental Usage\n");
@@ -1187,7 +1185,7 @@ public class ReportsAnalyticsController {
         }
 
         csv.append("\n").append(weeklyMode ? "Weekly" : "Daily").append(" Compliance and Overdue Monitoring\n");
-        csv.append(weeklyMode ? "Week Start" : "Date").append(",Total Issued,Returned On Time,Overdue,Average Duration,Compliance Rate\n");
+        csv.append(weeklyMode ? "Week Start" : "Date").append(",Total Issued,Returned On Time,Overdue,Avg. Time Outside,Compliance Rate\n");
         for (DailyReport report : currentReportRows) {
             csv.append(csvValue(report.getReportDate())).append(',')
                     .append(report.getTotalIssued()).append(',')
@@ -1211,7 +1209,6 @@ public class ReportsAnalyticsController {
         lines.add("Summary");
         lines.add("Total Pass Slips: " + (currentSummary == null ? 0 : currentSummary.getTotalPassSlips()));
         lines.add("Compliance Rate: " + (currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate())));
-        lines.add("Average Duration: " + (currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes())));
         lines.add("Overdue Passes: " + (currentSummary == null ? 0 : currentSummary.getOverduePasses()));
         lines.add("");
         lines.add("Departmental Usage");
@@ -1221,7 +1218,7 @@ public class ReportsAnalyticsController {
         }
         lines.add("");
         lines.add((weeklyMode ? "Weekly" : "Daily") + " Compliance and Overdue Monitoring");
-        lines.add((weeklyMode ? "Week Start" : "Date") + " | Total Issued | Returned On Time | Overdue | Avg Duration | Compliance");
+        lines.add((weeklyMode ? "Week Start" : "Date") + " | Total Issued | Returned On Time | Overdue | Avg Time Outside | Compliance");
         for (DailyReport report : currentReportRows) {
             lines.add(report.getReportDate()
                     + " | " + report.getTotalIssued()
@@ -1247,11 +1244,10 @@ public class ReportsAnalyticsController {
         lines.add("Summary");
         lines.add("Total Pass Slips: " + (currentSummary == null ? 0 : currentSummary.getTotalPassSlips()));
         lines.add("Compliance Rate: " + (currentSummary == null ? "0.0%" : String.format("%.1f%%", currentSummary.getComplianceRate())));
-        lines.add("Average Duration: " + (currentSummary == null ? "0m" : formatDuration(currentSummary.getAverageDurationMinutes())));
         lines.add("Overdue Passes: " + (currentSummary == null ? 0 : currentSummary.getOverduePasses()));
         lines.add("");
         lines.add(reportMode + " Records");
-        lines.add((weeklyMode ? "Week Start" : "Date") + " | Total Issued | Returned On Time | Overdue | Avg Duration | Compliance");
+        lines.add((weeklyMode ? "Week Start" : "Date") + " | Total Issued | Returned On Time | Overdue | Avg Time Outside | Compliance");
 
         for (DailyReport report : currentReportRows) {
             lines.add(report.getReportDate()
@@ -1426,7 +1422,8 @@ public class ReportsAnalyticsController {
     }
 
     /**
-     * Formats duration changes in plain language using hours when possible.
+     * Formats duration changes in the same hour-and-minute style used by the
+     * main average time outside value, such as "Increased by 5h 24m".
      */
     private String formatSignedDuration(double minutes) {
         if (Math.abs(minutes) < 0.5) {
@@ -1434,13 +1431,7 @@ public class ReportsAnalyticsController {
         }
 
         String direction = minutes > 0 ? "Increased by" : "Decreased by";
-        double absMinutes = Math.abs(minutes);
-
-        if (absMinutes >= 60) {
-            return String.format("%s %.1fh", direction, absMinutes / 60.0);
-        }
-
-        return String.format("%s %.0fm", direction, absMinutes);
+        return direction + " " + formatDuration(Math.abs(minutes));
     }
 
     /**
