@@ -46,7 +46,8 @@ public class EmployeeDirectoryController implements Initializable {
     private static final int ROWS_PER_PAGE = 10;
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(URL location, ResourceBundle resources)
+    {
         setupDataHeader();
         setupTableColumns();
         employeeTable.setItems(visibleEmployeesPageList);
@@ -69,7 +70,8 @@ public class EmployeeDirectoryController implements Initializable {
         setupSearchFilter();
     }
 
-    @FXML public void goToAddEmployee(){
+    @FXML
+    public void goToAddEmployee(){
         SceneNavigator.switchTo("employeeDirectory/AddEmployeeView");
     }
 
@@ -123,7 +125,6 @@ public class EmployeeDirectoryController implements Initializable {
                         EmployeeService service = new EmployeeService();
 
                         boolean isDeleted = service.terminateEmployee(selectedEmployee);
-
                         if (isDeleted) {
                             refreshAfterDelete(selectedEmployee);
                             AlertFactory.employeeDeletionSuccess(selectedEmployee);
@@ -131,7 +132,6 @@ public class EmployeeDirectoryController implements Initializable {
 
                             AlertFactory.employeeDeletionDatabaseError();
                         }
-
                     }
                 });
             }

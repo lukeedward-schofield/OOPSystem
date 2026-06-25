@@ -24,7 +24,7 @@
     </left>
 
     <center>
-        <VBox styleClass="employee-main-area">
+        <VBox fx:id="employeeMainArea" styleClass="employee-main-area">
             <HBox alignment="CENTER_LEFT" spacing="12" styleClass="employee-top-bar">
                 <Label text="Pass Slip Management" styleClass="employee-top-title" />
                 <Region HBox.hgrow="ALWAYS" />
