@@ -3,6 +3,7 @@ package oopsystem.util;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class SceneNavigator {
@@ -42,6 +43,7 @@ public class SceneNavigator {
             e.printStackTrace();
         }
     }
+
 
     public static void switchToMaximized(String fxmlName) {
         switchTo(fxmlName);
