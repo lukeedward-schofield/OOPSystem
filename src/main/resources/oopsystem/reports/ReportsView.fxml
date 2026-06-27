@@ -70,35 +70,33 @@
                     <Label fx:id="statusLabel" text="Ready." styleClass="status-label" />
 
                     <HBox spacing="14" styleClass="summary-row">
-                        <VBox HBox.hgrow="ALWAYS" minWidth="0" styleClass="summary-card">
-                            <Label text="TOTAL PASS SLIPS" styleClass="summary-title" />
+                        <VBox HBox.hgrow="ALWAYS" minWidth="0" prefWidth="1" maxWidth="Infinity" styleClass="summary-card">
+                            <VBox spacing="2">
+                                <Label text="TOTAL PASS SLIPS" styleClass="summary-title" />
+                                <Label text=" " styleClass="summary-title-note" />
+                            </VBox>
                             <HBox alignment="BOTTOM_LEFT" spacing="10">
                                 <Label fx:id="totalPassSlipsLabel" text="0" styleClass="summary-value" />
                                 <Label fx:id="totalPassSlipsChangeLabel" text="+0.0%↗" styleClass="positive-change" />
                             </HBox>
                         </VBox>
 
-                        <VBox HBox.hgrow="ALWAYS" minWidth="0" styleClass="summary-card">
-                            <HBox alignment="CENTER_LEFT" spacing="6">
+                        <VBox HBox.hgrow="ALWAYS" minWidth="0" prefWidth="1" maxWidth="Infinity" styleClass="summary-card">
+                            <VBox spacing="2">
                                 <Label text="COMPLIANCE RATE" styleClass="summary-title" />
                                 <Label text="(Return on time only)" styleClass="summary-title-note" />
-                            </HBox>
+                            </VBox>
                             <HBox alignment="BOTTOM_LEFT" spacing="10">
                                 <Label fx:id="complianceRateLabel" text="0.0%" styleClass="summary-value" />
                                 <Label fx:id="complianceRateChangeLabel" text="+0.0%↗" styleClass="positive-change" />
                             </HBox>
                         </VBox>
 
-                        <VBox HBox.hgrow="ALWAYS" minWidth="0" styleClass="summary-card">
-                            <Label text="AVG. DURATION" styleClass="summary-title" />
-                            <HBox alignment="BOTTOM_LEFT" spacing="10">
-                                <Label fx:id="averageDurationLabel" text="0m" styleClass="summary-value" />
-                                <Label fx:id="averageDurationChangeLabel" text="+0m↗" styleClass="positive-change" />
-                            </HBox>
-                        </VBox>
-
-                        <VBox HBox.hgrow="ALWAYS" minWidth="0" styleClass="summary-card">
-                            <Label text="OVERDUE PASSES" styleClass="summary-title" />
+                        <VBox HBox.hgrow="ALWAYS" minWidth="0" prefWidth="1" maxWidth="Infinity" styleClass="summary-card">
+                            <VBox spacing="2">
+                                <Label text="OVERDUE PASSES" styleClass="summary-title" />
+                                <Label text="(Exceeded expected return time)" styleClass="summary-title-note" />
+                            </VBox>
                             <HBox alignment="BOTTOM_LEFT" spacing="10">
                                 <Label fx:id="overduePassesLabel" text="0" styleClass="summary-value" />
                                 <Label fx:id="overduePassesChangeLabel" text="+0△" styleClass="positive-change" />
