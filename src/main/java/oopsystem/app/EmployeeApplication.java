@@ -10,6 +10,7 @@ import java.io.IOException;
 
 public class EmployeeApplication extends Application {
 
+    
     @Override
     public void start(Stage stage) throws IOException {
         SceneNavigator.setStage(stage);
