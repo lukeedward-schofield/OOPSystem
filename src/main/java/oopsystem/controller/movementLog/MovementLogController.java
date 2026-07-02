@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javafx.stage.FileChooser;
+import javafx.geometry.Side;
 
 public class MovementLogController {
 
@@ -37,13 +38,15 @@ public class MovementLogController {
     @FXML private DatePicker endDatePicker;
     @FXML private ComboBox<String> departmentFilter;
     @FXML private TextField employeeNameFilter;
-    @FXML private Button exportExcelBtn;
-    @FXML private Button exportPdfBtn;
+    @FXML private Button exportBtn;
+    @FXML private Button timeInBtn;
 
     /* STAT CARDS */
     @FXML private Label totalMovementsLabel;
     @FXML private Label currentlyOutLabel;
     @FXML private Label complianceRateLabel;
+
+
 
     /* TABLE */
     @FXML private TableView<MovementLog>           movementLogsTable;
@@ -75,6 +78,10 @@ public class MovementLogController {
     private final ObservableList<MovementLog> pageData     = FXCollections.observableArrayList();
     private final MovementLogRepository repository = new MovementLogRepository();
 
+    private ContextMenu exportMenu;
+
+
+
     private static final int ROWS_PER_PAGE = 10;
     private int currentPage = 1;
     private int totalPages  = 1;
@@ -88,10 +95,25 @@ public class MovementLogController {
     public void initialize() {
         setupTable();
         movementLogsTable.setItems(pageData);
+        setupExportMenu();
         loadMovementLogs();
         setupAutoFiltering();
         setupSelectionListener();
         setupClickOutsideListener();
+    }
+
+    private void setupExportMenu() {
+        exportMenu = new ContextMenu();
+        MenuItem excelItem = new MenuItem("Export as Excel (.xlsx)");
+        excelItem.setOnAction(e -> exportExcel());
+        MenuItem pdfItem = new MenuItem("Export as PDF");
+        pdfItem.setOnAction(e -> exportPdf());
+        exportMenu.getItems().addAll(excelItem, pdfItem);
+    }
+
+    @FXML
+    private void handleExport() {
+        exportMenu.show(exportBtn, Side.BOTTOM, 0, 0);
     }
 
     /* ------------------------------------------------------------------ */
@@ -276,6 +298,8 @@ public class MovementLogController {
     private void populateDetailCard(MovementLog log) {
         detailCard.setVisible(true);
         detailCard.setManaged(true);
+        timeInBtn.setDisable(false);
+        exportBtn.setDisable(false);
 
         detailTransactionId.setText(String.format("#PS-2026-%05d", log.getPassSlipId()));
         detailEmployee.setText(log.getEmployeeName().toUpperCase());
@@ -329,6 +353,8 @@ public class MovementLogController {
     private void clearDetailCard() {
         detailCard.setVisible(false);
         detailCard.setManaged(false);
+        if (timeInBtn != null) timeInBtn.setDisable(true);
+        if (exportBtn != null) exportBtn.setDisable(true);
     }
 
     /* ------------------------------------------------------------------ */
@@ -400,104 +426,31 @@ public class MovementLogController {
      * The user can choose whether to export only the currently filtered rows
      * or every movement log record loaded from the database.
      */
-    @FXML
-    private void handleExportExcel() {
-        showScopeDialog("Excel", (data, label) -> {
-            if (data.isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "No Data to Export",
-                        "There are no movement log records to export.");
-                return;
-            }
-
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save Movement Logs Excel File");
-            fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("Excel Workbook (*.xlsx)", "*.xlsx")
-            );
-            fileChooser.setInitialFileName(defaultExportName("movement-logs", label, ".xlsx"));
-
-            File file = fileChooser.showSaveDialog(movementLogsTable.getScene().getWindow());
-            if (file == null) {
-                showAlert(Alert.AlertType.INFORMATION, "Export Cancelled",
-                        "Excel export was cancelled.");
-                return;
-            }
-
-            try {
-                writeMovementLogsWorkbook(data, label, file);
-                showAlert(Alert.AlertType.INFORMATION, "Excel Export Successful",
-                        data.size() + " movement log record(s) were exported successfully.\n\nSaved as: " + file.getName());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Excel Export Failed",
-                        "Failed to export movement logs to Excel.\n\n" + ex.getMessage());
-            }
-        });
-    }
 
     /**
      * Exports movement logs into a clean PDF table.
      * The PDF uses drawn table borders instead of text separators, so it is
      * easier to read than a plain text export.
      */
-    @FXML
-    private void handleExportPdf() {
-        showScopeDialog("PDF", (data, label) -> {
-            if (data.isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "No Data to Export",
-                        "There are no movement log records to export.");
-                return;
-            }
+    private void exportPdf() {
+        List<MovementLog> data = new ArrayList<>(filteredData);
+        if (data.isEmpty()) return;
 
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save Movement Logs PDF File");
-            fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf")
-            );
-            fileChooser.setInitialFileName(defaultExportName("movement-logs", label, ".pdf"));
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Movement Logs PDF File");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf")
+        );
+        fileChooser.setInitialFileName(defaultExportName("movement-logs", "filtered", ".pdf"));
 
-            File file = fileChooser.showSaveDialog(movementLogsTable.getScene().getWindow());
-            if (file == null) {
-                showAlert(Alert.AlertType.INFORMATION, "Export Cancelled",
-                        "PDF export was cancelled.");
-                return;
-            }
+        File file = fileChooser.showSaveDialog(movementLogsTable.getScene().getWindow());
+        if (file == null) return;
 
-            try {
-                writeMovementLogsPdf(data, label, file);
-                showAlert(Alert.AlertType.INFORMATION, "PDF Export Successful",
-                        data.size() + " movement log record(s) were exported successfully.\n\nSaved as: " + file.getName());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "PDF Export Failed",
-                        "Failed to export movement logs to PDF.\n\n" + ex.getMessage());
-            }
-        });
-    }
-
-    /**
-     * Gives the user control over whether the export should use the current
-     * filtered result set or all records loaded from the database.
-     */
-    private void showScopeDialog(String format, java.util.function.BiConsumer<List<MovementLog>, String> onConfirm) {
-        Alert scopeDialog = new Alert(Alert.AlertType.NONE);
-        scopeDialog.setTitle("Export as " + format);
-        scopeDialog.setHeaderText("Choose export scope");
-        scopeDialog.setContentText("Select which movement log records should be included in the " + format + " file.");
-
-        ButtonType filteredBtn = new ButtonType("Filtered Data (" + filteredData.size() + " records)");
-        ButtonType allBtn      = new ButtonType("All Records ("   + masterData.size()   + " records)");
-        ButtonType cancelBtn   = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-        scopeDialog.getButtonTypes().setAll(filteredBtn, allBtn, cancelBtn);
-
-        scopeDialog.showAndWait().ifPresent(choice -> {
-            if (choice == filteredBtn) {
-                onConfirm.accept(new ArrayList<>(filteredData), "Filtered Data");
-            } else if (choice == allBtn) {
-                onConfirm.accept(new ArrayList<>(masterData), "All Records");
-            }
-        });
+        try {
+            writeMovementLogsPdf(data, "Filtered Data", file);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private String defaultExportName(String base, String scope, String extension) {
@@ -506,13 +459,27 @@ public class MovementLogController {
         return base + "-" + scopeName + "-" + date + extension;
     }
 
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(title);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void exportExcel() {
+        List<MovementLog> data = new ArrayList<>(filteredData);
+        if (data.isEmpty()) return;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Movement Logs Excel File");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Excel Workbook (*.xlsx)", "*.xlsx")
+        );
+        fileChooser.setInitialFileName(defaultExportName("movement-logs", "filtered", ".xlsx"));
+
+        File file = fileChooser.showSaveDialog(movementLogsTable.getScene().getWindow());
+        if (file == null) return;
+
+        try {
+            writeMovementLogsWorkbook(data, "Filtered Data", file);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
+
 
     /* ------------------------------------------------------------------ */
     /*  EXCEL WRITER (.XLSX)                                                */

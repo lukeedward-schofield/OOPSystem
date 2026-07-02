@@ -73,9 +73,8 @@
                         <TextField fx:id="employeeNameFilter" prefWidth="180.0" promptText="Filter by name..."/>
                     </VBox>
                     <Pane HBox.hgrow="ALWAYS"/>
-                    <Button text="TIME IN" translateY="1.0"  onAction="#handleTimeIn"   prefHeight="34.0" prefWidth="130.0" styleClass="btn-time-in"/>
-                    <Button fx:id="exportExcelBtn" text="⇩  Export Excel" translateY="1.0" onAction="#handleExportExcel" prefHeight="34.0" prefWidth="145.0" styleClass="btn-export"/>
-                    <Button fx:id="exportPdfBtn" text="▣  Export PDF" translateY="1.0" onAction="#handleExportPdf" prefHeight="34.0" prefWidth="130.0" styleClass="btn-export"/>
+                    <Button fx:id="exportBtn" text="⇩  Export" translateY="1.0" onAction="#handleExport"
+                            prefHeight="34.0" prefWidth="130.0" styleClass="btn-export" disable="true"/>
                 </HBox>
             </VBox>
 
@@ -127,6 +126,13 @@
                     <VBox spacing="4.0" alignment="CENTER">
                         <Label text="STATUS" styleClass="filter-label"/>
                         <Label fx:id="detailStatus" text="-" styleClass="detail-status"/>
+
+
+                        <VBox spacing="4.0" alignment="CENTER">
+                            <Label text=" " styleClass="filter-label"/>
+                            <Button fx:id="timeInBtn" text="TIME IN" onAction="#handleTimeIn"
+                                    styleClass="btn-time-in" disable="true"/>
+                        </VBox>
                     </VBox>
                 </HBox>
                 <VBox spacing="4.0">
