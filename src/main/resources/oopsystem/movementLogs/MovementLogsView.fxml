@@ -73,7 +73,7 @@
                         <TextField fx:id="employeeNameFilter" prefWidth="180.0" promptText="Filter by name..."/>
                     </VBox>
                     <Pane HBox.hgrow="ALWAYS"/>
-                    <Button text="TIME IN" translateY="1.0"  onAction="#handleTimeIn"   prefHeight="34.0" prefWidth="130.0" styleClass="btn-time-in"/>
+                    <Button fx:id="timeInBtn" text="TIME IN" translateY="1.0" onAction="#handleTimeIn" prefHeight="34.0" prefWidth="130.0" styleClass="btn-time-in"/>
                     <Button fx:id="exportExcelBtn" text="⇩  Export Excel" translateY="1.0" onAction="#handleExportExcel" prefHeight="34.0" prefWidth="145.0" styleClass="btn-export"/>
                     <Button fx:id="exportPdfBtn" text="▣  Export PDF" translateY="1.0" onAction="#handleExportPdf" prefHeight="34.0" prefWidth="130.0" styleClass="btn-export"/>
                 </HBox>
