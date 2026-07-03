@@ -31,6 +31,8 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ResourceBundle;
 
 /**
@@ -107,6 +109,24 @@ public class PassSlipIssuanceController implements Initializable {
             System.getProperty("user.home") + File.separator
                     + "OOPSystem" + File.separator + "passslips";
 
+    // =========================================================================
+    // UNRESOLVED PASS SLIP SETTINGS
+    // =========================================================================
+
+    /**
+     * Office cut-off time. Any OUT/OVERDUE slip from a previous calendar day,
+     * or from today past this time, is marked UNRESOLVED on screen load.
+     * Change the hour value here when the office cut-off changes.
+     */
+    private static final LocalTime OFFICE_CUTOFF = LocalTime.of(22, 0); // 10:00 PM
+
+    /**
+     * DEV: Set to true to test the UNRESOLVED transition without waiting for
+     * 10 PM or a previous day. Forces ALL current OUT/OVERDUE slips to be
+     * marked UNRESOLVED immediately on screen load.
+     * Set back to false before pushing to production.
+     */
+    private static final boolean DEBUG_FORCE_UNRESOLVED = true;
 
     // =========================================================================
     // INITIALIZE
@@ -121,6 +141,7 @@ public class PassSlipIssuanceController implements Initializable {
         downloadPdfButton.setDisable(true);
         clearFeedback();
         getEffectiveUser();
+        resolveStalePassSlips();
         setupLiveSearch();
         setupDurationField();
 
@@ -128,6 +149,16 @@ public class PassSlipIssuanceController implements Initializable {
         destinationField.textProperty().addListener((obs, o, n) -> updatePreview());
 
         updatePreview();
+        searchEmployeeField.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                resolveStalePassSlips();
+                // Reset time-out to current time on each revisit
+                capturedTimeOut = LocalDateTime.now();
+                timeOutField.setText(capturedTimeOut.format(DISPLAY_FMT));
+                updatePreview();
+                System.out.println("[PassSlip] Screen revisited — stale check re-run.");
+            }
+        });
     }
 
 
@@ -326,6 +357,55 @@ public class PassSlipIssuanceController implements Initializable {
     }
 
     // =========================================================================
+    // UNRESOLVED PASS SLIP TRANSITION
+    // =========================================================================
+
+    /**
+     * Marks stale OUT/OVERDUE pass slips as UNRESOLVED on screen load.
+     *
+     * A slip is considered stale when:
+     *   - It was issued on a previous calendar day (always stale), OR
+     *   - It was issued today but the current time is past OFFICE_CUTOFF
+     *
+     * DEBUG_FORCE_UNRESOLVED bypasses both checks and marks everything
+     * OUT/OVERDUE as UNRESOLVED immediately — for testing only.
+     *
+     * Runs on a background thread so it never blocks the UI on load.
+     */
+    private void resolveStalePassSlips() {
+
+        Thread t = new Thread(() -> {
+
+            try {
+                int updated;
+
+                if (AppConfig.DEV_MODE && DEBUG_FORCE_UNRESOLVED) {
+                    // DEBUG: force all OUT/OVERDUE → UNRESOLVED regardless of date/time
+                    updated = passSlipRepo.markAllOpenAsUnresolved();
+                    System.out.println("[DEBUG] Force-unresolve: " + updated + " slip(s) marked UNRESOLVED.");
+                } else {
+                    updated = passSlipRepo.markStaleAsUnresolved(
+                            LocalDate.now(),
+                            LocalTime.now(),
+                            OFFICE_CUTOFF
+                    );
+                    if (updated > 0) {
+                        System.out.println("[PassSlip] " + updated
+                                + " stale slip(s) marked UNRESOLVED on load.");
+                    }
+                }
+
+            } catch (Exception e) {
+                System.err.println("[PassSlip] resolveStalePassSlips() failed: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // =========================================================================
     // GENERATE PASS SLIP
     // =========================================================================
 
@@ -434,11 +514,33 @@ public class PassSlipIssuanceController implements Initializable {
 
         int generatedId = passSlipRepo.issuePassSlip(slip, issuedBy);
 
-        // -2 means the DB check found an existing open slip (returned from inside transaction)
+        // -2 means the DB found an existing OUT/OVERDUE/Unresolved slip
         if (generatedId == -2) {
-            showError(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName()
-                    + " has an unresolved pass slip (OUT or OVERDUE). Record their return before issuing a new one.");
-            generateButton.setDisable(false); // allow selecting a different employee
+
+            // Fetch the unresolved slip details for the dialog
+            PassSlip unresolvedSlip = passSlipRepo.findUnresolvedByEmployee(
+                    selectedEmployee.getEmployeeId()
+            );
+
+            if (unresolvedSlip != null && "Unresolved".equals(unresolvedSlip.getStatus())) {
+                // Show the resolution dialog
+                boolean resolved = showUnresolvedDialog(unresolvedSlip);
+
+                if (resolved) {
+                    // Slip was resolved — re-enable and let staff click Generate again
+                    showSuccess("Pass slip resolved. You can now issue a new pass slip for "
+                            + selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName() + ".");
+                } else {
+                    // Staff cancelled or validation failed
+                    showError("Pass slip not resolved. Issue cancelled.");
+                }
+            } else {
+                // Still OUT or OVERDUE (not Unresolved) — show standard block message
+                showError(selectedEmployee.getFirstName() + " " + selectedEmployee.getLastName()
+                        + " has an active pass slip (OUT or OVERDUE). Record their return first.");
+            }
+
+            generateButton.setDisable(false);
             return;
         }
 
@@ -507,6 +609,158 @@ public class PassSlipIssuanceController implements Initializable {
 
         if (result.isPresent() && result.get() == downloadBtn) {
             handleDownloadPdf();
+        }
+    }
+
+    //=========================================================================
+// UNRESOLVED SLIP RESOLUTION DIALOG
+// =========================================================================
+
+    /**
+     * Shows a dialog when the selected employee has an Unresolved pass slip.
+     *
+     * Displays the original slip details and lets staff:
+     *   - Enter remarks (required — stored in pass_slip.remarks)
+     *   - Choose the actual return time: NOW or a manually entered time
+     *   - Mark as RETURNED or RETURNED LATE
+     *
+     * If resolved successfully, returns true so the caller can proceed
+     * to issue a new pass slip immediately after.
+     */
+    private boolean showUnresolvedDialog(PassSlip unresolvedSlip) {
+
+        // ── Build dialog content ──
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Unresolved Pass Slip");
+        dialog.setHeaderText("⚠ " + selectedEmployee.getFirstName() + " "
+                + selectedEmployee.getLastName()
+                + " has an unresolved pass slip.");
+
+        // Slip details section
+        Label detailsLabel = new Label(
+                "Original time-out : " + (unresolvedSlip.getTimeOut() != null
+                        ? unresolvedSlip.getTimeOut().format(DISPLAY_FMT) : "—") + "\n"
+                        + "Reason            : " + (unresolvedSlip.getReason() != null
+                        ? unresolvedSlip.getReason() : "—") + "\n"
+                        + "Destination       : " + (unresolvedSlip.getDestination() != null
+                        ? unresolvedSlip.getDestination() : "—")
+        );
+        detailsLabel.setStyle("-fx-font-size: 12; -fx-text-fill: #555; -fx-padding: 0 0 10 0;");
+
+        // Remarks field (maps to pass_slip.remarks)
+        Label remarksLabel = new Label("REMARKS (required)");
+        remarksLabel.setStyle("-fx-font-size: 10; -fx-font-weight: bold; -fx-text-fill: #888;");
+
+        TextArea remarksField = new TextArea();
+        remarksField.setPromptText("Enter reason for unresolved slip...");
+        remarksField.setWrapText(true);
+        remarksField.setPrefRowCount(3);
+        remarksField.setStyle("-fx-font-size: 12;");
+
+        // Time-in options
+        Label timeLabel = new Label("ACTUAL RETURN TIME");
+        timeLabel.setStyle("-fx-font-size: 10; -fx-font-weight: bold; -fx-text-fill: #888; -fx-padding: 10 0 4 0;");
+
+        RadioButton useNowBtn    = new RadioButton("Use current time (NOW)");
+        RadioButton useManualBtn = new RadioButton("Enter manually");
+        ToggleGroup timeGroup    = new ToggleGroup();
+        useNowBtn.setToggleGroup(timeGroup);
+        useManualBtn.setToggleGroup(timeGroup);
+        useNowBtn.setSelected(true);
+
+        TextField manualTimeField = new TextField();
+        manualTimeField.setPromptText("yyyy-MM-dd HH:mm");
+        manualTimeField.setDisable(true);
+        manualTimeField.setStyle("-fx-font-size: 12;");
+
+        // Enable/disable manual field based on radio selection
+        useManualBtn.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+            manualTimeField.setDisable(!isSelected);
+            if (isSelected) manualTimeField.requestFocus();
+        });
+
+        // Layout
+        VBox content = new VBox(8,
+                detailsLabel,
+                new Separator(),
+                remarksLabel,
+                remarksField,
+                timeLabel,
+                useNowBtn,
+                useManualBtn,
+                manualTimeField
+        );
+        content.setStyle("-fx-padding: 10;");
+        content.setPrefWidth(420);
+
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().setStyle("-fx-font-size: 13;");
+
+        // Buttons
+        ButtonType returnedBtn     = new ButtonType("RETURNED",      ButtonBar.ButtonData.OK_DONE);
+        ButtonType returnedLateBtn = new ButtonType("RETURNED LATE", ButtonBar.ButtonData.OTHER);
+        ButtonType cancelBtn       = new ButtonType("Cancel",        ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        dialog.getDialogPane().getButtonTypes().setAll(returnedBtn, returnedLateBtn, cancelBtn);
+
+        // Style the RETURNED LATE button orange
+        dialog.getDialogPane().lookupButton(returnedLateBtn)
+                .setStyle("-fx-background-color: #ea580c; -fx-text-fill: white; -fx-font-weight: bold;");
+        dialog.getDialogPane().lookupButton(returnedBtn)
+                .setStyle("-fx-background-color: #16a34a; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        // ── Handle cancel ──
+        if (result.isEmpty() || result.get() == cancelBtn) {
+            return false;
+        }
+
+        // ── Validate remarks ──
+        String remarks = remarksField.getText().trim();
+        if (remarks.isBlank()) {
+            showError("Remarks are required when resolving an unresolved pass slip.");
+            return false;
+        }
+
+        // ── Determine time-in ──
+        LocalDateTime timeIn;
+        if (useManualBtn.isSelected()) {
+            String manualText = manualTimeField.getText().trim();
+            try {
+                timeIn = LocalDateTime.parse(manualText, DISPLAY_FMT);
+            } catch (Exception e) {
+                showError("Invalid time format. Use yyyy-MM-dd HH:mm (e.g. 2026-07-01 17:30).");
+                return false;
+            }
+            if (timeIn.isBefore(unresolvedSlip.getTimeOut())) {
+                showError("Return time cannot be before the original time-out.");
+                return false;
+            }
+        } else {
+            timeIn = LocalDateTime.now();
+        }
+
+        // ── Determine status ──
+        boolean returnedLate = result.get() == returnedLateBtn;
+
+        // ── Update DB ──
+        boolean resolved = passSlipRepo.resolveUnresolvedSlip(
+                unresolvedSlip.getPassSlipId(),
+                timeIn,
+                remarks,
+                returnedLate
+        );
+
+        if (resolved) {
+            System.out.println("[PassSlip] Unresolved slip #"
+                    + unresolvedSlip.getPassSlipId() + " resolved as "
+                    + (returnedLate ? "RETURNED LATE" : "RETURNED")
+                    + " at " + timeIn.format(DISPLAY_FMT));
+            return true;
+        } else {
+            showError("Failed to resolve unresolved pass slip. Check your database connection.");
+            return false;
         }
     }
 

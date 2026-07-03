@@ -130,6 +130,9 @@ public class MovementLogController {
             if ("RETURNED".equals(log.getPassStatus()) && log.isLate()) {
                 return new SimpleStringProperty("RETURNED LATE");
             }
+            if ("UNRESOLVED".equals(log.getPassStatus())) {
+                        return new SimpleStringProperty("Unresolved");
+            }
             return new SimpleStringProperty(log.getPassStatus());
         });
 
@@ -146,6 +149,7 @@ public class MovementLogController {
                         case "RETURNED"      -> "#16a34a";
                         case "RETURNED LATE" -> "#FFBB00";
                         case "OVERDUE"       -> "#ea580c";
+                        case "Unresolved"    -> "#7b1113";
                         default              -> "#cc0000"; // OUT
                     };
                     setStyle("-fx-text-fill: " + color + "; "

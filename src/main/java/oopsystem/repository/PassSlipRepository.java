@@ -8,6 +8,8 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class PassSlipRepository {
 
@@ -31,7 +33,7 @@ public class PassSlipRepository {
         String checkSql = """
         SELECT 1 FROM pass_slip
         WHERE employee_id = ?
-        AND status IN ('OUT', 'OVERDUE')
+        AND status IN ('OUT', 'OVERDUE', 'Unresolved')
         LIMIT 1
         FOR UPDATE
         """;
@@ -150,7 +152,7 @@ public class PassSlipRepository {
         String sql = """
             SELECT 1 FROM pass_slip
             WHERE employee_id = ?
-            AND status IN ('OUT', 'OVERDUE')
+            AND status IN ('OUT', 'OVERDUE', 'Unresolved')
             LIMIT 1
             """;
 
@@ -168,6 +170,78 @@ public class PassSlipRepository {
         }
 
         return false;
+    }
+
+    // =========================================================================
+// MARK STALE SLIPS AS UNRESOLVED
+// =========================================================================
+
+    /**
+     * Marks OUT/OVERDUE pass slips as UNRESOLVED when:
+     *   - The slip is from a previous calendar day, OR
+     *   - The slip is from today but current time is past the office cut-off
+     *
+     * Called by PassSlipIssuanceController.resolveStalePassSlips() on load.
+     * Returns the number of rows updated.
+     */
+    public int markStaleAsUnresolved(LocalDate today, LocalTime now, LocalTime cutOff) {
+
+        String sql = """
+            UPDATE pass_slip
+            SET status = 'Unresolved'
+            WHERE status IN ('OUT', 'OVERDUE')
+              AND (
+                  DATE(time_out) < ?
+                  OR (DATE(time_out) = ? AND time_out::time >= ?)
+              )
+            """;
+
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setDate(1, java.sql.Date.valueOf(today));
+            stmt.setDate(2, java.sql.Date.valueOf(today));
+            stmt.setTime(3, java.sql.Time.valueOf(cutOff));
+
+            return stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Error marking stale slips: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    /**
+     * DEBUG ONLY — marks ALL current OUT/OVERDUE slips as UNRESOLVED
+     * regardless of date or time. Used with DEBUG_FORCE_UNRESOLVED = true
+     * in PassSlipIssuanceController to test the UNRESOLVED state without
+     * waiting for cut-off time or a new calendar day.
+     *
+     * Never call this in production flow.
+     */
+    public int markAllOpenAsUnresolved() {
+
+        String sql = """
+            UPDATE pass_slip
+            SET status = 'Unresolved'
+            WHERE status IN ('OUT', 'OVERDUE')
+            """;
+
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            return stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Error force-marking slips as unresolved: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 
     // =========================================================================
@@ -298,6 +372,96 @@ public class PassSlipRepository {
         }
 
         return null;
+    }
+
+    // =========================================================================
+// FIND UNRESOLVED PASS SLIP FOR EMPLOYEE
+// =========================================================================
+
+    /**
+     * Finds the most recent Unresolved pass slip for a given employee.
+     * Used by the resolution dialog to show the details of the unresolved slip.
+     * Returns null if none found.
+     */
+    public PassSlip findUnresolvedByEmployee(int employeeId) {
+
+        String sql = """
+            SELECT * FROM pass_slip
+            WHERE employee_id = ?
+              AND status = 'Unresolved'
+            ORDER BY time_out DESC
+            LIMIT 1
+            """;
+
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setInt(1, employeeId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return mapPassSlip(rs);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding unresolved slip: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+// =========================================================================
+// RESOLVE UNRESOLVED PASS SLIP
+// =========================================================================
+
+    /**
+     * Resolves an Unresolved pass slip by recording the time-in, remarks,
+     * actual duration, is_late flag, and updating the status.
+     *
+     * @param passSlipId  The ID of the Unresolved slip to resolve.
+     * @param timeIn      The actual return time (NOW() or staff-entered).
+     * @param remarks     Staff notes on why the slip was unresolved.
+     * @param returnedLate  True → status becomes 'RETURNED LATE', false → 'RETURNED'
+     * @return true if the update succeeded.
+     */
+    public boolean resolveUnresolvedSlip(int passSlipId,
+                                         LocalDateTime timeIn,
+                                         String remarks,
+                                         boolean returnedLate) {
+
+        String status = returnedLate ? "RETURNED LATE" : "RETURNED";
+
+        String sql = """
+            UPDATE pass_slip
+            SET
+                time_in         = ?,
+                actual_duration = CAST(EXTRACT(EPOCH FROM (? - time_out)) / 60 AS INT),
+                remarks         = ?,
+                is_late         = ?,
+                status          = ?::pass_slip_status
+            WHERE pass_slip_ID = ?
+              AND status = 'Unresolved'
+            """;
+
+        try (
+                Connection conn = Database.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            Timestamp ts = Timestamp.valueOf(timeIn);
+            stmt.setTimestamp(1, ts);
+            stmt.setTimestamp(2, ts);
+            stmt.setString(3, remarks == null || remarks.isBlank() ? null : remarks.trim());
+            stmt.setBoolean(4, returnedLate);
+            stmt.setString(5, status);
+            stmt.setInt(6, passSlipId);
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error resolving unresolved slip: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     // =========================================================================
