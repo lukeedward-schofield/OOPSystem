@@ -16,6 +16,8 @@ public class MovementLog {
     private final int estimatedDuration;  // was: duration
     private final int actualDuration;
     private final boolean is_late;
+    private final String remarks;
+
 
     public MovementLog(
             int passSlipId,
@@ -29,6 +31,7 @@ public class MovementLog {
             int actualDuration,
             String status,
             boolean is_late,
+            String remarks,
             LocalDateTime createdAt) {
 
 
@@ -42,6 +45,7 @@ public class MovementLog {
         this.status = status;
         this.is_late = is_late;
         this.estimatedDuration = estimatedDuration;
+        this.remarks = remarks;
         this.actualDuration = actualDuration;
         this.createdAt = createdAt;
 
@@ -95,5 +99,9 @@ public class MovementLog {
 
     public boolean isLate() {
         return is_late;
+    }
+
+    public String getRemarks() {
+        return remarks;
     }
 }

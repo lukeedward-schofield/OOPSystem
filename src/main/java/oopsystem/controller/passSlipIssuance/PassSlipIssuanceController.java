@@ -126,7 +126,7 @@ public class PassSlipIssuanceController implements Initializable {
      * marked UNRESOLVED immediately on screen load.
      * Set back to false before pushing to production.
      */
-    private static final boolean DEBUG_FORCE_UNRESOLVED = true;
+    private static final boolean DEBUG_FORCE_UNRESOLVED = false;
 
     // =========================================================================
     // INITIALIZE

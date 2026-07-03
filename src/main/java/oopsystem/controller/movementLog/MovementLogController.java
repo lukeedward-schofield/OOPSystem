@@ -54,6 +54,7 @@ public class MovementLogController {
     @FXML private TableColumn<MovementLog, String> timeInColumn;
     @FXML private TableColumn<MovementLog, String> durationColumn;
     @FXML private TableColumn<MovementLog, String> statusColumn;
+    @FXML private TableColumn<MovementLog, String> remarksColumn;
 
     /* PAGINATION */
     @FXML private Button prevPageBtn;
@@ -130,8 +131,8 @@ public class MovementLogController {
             if ("RETURNED".equals(log.getPassStatus()) && log.isLate()) {
                 return new SimpleStringProperty("RETURNED LATE");
             }
-            if ("UNRESOLVED".equals(log.getPassStatus())) {
-                        return new SimpleStringProperty("Unresolved");
+            if ("Unresolved".equals(log.getPassStatus())) {
+                return new SimpleStringProperty("Unresolved");
             }
             return new SimpleStringProperty(log.getPassStatus());
         });
@@ -158,7 +159,15 @@ public class MovementLogController {
                 }
             }
         });
+
+        remarksColumn.setCellValueFactory(d -> {
+            String remarks = d.getValue().getRemarks();
+            return new SimpleStringProperty(
+                    remarks != null && !remarks.isBlank() ? remarks : "-"
+            );
+        });
     }
+
 
     /* ------------------------------------------------------------------ */
     /*  LOAD & FILTER                                                       */
@@ -296,6 +305,7 @@ public class MovementLogController {
             case "RETURNED"      -> "-fx-text-fill: #16a34a; -fx-font-weight: bold;";
             case "RETURNED LATE" -> "-fx-text-fill: #d97706; -fx-font-weight: bold;";
             case "OVERDUE"       -> "-fx-text-fill: #ea580c; -fx-font-weight: bold;";
+            case "Unresolved"    -> "-fx-text-fill: #7b1113; -fx-font-weight: bold;";
             default              -> "-fx-text-fill: #800000; -fx-font-weight: bold;";
         });
 
@@ -325,6 +335,11 @@ public class MovementLogController {
                     log.getTimeOut(), log.getTimeIn()).toMinutes();
             long lateBy = actualMinutes - allowedMinutes;
             notes.append("\n⚠️ Employee returned late by ").append(lateBy).append(" minute(s).");
+        }
+
+        // Append remarks if present
+        if (log.getRemarks() != null && !log.getRemarks().isBlank()) {
+            notes.append("\n📝 Remarks: ").append(log.getRemarks());
         }
 
         detailNotes.setText(notes.toString());

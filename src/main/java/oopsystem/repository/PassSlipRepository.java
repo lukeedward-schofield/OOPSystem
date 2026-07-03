@@ -427,9 +427,6 @@ public class PassSlipRepository {
                                          LocalDateTime timeIn,
                                          String remarks,
                                          boolean returnedLate) {
-
-        String status = returnedLate ? "RETURNED LATE" : "RETURNED";
-
         String sql = """
             UPDATE pass_slip
             SET
@@ -437,7 +434,7 @@ public class PassSlipRepository {
                 actual_duration = CAST(EXTRACT(EPOCH FROM (? - time_out)) / 60 AS INT),
                 remarks         = ?,
                 is_late         = ?,
-                status          = ?::pass_slip_status
+                status          = 'RETURNED'
             WHERE pass_slip_ID = ?
               AND status = 'Unresolved'
             """;
@@ -451,8 +448,7 @@ public class PassSlipRepository {
             stmt.setTimestamp(2, ts);
             stmt.setString(3, remarks == null || remarks.isBlank() ? null : remarks.trim());
             stmt.setBoolean(4, returnedLate);
-            stmt.setString(5, status);
-            stmt.setInt(6, passSlipId);
+            stmt.setInt(5, passSlipId);
 
             return stmt.executeUpdate() > 0;
 

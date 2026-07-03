@@ -25,8 +25,9 @@ public class MovementLogRepository {
                 ps.actual_duration,
                 ps.status,
                 ps.is_late,
-                ps.created_at
-            FROM pass_slip ps
+                ps.created_at,
+                ps.remarks
+                FROM pass_slip ps
             INNER JOIN employee e
                 ON ps.employee_id = e.employee_id
             ORDER BY ps.created_at DESC
@@ -74,6 +75,7 @@ public class MovementLogRepository {
                         rs.getInt("actual_duration"),
                         rs.getString("status"),
                         rs.getBoolean("is_late"),
+                        rs.getString("remarks"),
                         rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null
                 ));
                 System.out.println(
