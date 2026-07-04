@@ -8,10 +8,6 @@ import java.sql.SQLException;
 public final class Database {
     private static final Dotenv ENV = Dotenv.load();
 
-    private Database(){
-
-    }
-
     public static Connection getConnection() throws SQLException {
 
         try{
@@ -22,10 +18,10 @@ public final class Database {
 
         String url = ENV.get("DB_URL");
 
-// Append prepareThreshold=0 to disable server-side prepared statement caching.
-// Without this, the PostgreSQL JDBC driver reuses cached statement names (S_1, S_2)
-// across connections, causing "prepared statement already exists" errors when
-// a connection is reused after a failed transaction.
+        // Append prepareThreshold=0 to disable server-side prepared statement caching.
+        // Without this, the PostgreSQL JDBC driver reuses cached statement names (S_1, S_2)
+        // across connections, causing "prepared statement already exists" errors when
+        // a connection is reused after a failed transaction.
         if (!url.contains("prepareThreshold")) {
             url += (url.contains("?") ? "&" : "?") + "prepareThreshold=0";
         }
@@ -37,4 +33,21 @@ public final class Database {
         );
 
     }
+
+    public static void main(String[] args) {
+
+        try (Connection conn = Database.getConnection()) {
+
+            if (conn != null && !conn.isClosed()) {
+                System.out.println("SUPABASE CONNECTED SUCCESSFULLY!");
+            } else {
+                System.out.println("CONNECTION FAILED");
+            }
+
+        } catch (Exception e) {
+            System.out.println("ERROR CONNECTING TO DATABASE");
+            e.printStackTrace();
+        }
+    }
+
 }

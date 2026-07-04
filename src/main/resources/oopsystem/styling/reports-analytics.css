@@ -129,6 +129,21 @@
     -fx-text-fill: #877070;
 }
 
+/* DatePicker popup: keep month and year readable on the calendar header. */
+.date-picker-popup > .month-year-pane,
+.date-picker-popup > .calendar-grid {
+    -fx-background-color: #fffdfc;
+}
+
+.date-picker-popup > .month-year-pane .label {
+    -fx-text-fill: #262020;
+}
+
+.date-picker-popup .day-name-cell,
+.date-picker-popup .week-number-cell {
+    -fx-text-fill: #262020;
+}
+
 .outline-button, .maroon-button, .tab-button, .tab-button-active {
     -fx-background-radius: 2;
     -fx-border-radius: 2;

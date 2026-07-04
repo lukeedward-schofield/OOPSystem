@@ -131,6 +131,13 @@
     -fx-background-color: #666666;
 }
 
+.btn-time-in:disabled {
+    -fx-background-color: #bfbfbf;
+    -fx-text-fill: white;
+    -fx-opacity: 1.0;
+    -fx-cursor: default;
+}
+
 .btn-time-in:pressed {
     -fx-background-color: #001A09;
 }

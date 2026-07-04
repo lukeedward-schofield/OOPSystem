@@ -57,6 +57,7 @@ public class MovementLogController {
     @FXML private TableColumn<MovementLog, String> timeInColumn;
     @FXML private TableColumn<MovementLog, String> durationColumn;
     @FXML private TableColumn<MovementLog, String> statusColumn;
+    @FXML private TableColumn<MovementLog, String> remarksColumn;
 
     /* PAGINATION */
     @FXML private Button prevPageBtn;
@@ -152,6 +153,9 @@ public class MovementLogController {
             if ("RETURNED".equals(log.getPassStatus()) && log.isLate()) {
                 return new SimpleStringProperty("RETURNED LATE");
             }
+            if ("Unresolved".equals(log.getPassStatus())) {
+                return new SimpleStringProperty("Unresolved");
+            }
             return new SimpleStringProperty(log.getPassStatus());
         });
 
@@ -168,6 +172,7 @@ public class MovementLogController {
                         case "RETURNED"      -> "#16a34a";
                         case "RETURNED LATE" -> "#FFBB00";
                         case "OVERDUE"       -> "#ea580c";
+                        case "Unresolved"    -> "#7b1113";
                         default              -> "#cc0000"; // OUT
                     };
                     setStyle("-fx-text-fill: " + color + "; "
@@ -176,7 +181,15 @@ public class MovementLogController {
                 }
             }
         });
+
+        remarksColumn.setCellValueFactory(d -> {
+            String remarks = d.getValue().getRemarks();
+            return new SimpleStringProperty(
+                    remarks != null && !remarks.isBlank() ? remarks : "-"
+            );
+        });
     }
+
 
     /* ------------------------------------------------------------------ */
     /*  LOAD & FILTER                                                       */
@@ -290,6 +303,7 @@ public class MovementLogController {
     private void setupSelectionListener() {
         movementLogsTable.getSelectionModel().selectedItemProperty()
                 .addListener((obs, old, selected) -> {
+                    timeInBtn.setDisable(selected == null);
                     if (selected != null) populateDetailCard(selected);
                     else                  clearDetailCard();
                 });
@@ -316,6 +330,7 @@ public class MovementLogController {
             case "RETURNED"      -> "-fx-text-fill: #16a34a; -fx-font-weight: bold;";
             case "RETURNED LATE" -> "-fx-text-fill: #d97706; -fx-font-weight: bold;";
             case "OVERDUE"       -> "-fx-text-fill: #ea580c; -fx-font-weight: bold;";
+            case "Unresolved"    -> "-fx-text-fill: #7b1113; -fx-font-weight: bold;";
             default              -> "-fx-text-fill: #800000; -fx-font-weight: bold;";
         });
 
@@ -345,6 +360,11 @@ public class MovementLogController {
                     log.getTimeOut(), log.getTimeIn()).toMinutes();
             long lateBy = actualMinutes - allowedMinutes;
             notes.append("\n⚠️ Employee returned late by ").append(lateBy).append(" minute(s).");
+        }
+
+        // Append remarks if present
+        if (log.getRemarks() != null && !log.getRemarks().isBlank()) {
+            notes.append("\n📝 Remarks: ").append(log.getRemarks());
         }
 
         detailNotes.setText(notes.toString());
@@ -422,13 +442,11 @@ public class MovementLogController {
     /* ------------------------------------------------------------------ */
 
     /**
-     * Exports movement logs into a real Excel workbook (.xlsx).
-     * The user can choose whether to export only the currently filtered rows
-     * or every movement log record loaded from the database.
+     * Exports the currently filtered movement logs into a real Excel workbook (.xlsx).
      */
 
     /**
-     * Exports movement logs into a clean PDF table.
+     * Exports the currently filtered movement logs into a clean PDF table.
      * The PDF uses drawn table borders instead of text separators, so it is
      * easier to read than a plain text export.
      */
