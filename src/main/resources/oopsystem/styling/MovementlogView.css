@@ -120,7 +120,7 @@
 }
 
 .btn-time-in {
-    -fx-background-color: #16a34a;
+    -fx-background-color: #800000;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-cursor: hand;
@@ -128,7 +128,7 @@
 }
 
 .btn-time-in:hover {
-    -fx-background-color: #15803d;
+    -fx-background-color: #666666;
 }
 
 .btn-time-in:disabled {
