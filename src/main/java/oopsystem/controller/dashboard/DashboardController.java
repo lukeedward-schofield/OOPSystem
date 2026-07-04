@@ -255,25 +255,4 @@ public class DashboardController implements Initializable {
         }
     }
 
-    @FXML private void goToIssuePassSlip() {
-        SceneNavigator.switchTo("passSlipIssuance/PassSlipIssuanceView");
-    }
-
-    @FXML private void goToMovementLogs() {
-        SceneNavigator.switchTo("movementLogs/MovementLogsView");
-    }
-
-    @FXML private void goToEmployeeDirectory() {
-        SceneNavigator.switchTo("employeeDirectory/EmployeeDirectoryView");
-    }
-
-    @FXML private void goToReports() {
-        SceneNavigator.switchTo("reports/ReportsView");
-    }
-
-    @FXML private void goToSettings() {}
-
-    @FXML private void goToLogout() {
-        SceneNavigator.switchTo("login/LoginView");
-    }
 }
