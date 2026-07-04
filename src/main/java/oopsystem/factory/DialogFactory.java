@@ -99,7 +99,7 @@ public class DialogFactory {
         scrollPane.setContent(technicalTextFlow);
         technicalContainer.getChildren().addAll(implicationsLabel, scrollPane);
 
-        Button cancelBtn = new Button("Cancel");
+        Button cancelBtn = new Button("Reject");
         Button approveBtn = new Button("Approve");
 
         cancelBtn.setOnAction(event -> {
